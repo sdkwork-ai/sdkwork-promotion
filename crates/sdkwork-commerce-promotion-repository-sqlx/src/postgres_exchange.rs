@@ -137,7 +137,7 @@ SELECT
     organization_id
 FROM commerce_exchange_rule
 WHERE ((tenant_id = $1::text AND organization_id = $2::text)
-       OR (tenant_id = $5::text AND (organization_id = $6::text OR organization_id IS NULL)))
+       OR (tenant_id = $5::text AND (organization_id = $6::text OR organization_id = '0')))
   AND source_asset_type = 'points'
   AND target_asset_type = 'cash'
   AND status = 'active'
@@ -158,7 +158,7 @@ SELECT
     organization_id
 FROM commerce_exchange_rule
 WHERE tenant_id = $1::text
-  AND (organization_id = $2::text OR organization_id IS NULL)
+  AND (organization_id = $2::text OR organization_id = '0')
   AND source_asset_type = 'points'
   AND target_asset_type = 'cash'
   AND status = 'active'

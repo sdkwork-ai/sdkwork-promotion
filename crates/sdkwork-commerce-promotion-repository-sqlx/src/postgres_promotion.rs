@@ -193,7 +193,7 @@ impl PostgresCommercePromotionStore {
              AND a.subject_type = c.subject_type
              AND a.subject_id = c.subject_id
             WHERE c.tenant_id = CAST($1 AS TEXT)
-              AND ((c.organization_id = CAST($2 AS TEXT)) OR (c.organization_id IS NULL AND $2 IS NULL))
+              AND ((c.organization_id = CAST($2 AS TEXT)) OR (c.organization_id IS NULL AND $2 IS NULL) OR (c.organization_id = '0' AND $2 IS NULL))
               AND c.subject_type = $3
               AND c.subject_id = CAST($4 AS TEXT)
               AND ($5 IS NULL OR c.status = $5)
@@ -235,7 +235,7 @@ impl PostgresCommercePromotionStore {
                    CAST(COALESCE(SUM(CASE WHEN status = 'active' THEN CAST(frozen_amount AS BIGINT) ELSE 0 END), 0) AS BIGINT) AS frozen_points
             FROM commerce_account
             WHERE tenant_id = CAST($1 AS TEXT)
-              AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL))
+              AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
               AND owner_user_id = CAST($3 AS TEXT)
               AND asset_type = $4
               AND currency_code = $5
@@ -270,7 +270,7 @@ impl PostgresCommercePromotionStore {
                    CAST(created_at AS TEXT) AS created_at
             FROM commerce_account_ledger_entry
             WHERE tenant_id = CAST($1 AS TEXT)
-              AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL))
+              AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
               AND owner_user_id = CAST($3 AS TEXT)
               AND asset_type = $4
             ORDER BY created_at DESC NULLS LAST, id DESC
@@ -852,7 +852,7 @@ impl PostgresCommercePromotionStore {
               ON c.tenant_id = a.tenant_id
              AND c.id = a.user_coupon_id
             WHERE a.tenant_id = CAST($1 AS TEXT)
-              AND ((a.organization_id = CAST($2 AS TEXT)) OR (a.organization_id IS NULL AND $3 IS NULL))
+              AND ((a.organization_id = CAST($2 AS TEXT)) OR (a.organization_id IS NULL AND $3 IS NULL) OR (a.organization_id = '0' AND $3 IS NULL))
               AND a.order_id = CAST($4 AS TEXT)
               AND a.user_coupon_id = CAST($5 AS TEXT)
               AND LOWER(COALESCE(a.status, '')) IN ('applied', 'settled')
@@ -1234,7 +1234,7 @@ async fn load_user_coupon_for_discount_apply(
           ON v.tenant_id = c.tenant_id
          AND v.id = c.offer_version_id
         WHERE c.tenant_id = CAST($1 AS TEXT)
-          AND ((c.organization_id = CAST($2 AS TEXT)) OR (c.organization_id IS NULL AND $3 IS NULL))
+          AND ((c.organization_id = CAST($2 AS TEXT)) OR (c.organization_id IS NULL AND $3 IS NULL) OR (c.organization_id = '0' AND $3 IS NULL))
           AND c.id = CAST($4 AS TEXT)
           AND c.owner_user_id = CAST($5 AS TEXT)
           AND c.subject_type = $6
@@ -1286,7 +1286,7 @@ async fn load_user_coupon_for_discount_reverse(
          AND a.user_coupon_id = c.id
          AND LOWER(COALESCE(a.status, '')) IN ('applied', 'settled')
         WHERE c.tenant_id = CAST($1 AS TEXT)
-          AND ((c.organization_id = CAST($2 AS TEXT)) OR (c.organization_id IS NULL AND $3 IS NULL))
+          AND ((c.organization_id = CAST($2 AS TEXT)) OR (c.organization_id IS NULL AND $3 IS NULL) OR (c.organization_id = '0' AND $3 IS NULL))
           AND c.id = CAST($4 AS TEXT)
           AND c.owner_user_id = CAST($5 AS TEXT)
           AND c.subject_type = $6
@@ -1342,7 +1342,7 @@ async fn load_order_for_discount_apply(
         SELECT order_no, currency_code, status
         FROM commerce_order
         WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL))
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL) OR (organization_id = '0' AND $3 IS NULL))
           AND id = CAST($4 AS TEXT)
           AND owner_user_id = CAST($5 AS TEXT)
           AND LOWER(COALESCE(status, '')) IN (
@@ -1725,7 +1725,7 @@ async fn load_promotion_for_redeem(
           ON v.tenant_id = pc.tenant_id
          AND v.id = s.offer_version_id
         WHERE pc.tenant_id = CAST($1 AS TEXT)
-          AND ((pc.organization_id = CAST($2 AS TEXT)) OR (pc.organization_id IS NULL AND $2 IS NULL))
+          AND ((pc.organization_id = CAST($2 AS TEXT)) OR (pc.organization_id IS NULL AND $2 IS NULL) OR (pc.organization_id = '0' AND $2 IS NULL))
           AND pc.promotion_code = CAST($3 AS TEXT)
           AND pc.status = 'active'
           AND s.status = 'active'
@@ -1798,7 +1798,7 @@ async fn ensure_promotion_can_be_redeemed(
         SELECT COUNT(1)
         FROM promotion_user_coupon
         WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL))
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
           AND subject_type = $3
           AND subject_id = CAST($4 AS TEXT)
           AND code_id = $5
@@ -1868,7 +1868,7 @@ async fn load_points_account(
         SELECT id, CAST(COALESCE(available_amount, '0') AS BIGINT) AS available_points
         FROM commerce_account
         WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL))
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
           AND owner_user_id = CAST($3 AS TEXT)
           AND asset_type = $4
           AND currency_code = $5
@@ -2355,7 +2355,7 @@ async fn load_promotion_for_claim(
           ON v.tenant_id = s.tenant_id
          AND v.id = s.offer_version_id
         WHERE o.tenant_id = CAST($1 AS TEXT)
-          AND ((o.organization_id = CAST($2 AS TEXT)) OR (o.organization_id IS NULL AND $3 IS NULL))
+          AND ((o.organization_id = CAST($2 AS TEXT)) OR (o.organization_id IS NULL AND $3 IS NULL) OR (o.organization_id = '0' AND $3 IS NULL))
           AND o.id = CAST($4 AS TEXT)
           AND o.status = 'active'
           AND o.deleted_at IS NULL
@@ -2416,7 +2416,7 @@ async fn ensure_promotion_offer_can_be_claimed(
         SELECT COUNT(1)
         FROM promotion_user_coupon
         WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL))
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL) OR (organization_id = '0' AND $3 IS NULL))
           AND subject_type = $4
           AND subject_id = CAST($5 AS TEXT)
           AND offer_id = $6
@@ -2461,7 +2461,7 @@ async fn claim_pool_code_if_available(
         SELECT id AS code_id, promotion_code AS coupon_code, expires_at AS expires_at
         FROM promotion_code
         WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL))
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL) OR (organization_id = '0' AND $3 IS NULL))
           AND stock_id = $4
           AND status = 'active'
           AND claimed_quantity = 0
@@ -2491,7 +2491,7 @@ async fn claim_pool_code_if_available(
                 SELECT 1
                 FROM promotion_code
                 WHERE tenant_id = CAST($1 AS TEXT)
-                  AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL))
+                  AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $3 IS NULL) OR (organization_id = '0' AND $3 IS NULL))
                   AND stock_id = $4
                   AND status = 'active'
             )
@@ -3623,7 +3623,7 @@ async fn load_asset_account(
         SELECT id, CAST(COALESCE(available_amount, '0') AS BIGINT) AS available_amount
         FROM commerce_account
         WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL))
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
           AND owner_user_id = CAST($3 AS TEXT)
           AND asset_type = $4
           AND currency_code = $5
