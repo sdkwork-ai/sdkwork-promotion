@@ -41,13 +41,6 @@ pub async fn assemble_api_router(
     .expect("promotion route manifest is valid")
 }
 
-pub async fn assemble_api_router_from_env() -> Result<ApiAssembly, String> {
-    let host = std::sync::Arc::new(
-        sdkwork_promotion_service_host::PromotionServiceHost::from_env().await?,
-    );
-    Ok(assemble_api_router(host).await)
-}
-
 pub async fn assemble_backend_business_router(
     host: std::sync::Arc<sdkwork_promotion_service_host::PromotionServiceHost>,
 ) -> ApiAssembly {
