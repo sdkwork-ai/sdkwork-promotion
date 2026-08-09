@@ -1903,16 +1903,17 @@ async fn insert_user_coupon(
     sqlx::query(
         r#"
         INSERT INTO promotion_user_coupon
-            (id, tenant_id, organization_id, coupon_no, stock_id, code_id, offer_id,
+            (id, uuid, tenant_id, organization_id, coupon_no, stock_id, code_id, offer_id,
              offer_version_id, subject_type, subject_id, owner_user_id, coupon_code,
              status, claimed_at, valid_from, expires_at, redeemed_at, disabled_at,
              request_no, idempotency_key, created_at, updated_at)
         VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-             'redeemed', $13, $14, $15, $16, NULL, $17, $18, $19, $20)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+             'redeemed', $14, $15, $16, $17, NULL, $18, $19, $20, $21)
         "#,
     )
     .bind(coupon_id)
+    .bind(format!("{coupon_id}-uuid"))
     .bind(&command.tenant_id)
     .bind(command.organization_id.as_deref())
     .bind(coupon_no(command))
@@ -1950,29 +1951,29 @@ async fn insert_coupon_ledger_entry(
     sqlx::query(
         r#"
         INSERT INTO promotion_coupon_ledger_entry
-            (id, tenant_id, organization_id, ledger_no, user_coupon_id, stock_id, offer_id,
+            (id, uuid, tenant_id, stock_id, user_coupon_id, offer_id,
              subject_type, subject_id, direction, quantity_delta, balance_after, business_type,
-             source_type, source_id, request_no, idempotency_key, created_at, updated_at)
+             business_no, request_no, idempotency_key, source_type, source_id,
+             trace_id, created_at)
         VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'debit', -1, $10, 'redeem',
-             $11, $12, $13, $14, $15, $16)
+            ($1, $2, $3, $4, $5, $6, $7, $8, 'debit', -1, $9, 'redeem',
+             $10, $11, $12, $13, $14, '', $15)
         "#,
     )
     .bind(coupon_ledger_entry_id)
+    .bind(format!("{coupon_ledger_entry_id}-uuid"))
     .bind(&command.tenant_id)
-    .bind(command.organization_id.as_deref())
-    .bind(coupon_ledger_no(command))
-    .bind(coupon_id)
     .bind(&promotion.stock_id)
+    .bind(coupon_id)
     .bind(&promotion.offer_id)
     .bind(USER_SUBJECT_TYPE)
     .bind(&command.owner_user_id)
     .bind(balance_after)
-    .bind(PROMOTION_USER_COUPON_SOURCE_TYPE)
-    .bind(coupon_id)
+    .bind(coupon_ledger_no(command))
     .bind(&command.request_no)
     .bind(&command.idempotency_key)
-    .bind(now)
+    .bind(PROMOTION_USER_COUPON_SOURCE_TYPE)
+    .bind(coupon_id)
     .bind(now)
     .execute(&mut **tx)
     .await
