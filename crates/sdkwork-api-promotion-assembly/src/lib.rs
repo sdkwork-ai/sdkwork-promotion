@@ -5,7 +5,7 @@
 mod bootstrap;
 mod generated;
 
-pub use bootstrap::{assemble_api_router, ApiAssembly};
+pub use bootstrap::{assemble_api_router, assemble_api_router_with_pool, ApiAssembly};
 
 use sdkwork_web_bootstrap::{ApiAssemblyContribution, ReadinessCheck};
 use sdkwork_web_core::DomainContextInjector;

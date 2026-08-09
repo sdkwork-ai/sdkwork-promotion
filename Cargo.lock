@@ -1685,6 +1685,7 @@ name = "sdkwork-api-promotion-assembly"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "sdkwork-database-sqlx",
  "sdkwork-promotion-service-host",
  "sdkwork-routes-promotion-app-api",
  "sdkwork-routes-promotion-backend-api",
