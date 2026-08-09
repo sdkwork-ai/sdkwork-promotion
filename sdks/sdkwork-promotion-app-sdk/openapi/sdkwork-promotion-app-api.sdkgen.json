@@ -1436,6 +1436,334 @@
           }
         ]
       }
+    },
+    "/app/v3/api/wallet/exchange_rate": {
+      "get": {
+        "description": "List. Reads system. Writes none. File targets none.",
+        "operationId": "wallet.exchangeRate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletExchangeRateResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Server Error"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Error response."
+          }
+        },
+        "summary": "List",
+        "tags": [
+          "promotions"
+        ],
+        "x-contract-kind": "read",
+        "x-file-targets": [],
+        "x-read-sources": [
+          "system"
+        ],
+        "x-route-scope": "public",
+        "x-sdk-domain": "promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-domain": "promotion",
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-permission": "commerce.promotions.wallet.exchangeRate.access",
+        "x-sdkwork-resource": "wallet.exchangeRate",
+        "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
+        "x-write-tables": [],
+        "security": [],
+        "x-sdkwork-auth-mode": "anonymous"
+      }
+    },
+    "/app/v3/api/wallet/points/exchanges/rules": {
+      "get": {
+        "description": "List. Reads system. Writes none. File targets none.",
+        "operationId": "points.exchangeRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointsExchangeRulesResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Server Error"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Error response."
+          }
+        },
+        "summary": "List",
+        "tags": [
+          "promotions"
+        ],
+        "x-contract-kind": "read",
+        "x-file-targets": [],
+        "x-read-sources": [
+          "system"
+        ],
+        "x-route-scope": "public",
+        "x-sdk-domain": "promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-domain": "promotion",
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-permission": "commerce.promotions.points.exchangeRules.access",
+        "x-sdkwork-resource": "points.exchangeRules",
+        "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
+        "x-write-tables": [],
+        "security": [],
+        "x-sdkwork-auth-mode": "anonymous"
+      }
+    },
+    "/app/v3/api/wallet/points": {
+      "get": {
+        "description": "List. Reads system. Writes none. File targets none.",
+        "operationId": "wallet.points.balance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletPointsBalanceResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Server Error"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Error response."
+          }
+        },
+        "summary": "List",
+        "tags": [
+          "promotions"
+        ],
+        "x-contract-kind": "read",
+        "x-file-targets": [],
+        "x-read-sources": [
+          "system"
+        ],
+        "x-route-scope": "console",
+        "x-sdk-domain": "promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-domain": "promotion",
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-permission": "commerce.promotions.wallet.points.access",
+        "x-sdkwork-resource": "wallet.points",
+        "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
+        "x-write-tables": [],
+        "security": [
+          {
+            "AccessToken": [],
+            "AuthToken": []
+          }
+        ]
+      }
+    },
+    "/app/v3/api/wallet/points/history": {
+      "get": {
+        "description": "List. Reads system. Writes none. File targets none.",
+        "operationId": "wallet.points.history",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletPointsHistoryResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Server Error"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Error response."
+          }
+        },
+        "summary": "List",
+        "tags": [
+          "promotions"
+        ],
+        "x-contract-kind": "read",
+        "x-file-targets": [],
+        "x-read-sources": [
+          "system"
+        ],
+        "x-route-scope": "console",
+        "x-sdk-domain": "promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-domain": "promotion",
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-permission": "commerce.promotions.wallet.points.history.access",
+        "x-sdkwork-resource": "wallet.points.history",
+        "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
+        "x-write-tables": [],
+        "security": [
+          {
+            "AccessToken": [],
+            "AuthToken": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -2085,6 +2413,114 @@
         ],
         "description": "Promotions codes redemptions preview result schema exposed by Cloud Router.",
         "x-operation-id": "promotions.codes.redemptions.preview"
+      },
+      "WalletExchangeRateResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Object schema used by promotion wallet exchange rate result.",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/NoData"
+                  }
+                ],
+                "description": "No business data returned by this operation."
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "description": "Result schema exposed by Cloud Router.",
+        "x-operation-id": "wallet.exchangeRate"
+      },
+      "PointsExchangeRulesResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Object schema used by promotion points exchange rules result.",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/NoData"
+                  }
+                ],
+                "description": "No business data returned by this operation."
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "description": "Result schema exposed by Cloud Router.",
+        "x-operation-id": "points.exchangeRules"
+      },
+      "WalletPointsBalanceResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Object schema used by promotion wallet points balance result.",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/NoData"
+                  }
+                ],
+                "description": "No business data returned by this operation."
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "description": "Result schema exposed by Cloud Router.",
+        "x-operation-id": "wallet.points.balance"
+      },
+      "WalletPointsHistoryResult": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "additionalProperties": false,
+            "description": "Object schema used by promotion wallet points history result.",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/NoData"
+                  }
+                ],
+                "description": "No business data returned by this operation."
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "description": "Result schema exposed by Cloud Router.",
+        "x-operation-id": "wallet.points.history"
       }
     },
     "securitySchemes": {
