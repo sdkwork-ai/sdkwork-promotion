@@ -17,7 +17,7 @@ const DEFAULT_GLOBAL_EXCHANGE_TENANT_ID: &str = "100001";
 
 /// 环境变量名：平台全局兑换规则所属的系统组织 ID。
 ///
-/// 留空时 SQL 会以 `organization_id IS NULL` 作为全局匹配条件。
+/// 留空时 SQL 会以平台哨兵组织 `organization_id = '0'` 作为全局匹配条件。
 const GLOBAL_EXCHANGE_ORGANIZATION_ID_ENV: &str = "PROMOTION_GLOBAL_EXCHANGE_ORGANIZATION_ID";
 const DEFAULT_GLOBAL_EXCHANGE_ORGANIZATION_ID: &str = "0";
 

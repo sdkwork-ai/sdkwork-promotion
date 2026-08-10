@@ -112,7 +112,7 @@ impl PostgresCommercePromotionStore {
             JOIN promotion_offer_version v
               ON v.tenant_id = c.tenant_id AND v.id = c.offer_version_id
             WHERE c.tenant_id = $1
-              AND ((c.organization_id = $2) OR (c.organization_id IS NULL AND $2 IS NULL))
+              AND ((c.organization_id = $2) OR (c.organization_id IS NULL AND $2 IS NULL) OR (c.organization_id = '0' AND $2 IS NULL))
               AND c.id = $3
               AND c.subject_type = $4
               AND c.subject_id = $5
@@ -497,7 +497,7 @@ impl PostgresCommercePromotionStore {
                    starts_at, expires_at, created_at, updated_at
             FROM promotion_member_card
             WHERE tenant_id = $1
-              AND ((organization_id = $2) OR (organization_id IS NULL AND $2 IS NULL))
+              AND ((organization_id = $2) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
               AND owner_user_id = $3
               AND id = $4
               AND status = 'active'
@@ -615,7 +615,7 @@ impl PostgresCommercePromotionStore {
                    starts_at, expires_at, created_at, updated_at
             FROM promotion_member_card
             WHERE tenant_id = $1
-              AND ((organization_id = $2) OR (organization_id IS NULL AND $2 IS NULL))
+              AND ((organization_id = $2) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
               AND owner_user_id = $3
             ORDER BY created_at DESC
             "#,
@@ -640,7 +640,7 @@ impl PostgresCommercePromotionStore {
                    starts_at, expires_at, created_at, updated_at
             FROM promotion_member_card
             WHERE tenant_id = $1
-              AND ((organization_id = $2) OR (organization_id IS NULL AND $2 IS NULL))
+              AND ((organization_id = $2) OR (organization_id IS NULL AND $2 IS NULL) OR (organization_id = '0' AND $2 IS NULL))
               AND owner_user_id = $3
               AND id = $4
             "#,
