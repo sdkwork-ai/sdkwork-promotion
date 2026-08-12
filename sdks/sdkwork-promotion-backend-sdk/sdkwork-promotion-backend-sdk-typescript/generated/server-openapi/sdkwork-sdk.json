@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "sdkwork-promotion-backend-sdk",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "language": "typescript",
   "sdkType": "backend",
   "packageName": "sdkwork-promotion-backend-sdk-generated-typescript",

@@ -1177,20 +1177,28 @@
             ]
           },
           "page": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "pageSize": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "totalItems": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "totalPages": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "hasMore": {
             "type": "boolean"
@@ -1226,36 +1234,52 @@
         ],
         "properties": {
           "activeOffers": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "totalOffers": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "totalCouponStock": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "availableCoupons": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "claimedCoupons": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "redeemedCoupons": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "activeCodes": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "discountApplications": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           }
         }
       },
@@ -1544,10 +1568,12 @@
             ]
           },
           "durationDays": {
-            "type": "integer",
+            "type": "string",
             "format": "int64",
             "minimum": 1,
-            "maximum": 366
+            "maximum": 366,
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "dailyQuota": {
             "type": "string",
@@ -1593,24 +1619,34 @@
             ]
           },
           "totalQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "availableQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "claimedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "redeemedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "lockedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "perUserLimit": {
             "type": "integer",
@@ -2116,11 +2152,10 @@
             "type": "string"
           },
           "version": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           }
         }
       },
@@ -2142,11 +2177,10 @@
         ],
         "properties": {
           "campaignId": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "offerCode": {
             "type": [
@@ -2217,11 +2251,10 @@
             "$ref": "#/components/schemas/PromotionCouponBenefitRequest"
           },
           "version": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           }
         }
       },
@@ -2246,10 +2279,12 @@
             ]
           },
           "totalQuantity": {
-            "type": "integer",
+            "type": "string",
             "format": "int64",
             "minimum": 0,
-            "description": "Total quantity. Must be positive for LIMITED stock; 0 allowed for UNLIMITED stock (statistics only)"
+            "description": "Total quantity. Must be positive for LIMITED stock; 0 allowed for UNLIMITED stock (statistics only)",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "perUserLimit": {
             "type": "integer",
@@ -2318,12 +2353,16 @@
             "type": "string"
           },
           "requestedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "generatedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "codeLength": {
             "type": "integer",
@@ -2399,10 +2438,12 @@
             "type": "string"
           },
           "requestedQuantity": {
-            "type": "integer",
+            "type": "string",
             "format": "int64",
             "minimum": 1,
-            "maximum": 5000
+            "maximum": 5000,
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           }
         }
       },
@@ -2437,16 +2478,22 @@
             "type": "string"
           },
           "requestedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "succeededQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "failedQuantity": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "status": {
             "type": "string",
@@ -2608,12 +2655,16 @@
             "type": "string"
           },
           "quantityDelta": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "balanceAfter": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true
           },
           "businessType": {
             "type": "string"

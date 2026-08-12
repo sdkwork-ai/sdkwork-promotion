@@ -7,5 +7,5 @@ export interface PromotionCampaignRequest {
   startsAt: string;
   endsAt?: string | null;
   status: string;
-  version?: string | null;
+  version?: string;
 }

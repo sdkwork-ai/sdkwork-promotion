@@ -1,7 +1,7 @@
 import type { PromotionCouponBenefitRequest } from './promotion-coupon-benefit-request';
 
 export interface PromotionOfferRequest {
-  campaignId?: string | null;
+  campaignId?: string;
   offerCode?: string | null;
   offerType: string;
   displayName: string;
@@ -19,5 +19,5 @@ export interface PromotionOfferRequest {
   maximumDiscountAmount?: string | null;
   currencyCode: string;
   couponBenefit?: PromotionCouponBenefitRequest;
-  version?: string | null;
+  version?: string;
 }

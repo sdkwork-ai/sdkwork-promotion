@@ -30,7 +30,7 @@
     "manualTransports": []
   },
   "sdkDependencies": [],
-  "ownerOnlyOperationCount": 17,
+  "ownerOnlyOperationCount": 21,
   "languages": [
     {
       "language": "typescript",

@@ -4,6 +4,55 @@ import type { ApiRequestOptions, HttpClient } from '../http/client';
 import type { NoData, PromotionsCodesRedemptionsCreateRequest, PromotionsCodesRedemptionsCreateResult, PromotionsMemberCardsConsumptionsCreateRequest } from '../types';
 
 
+export class PromotionsPointsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** List */
+  async exchangeRules(requestOptions?: ApiRequestOptions): Promise<NoData> {
+    return this.client.request<NoData>(appApiPath(`/wallet/points/exchanges/rules`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
+  }
+}
+
+export class PromotionsWalletPointsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** List */
+  async balance(requestOptions?: ApiRequestOptions): Promise<NoData> {
+    return this.client.request<NoData>(appApiPath(`/wallet/points`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+  }
+
+/** List */
+  async history(requestOptions?: ApiRequestOptions): Promise<NoData> {
+    return this.client.request<NoData>(appApiPath(`/wallet/points/history`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+  }
+}
+
+export class PromotionsWalletApi {
+  private client: HttpClient;
+  public readonly points: PromotionsWalletPointsApi;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+    this.points = new PromotionsWalletPointsApi(client);
+  }
+
+
+/** List */
+  async exchangeRate(requestOptions?: ApiRequestOptions): Promise<NoData> {
+    return this.client.request<NoData>(appApiPath(`/wallet/exchange_rate`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
+  }
+}
+
 export class PromotionsMemberCardsConsumptionsApi {
   private client: HttpClient;
 
@@ -214,6 +263,8 @@ export class PromotionsApi {
   public readonly offers: PromotionsOffersApi;
   public readonly userCoupons: PromotionsUserCouponsApi;
   public readonly memberCards: PromotionsMemberCardsApi;
+  public readonly wallet: PromotionsWalletApi;
+  public readonly points: PromotionsPointsApi;
 
   constructor(client: HttpClient) {
     this.client = client;
@@ -222,6 +273,8 @@ export class PromotionsApi {
     this.offers = new PromotionsOffersApi(client);
     this.userCoupons = new PromotionsUserCouponsApi(client);
     this.memberCards = new PromotionsMemberCardsApi(client);
+    this.wallet = new PromotionsWalletApi(client);
+    this.points = new PromotionsPointsApi(client);
   }
 
 }

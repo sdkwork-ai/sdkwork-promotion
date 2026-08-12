@@ -23,3 +23,7 @@ export type { MembercardsRetrieveResult } from './membercards-retrieve-result';
 export type { MembercardsConsumptionsCreateResult } from './membercards-consumptions-create-result';
 export type { PromotionsMemberCardsConsumptionsCreateRequest } from './promotions-member-cards-consumptions-create-request';
 export type { PromotionsCodesRedemptionsPreviewResult } from './promotions-codes-redemptions-preview-result';
+export type { WalletExchangeRateResult } from './wallet-exchange-rate-result';
+export type { PointsExchangeRulesResult } from './points-exchange-rules-result';
+export type { WalletPointsBalanceResult } from './wallet-points-balance-result';
+export type { WalletPointsHistoryResult } from './wallet-points-history-result';

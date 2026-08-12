@@ -156,13 +156,21 @@ macro_rules! response_try {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct OverviewResponse {
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     active_offers: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     total_offers: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     total_coupon_stock: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     available_coupons: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     claimed_coupons: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     redeemed_coupons: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     active_codes: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     discount_applications: i64,
 }
 impl From<PromotionOverview> for OverviewResponse {
@@ -193,6 +201,7 @@ struct CampaignResponse {
     starts_at: String,
     ends_at: Option<String>,
     status: String,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     version: i64,
     updated_at: String,
 }
@@ -238,6 +247,7 @@ struct OfferResponse {
     maximum_discount_amount: Option<String>,
     currency_code: Option<String>,
     coupon_benefit: Option<CouponBenefitResponse>,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     version: i64,
     updated_at: String,
 }
@@ -336,10 +346,15 @@ struct StockResponse {
     stock_no: String,
     stock_type: String,
     code_issue_mode: String,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     total_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     available_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     claimed_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     redeemed_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     locked_quantity: i64,
     per_user_limit: i32,
     claim_starts_at: Option<String>,
@@ -375,7 +390,9 @@ struct CodeBatchResponse {
     offer_id: String,
     batch_no: String,
     code_type: String,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     requested_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     generated_quantity: i64,
     code_length: i32,
     code_prefix: String,
@@ -445,8 +462,11 @@ struct DistributionResponse {
     offer_id: String,
     task_no: String,
     distribution_type: String,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     requested_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     succeeded_quantity: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     failed_quantity: i64,
     status: String,
     created_at: String,
@@ -516,7 +536,9 @@ struct LedgerResponse {
     offer_id: String,
     subject_id: Option<String>,
     direction: String,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     quantity_delta: i64,
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     balance_after: i64,
     business_type: String,
     business_no: String,

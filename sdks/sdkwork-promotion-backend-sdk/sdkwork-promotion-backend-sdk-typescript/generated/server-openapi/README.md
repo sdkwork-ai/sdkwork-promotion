@@ -5,20 +5,20 @@ Generated SDKWork v3 dual-token transport SDK.
 ## Installation
 
 ```bash
-npm install @sdkwork/promotion-backend-sdk
+npm install sdkwork-promotion-backend-sdk-generated-typescript
 # or
-yarn add @sdkwork/promotion-backend-sdk
+yarn add sdkwork-promotion-backend-sdk-generated-typescript
 # or
-pnpm add @sdkwork/promotion-backend-sdk
+pnpm add sdkwork-promotion-backend-sdk-generated-typescript
 ```
 
 ## Quick Start
 
 ```typescript
-import { SdkworkBackendClient } from '@sdkwork/promotion-backend-sdk';
+import { SdkworkBackendClient } from 'sdkwork-promotion-backend-sdk-generated-typescript';
 
 const client = new SdkworkBackendClient({
-  baseUrl: 'http://localhost:8080',
+  baseUrl: 'http://127.0.0.1:8080',
   timeout: 30000,
 });
 
@@ -41,10 +41,10 @@ Access-Token: <accessToken>
 ## Configuration (Non-Auth)
 
 ```typescript
-import { SdkworkBackendClient } from '@sdkwork/promotion-backend-sdk';
+import { SdkworkBackendClient } from 'sdkwork-promotion-backend-sdk-generated-typescript';
 
 const client = new SdkworkBackendClient({
-  baseUrl: 'http://localhost:8080',
+  baseUrl: 'http://127.0.0.1:8080',
   timeout: 30000, // Request timeout in ms
   headers: {      // Custom headers
     'X-Custom-Header': 'value',
@@ -68,7 +68,7 @@ const result = await client.promotions.overview.retrieve();
 ## Error Handling
 
 ```typescript
-import { SdkworkBackendClient, NetworkError, TimeoutError, AuthenticationError } from '@sdkwork/promotion-backend-sdk';
+import { SdkworkBackendClient, NetworkError, TimeoutError, AuthenticationError } from 'sdkwork-promotion-backend-sdk-generated-typescript';
 
 try {
   const result = await client.promotions.overview.retrieve();

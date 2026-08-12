@@ -5,20 +5,20 @@ Generated SDKWork v3 dual-token transport SDK.
 ## Installation
 
 ```bash
-npm install @sdkwork/promotion-app-sdk
+npm install sdkwork-promotion-app-sdk-generated-typescript
 # or
-yarn add @sdkwork/promotion-app-sdk
+yarn add sdkwork-promotion-app-sdk-generated-typescript
 # or
-pnpm add @sdkwork/promotion-app-sdk
+pnpm add sdkwork-promotion-app-sdk-generated-typescript
 ```
 
 ## Quick Start
 
 ```typescript
-import { SdkworkAppClient } from '@sdkwork/promotion-app-sdk';
+import { SdkworkAppClient } from 'sdkwork-promotion-app-sdk-generated-typescript';
 
 const client = new SdkworkAppClient({
-  baseUrl: 'http://localhost:8080',
+  baseUrl: 'http://127.0.0.1:8080',
   timeout: 30000,
 });
 
@@ -41,10 +41,10 @@ Access-Token: <accessToken>
 ## Configuration (Non-Auth)
 
 ```typescript
-import { SdkworkAppClient } from '@sdkwork/promotion-app-sdk';
+import { SdkworkAppClient } from 'sdkwork-promotion-app-sdk-generated-typescript';
 
 const client = new SdkworkAppClient({
-  baseUrl: 'http://localhost:8080',
+  baseUrl: 'http://127.0.0.1:8080',
   timeout: 30000, // Request timeout in ms
   headers: {      // Custom headers
     'X-Custom-Header': 'value',
@@ -68,7 +68,7 @@ const result = await client.promotions.offers.list();
 ## Error Handling
 
 ```typescript
-import { SdkworkAppClient, NetworkError, TimeoutError, AuthenticationError } from '@sdkwork/promotion-app-sdk';
+import { SdkworkAppClient, NetworkError, TimeoutError, AuthenticationError } from 'sdkwork-promotion-app-sdk-generated-typescript';
 
 try {
   const result = await client.promotions.offers.list();
