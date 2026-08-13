@@ -15,7 +15,7 @@ pub use promotion_router::{
     app_promotion_router_with_postgres_pool, build_app_promotion_router, CommercePromotionFuture,
     CommercePromotionStore,
 };
-pub use routes::build_promotion_app_router_with_framework;
+pub use routes::{build_promotion_app_router, build_promotion_app_router_with_framework};
 pub use web_bootstrap::wrap_router_with_web_framework_from_env;
 
 pub fn promotion_app_api_route_manifest() -> sdkwork_web_core::HttpRouteManifest {

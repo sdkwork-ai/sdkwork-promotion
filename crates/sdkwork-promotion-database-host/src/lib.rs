@@ -45,11 +45,28 @@ pub async fn bootstrap_promotion_database_from_env() -> Result<PromotionDatabase
     let pool = create_pool_from_config(config)
         .await
         .map_err(|error| format!("create promotion database pool failed: {error}"))?;
-    let app_root = std::env::var("SDKWORK_PROMOTION_APP_ROOT")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."));
+    bootstrap_promotion_database_host_with_pool(&pool).await
+}
+
+/// Bootstrap the promotion database schema and migrations using an externally
+/// provided pool.
+///
+/// This is used when promotion is integrated as a federated capability inside a
+/// host application (e.g. sdkwork-cloudrouter) that already owns a shared
+/// database pool. The function loads the promotion database module from the
+/// promotion repository's `database/` assets, runs the DDL baseline, and
+/// optionally applies migrations — all controlled by the same manifest/env
+/// options as the standalone bootstrap (mirrors
+/// `bootstrap_membership_database_host_with_pool`).
+pub async fn bootstrap_promotion_database_host_with_pool(
+    pool: &DatabasePool,
+) -> Result<PromotionDatabaseHost, String> {
+    if pool.as_postgres().is_none() {
+        return Err("promotion authoritative-server assembly requires a shared PostgreSQL pool"
+            .to_owned());
+    }
     let module = Arc::new(
-        DefaultDatabaseModule::from_app_root(&app_root)
+        database_module()
             .map_err(|error| format!("load promotion database module failed: {error}"))?,
     );
     let manifest = DatabaseManifest::from_file(module.manifest_path())
@@ -61,5 +78,8 @@ pub async fn bootstrap_promotion_database_from_env() -> Result<PromotionDatabase
     if options.auto_migrate {
         orchestrator.migrate().await.map_err(|e| format!("{e}"))?;
     }
-    Ok(PromotionDatabaseHost { pool, module })
+    Ok(PromotionDatabaseHost {
+        pool: pool.clone(),
+        module,
+    })
 }

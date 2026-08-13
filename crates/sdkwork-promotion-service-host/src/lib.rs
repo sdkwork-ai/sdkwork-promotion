@@ -4,7 +4,8 @@ use sdkwork_commerce_promotion_repository_sqlx::{
 use sdkwork_database_sqlx::DatabasePool;
 use sdkwork_commerce_promotion_service::{PromotionAdminRepositoryPort, PromotionAdminService};
 use sdkwork_promotion_database_host::{
-    bootstrap_promotion_database_from_env, PromotionDatabaseHost,
+    bootstrap_promotion_database_from_env, bootstrap_promotion_database_host_with_pool,
+    PromotionDatabaseHost,
 };
 use std::sync::Arc;
 
@@ -22,6 +23,19 @@ impl PromotionServiceHost {
 
     pub async fn from_env() -> Result<Self, String> {
         let database = bootstrap_promotion_database_from_env().await?;
+        Self::from_database(database)
+    }
+
+    /// Build the promotion service host on a shared pool owned by the
+    /// consuming host (same-origin dependency composition). Mirrors the
+    /// membership `MembershipServiceHost::from_pool` pattern; the consuming
+    /// host already owns the database lifecycle for this pool.
+    pub async fn from_pool(pool: &DatabasePool) -> Result<Self, String> {
+        let database = bootstrap_promotion_database_host_with_pool(pool).await?;
+        Self::from_database(database)
+    }
+
+    fn from_database(database: PromotionDatabaseHost) -> Result<Self, String> {
         // 服务端权威持久化仅支持 PostgreSQL（DATABASE_SPEC：authoritative-server）
         let DatabasePool::Postgres(pool, _) = database.pool() else {
             return Err("promotion server requires a PostgreSQL database pool".to_owned());
