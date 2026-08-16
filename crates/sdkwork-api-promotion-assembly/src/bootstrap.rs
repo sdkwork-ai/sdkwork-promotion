@@ -7,9 +7,7 @@
 //! contribution with its process-shared PostgreSQL pool.
 
 use sdkwork_database_sqlx::DatabasePool;
-use sdkwork_web_bootstrap::{
-    ApiAssemblyContribution, DatabasePoolReadinessCheck, ReadinessCheck,
-};
+use sdkwork_web_bootstrap::{ApiAssemblyContribution, DatabasePoolReadinessCheck, ReadinessCheck};
 use sdkwork_web_core::{DomainContextInjector, HttpRouteManifest};
 use std::sync::Arc;
 
@@ -27,6 +25,7 @@ fn combined_route_manifest() -> HttpRouteManifest {
 pub async fn assemble_api_router(
     host: Arc<sdkwork_promotion_service_host::PromotionServiceHost>,
 ) -> ApiAssembly {
+    host.spawn_member_card_lifecycle_worker();
     let mut router = axum::Router::new();
     router = router.merge(sdkwork_routes_promotion_app_api::gateway_mount(host.clone()).await);
     router = router.merge(sdkwork_routes_promotion_backend_api::gateway_mount(host.clone()).await);
@@ -36,7 +35,9 @@ pub async fn assemble_api_router(
         router,
         combined_route_manifest(),
         Vec::<Arc<dyn DomainContextInjector>>::new(),
-        Arc::new(sdkwork_web_bootstrap::AlwaysReady) as Arc<dyn ReadinessCheck>,
+        Arc::new(DatabasePoolReadinessCheck::new(
+            host.database_pool().clone(),
+        )) as Arc<dyn ReadinessCheck>,
     )
     .expect("promotion route manifest is valid")
 }
@@ -45,17 +46,7 @@ pub async fn assemble_api_router(
 /// the platform cloud gateway can share its process-wide PostgreSQL pool.
 pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAssembly, String> {
     let host = std::sync::Arc::new(
-        sdkwork_promotion_service_host::PromotionServiceHost::from_env().await?,
+        sdkwork_promotion_service_host::PromotionServiceHost::from_pool(&pool).await?,
     );
-    let mut router = axum::Router::new();
-    router = router.merge(sdkwork_routes_promotion_app_api::gateway_mount(host.clone()).await);
-    router = router.merge(sdkwork_routes_promotion_backend_api::gateway_mount(host).await);
-    ApiAssemblyContribution::from_manifest(
-        "sdkwork-promotion",
-        "SDKWork Promotion API",
-        router,
-        combined_route_manifest(),
-        Vec::<Arc<dyn DomainContextInjector>>::new(),
-        Arc::new(DatabasePoolReadinessCheck::new(pool)),
-    )
+    Ok(assemble_api_router(host).await)
 }

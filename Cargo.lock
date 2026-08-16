@@ -1701,7 +1701,7 @@ dependencies = [
  "axum",
  "http",
  "sdkwork-api-promotion-assembly",
- "sdkwork-promotion-service-host",
+ "sdkwork-iam-web-adapter",
  "sdkwork-web-bootstrap",
  "tokio",
  "tower-http 0.6.11",

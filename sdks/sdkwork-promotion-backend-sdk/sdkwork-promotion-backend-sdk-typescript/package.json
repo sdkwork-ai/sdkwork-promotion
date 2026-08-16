@@ -22,5 +22,9 @@
     "src",
     "generated/server-openapi/dist",
     "generated/server-openapi/src"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

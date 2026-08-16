@@ -3,10 +3,11 @@
 //! 该二进制仅在 building-block 拓扑下独立运行；生产网关路由由 commerce/app 拓扑拥有。
 //! CORS 策略默认拒绝跨域，必须通过 `PROMOTION_CORS_ORIGINS` 环境变量显式配置允许的来源。
 
-use sdkwork_api_promotion_assembly::assemble_api_router;
-use sdkwork_promotion_service_host::PromotionServiceHost;
-use sdkwork_web_bootstrap::{service_router, ServiceRouterConfig};
-use std::sync::Arc;
+use sdkwork_api_promotion_assembly::assemble_api_router_from_env;
+use sdkwork_iam_web_adapter::{
+    build_web_framework_builder, iam_web_request_context_resolver_from_env,
+};
+use sdkwork_web_bootstrap::{infra_public_path_prefixes, ComposedApiAssembly};
 use tower_http::trace::TraceLayer;
 
 /// 环境变量名：允许的跨域来源列表，逗号分隔。
@@ -16,12 +17,19 @@ use tower_http::trace::TraceLayer;
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
-    let host = Arc::new(PromotionServiceHost::new().await);
-    // 会员卡生命周期 worker：排期激活 + 到期过期（间隔由 PROMOTION_LIFECYCLE_SWEEP_INTERVAL_SECONDS 配置）
-    host.spawn_member_card_lifecycle_worker();
-    let business = assemble_api_router(host).await.router;
-    let business = business.layer(TraceLayer::new_for_http());
-    let app = service_router(business, ServiceRouterConfig::default().with_always_ready());
+    let assembly = assemble_api_router_from_env()
+        .await
+        .expect("promotion API assembly failed");
+    let framework = build_web_framework_builder(
+        iam_web_request_context_resolver_from_env().await,
+        assembly.route_manifest.clone(),
+        infra_public_path_prefixes(),
+    );
+    let app = ComposedApiAssembly::try_compose("SDKWork Promotion API", vec![assembly])
+        .expect("promotion API composition failed")
+        .into_hosted(framework)
+        .router
+        .layer(TraceLayer::new_for_http());
     let addr = std::env::var("PROMOTION_API_BIND").unwrap_or_else(|_| "0.0.0.0:18097".to_owned());
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
