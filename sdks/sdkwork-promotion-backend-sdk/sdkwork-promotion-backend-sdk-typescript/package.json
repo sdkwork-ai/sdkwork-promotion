@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/promotion-backend-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SDKWork Promotion backend SDK composed consumer facade.",
   "type": "module",
   "private": false,
@@ -15,8 +15,8 @@
     }
   },
   "dependencies": {
-    "@sdkwork/sdk-common": "workspace:*",
-    "@sdkwork/utils": "workspace:*"
+    "@sdkwork/sdk-common": "^1.0.5",
+    "@sdkwork/utils": "^0.11.0"
   },
   "files": [
     "src",
