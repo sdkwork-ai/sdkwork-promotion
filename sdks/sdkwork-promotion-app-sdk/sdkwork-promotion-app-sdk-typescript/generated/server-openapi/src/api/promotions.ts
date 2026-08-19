@@ -14,7 +14,7 @@ export class PromotionsPointsApi {
 
 /** List */
   async exchangeRules(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/wallet/points/exchanges/rules`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/wallet/points/exchanges/rules`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -28,12 +28,12 @@ export class PromotionsWalletPointsApi {
 
 /** List */
   async balance(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/wallet/points`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/wallet/points`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 
 /** List */
   async history(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/wallet/points/history`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/wallet/points/history`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -49,7 +49,7 @@ export class PromotionsWalletApi {
 
 /** List */
   async exchangeRate(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/wallet/exchange_rate`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/wallet/exchange_rate`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -62,7 +62,7 @@ export class PromotionsMemberCardsConsumptionsApi {
 
 
 async create(cardId: string | number, body: PromotionsMemberCardsConsumptionsCreateRequest, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/member_cards/${serializePathParameter(cardId, { name: 'cardId', style: 'simple', explode: false })}/consumptions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/member_cards/${serializePathParameter(cardId, { name: 'cardId', style: 'simple', explode: false })}/consumptions`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -77,11 +77,11 @@ export class PromotionsMemberCardsApi {
 
 
 async list(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/member_cards`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/member_cards`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 
 async retrieve(cardId: string | number, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/member_cards/${serializePathParameter(cardId, { name: 'cardId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/member_cards/${serializePathParameter(cardId, { name: 'cardId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -95,12 +95,12 @@ export class PromotionsUserCouponsWalletApi {
 
 /** List */
   async list(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons/wallet`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons/wallet`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 
 /** Retrieve */
   async retrieve(userCouponId: string, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons/wallet/${serializePathParameter(userCouponId, { name: 'userCouponId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons/wallet/${serializePathParameter(userCouponId, { name: 'userCouponId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -114,7 +114,7 @@ export class PromotionsUserCouponsClaimsApi {
 
 /** Create */
   async create(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/user_coupon_claims`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/user_coupon_claims`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -132,12 +132,12 @@ export class PromotionsUserCouponsApi {
 
 /** List */
   async list(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 
 /** Retrieve */
   async retrieve(userCouponId: string, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons/${serializePathParameter(userCouponId, { name: 'userCouponId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/user_coupons/${serializePathParameter(userCouponId, { name: 'userCouponId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -151,12 +151,12 @@ export class PromotionsOffersApi {
 
 /** List */
   async list(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/offers`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/offers`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
   }
 
 /** Retrieve */
   async retrieve(offerId: string, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -170,7 +170,7 @@ export class PromotionsDiscountApplicationsSettlementsApi {
 
 /** Settle */
   async create(applicationId: string, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/settlements`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/settlements`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -184,7 +184,7 @@ export class PromotionsDiscountApplicationsReleasesApi {
 
 /** Release */
   async create(applicationId: string, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/releases`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/releases`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -198,7 +198,7 @@ export class PromotionsDiscountApplicationsReversalsApi {
 
 /** Create */
   async create(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/reversals`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/reversals`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -218,12 +218,12 @@ export class PromotionsDiscountApplicationsApi {
 
 /** Create */
   async create(requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'data' });
   }
 
 /** Rollback */
   async rollback(applicationId: string, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/rollback`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/rollback`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'data' });
   }
 }
 
@@ -237,27 +237,24 @@ export class PromotionsCodesRedemptionsApi {
 
 /** Create */
   async create(body: PromotionsCodesRedemptionsCreateRequest, requestOptions?: ApiRequestOptions): Promise<PromotionsCodesRedemptionsCreateResult> {
-    return this.client.request<PromotionsCodesRedemptionsCreateResult>(appApiPath(`/promotions/codes/redemptions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
+    return this.client.request<PromotionsCodesRedemptionsCreateResult>(appApiPath(`/promotions/codes/redemptions`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
   }
 
 async preview(body: PromotionsCodesRedemptionsCreateRequest, requestOptions?: ApiRequestOptions): Promise<NoData> {
-    return this.client.request<NoData>(appApiPath(`/promotions/codes/redemptions/preview`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
+    return this.client.request<NoData>(appApiPath(`/promotions/codes/redemptions/preview`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'data' });
   }
 }
 
 export class PromotionsCodesApi {
-  private client: HttpClient;
   public readonly redemptions: PromotionsCodesRedemptionsApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.redemptions = new PromotionsCodesRedemptionsApi(client);
   }
 
 }
 
 export class PromotionsApi {
-  private client: HttpClient;
   public readonly codes: PromotionsCodesApi;
   public readonly discountApplications: PromotionsDiscountApplicationsApi;
   public readonly offers: PromotionsOffersApi;
@@ -267,7 +264,6 @@ export class PromotionsApi {
   public readonly points: PromotionsPointsApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.codes = new PromotionsCodesApi(client);
     this.discountApplications = new PromotionsDiscountApplicationsApi(client);
     this.offers = new PromotionsOffersApi(client);
@@ -283,13 +279,7 @@ export function createPromotionsApi(client: HttpClient): PromotionsApi {
   return new PromotionsApi(client);
 }
 
-function appendQueryString(path: string, rawQueryString: string): string {
-  const query = rawQueryString.replace(/^\?+/, '');
-  if (!query) {
-    return path;
-  }
-  return path.includes('?') ? `${path}&${query}` : `${path}?${query}`;
-}
+
 
 interface PathParameterSpec {
   name: string;

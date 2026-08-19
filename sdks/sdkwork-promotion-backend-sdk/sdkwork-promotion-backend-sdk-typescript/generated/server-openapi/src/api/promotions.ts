@@ -27,7 +27,7 @@ export class PromotionsCouponLedgerEntriesApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionCouponLedgerEntry[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/coupon_ledger_entries`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionCouponLedgerEntry[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/coupon_ledger_entries`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -54,7 +54,7 @@ export class PromotionsUserCouponsApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionUserCoupon[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/user_coupons`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionUserCoupon[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/user_coupons`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -81,12 +81,12 @@ export class PromotionsDistributionTasksApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionDistributionTask[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/distribution_tasks`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionDistributionTask[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/distribution_tasks`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** distributionTasks.create */
   async create(body: PromotionDistributionRequest, requestOptions?: ApiRequestOptions): Promise<PromotionDistributionTask> {
-    return this.client.request<PromotionDistributionTask>(backendApiPath(`/promotions/distribution_tasks`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionDistributionTask>(backendApiPath(`/promotions/distribution_tasks`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -115,12 +115,12 @@ export class PromotionsCodeBatchesApi {
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
       { name: 'stock_id', value: params?.stockId, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionCodeBatch[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/code_batches`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionCodeBatch[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/code_batches`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** codeBatches.create */
   async create(body: PromotionCodeBatchRequest, requestOptions?: ApiRequestOptions): Promise<PromotionCodeBatch> {
-    return this.client.request<PromotionCodeBatch>(backendApiPath(`/promotions/code_batches`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionCodeBatch>(backendApiPath(`/promotions/code_batches`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -147,27 +147,27 @@ export class PromotionsCampaignsApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionCampaign[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/campaigns`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionCampaign[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/campaigns`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** campaigns.create */
   async create(body: PromotionCampaignRequest, requestOptions?: ApiRequestOptions): Promise<PromotionCampaign> {
-    return this.client.request<PromotionCampaign>(backendApiPath(`/promotions/campaigns`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionCampaign>(backendApiPath(`/promotions/campaigns`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** campaigns.retrieve */
   async retrieve(campaignId: string, requestOptions?: ApiRequestOptions): Promise<PromotionCampaign> {
-    return this.client.request<PromotionCampaign>(backendApiPath(`/promotions/campaigns/${serializePathParameter(campaignId, { name: 'campaignId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionCampaign>(backendApiPath(`/promotions/campaigns/${serializePathParameter(campaignId, { name: 'campaignId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** campaigns.update */
   async update(campaignId: string, body: PromotionCampaignRequest, requestOptions?: ApiRequestOptions): Promise<PromotionCampaign> {
-    return this.client.request<PromotionCampaign>(backendApiPath(`/promotions/campaigns/${serializePathParameter(campaignId, { name: 'campaignId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionCampaign>(backendApiPath(`/promotions/campaigns/${serializePathParameter(campaignId, { name: 'campaignId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** campaigns.delete */
   async delete(campaignId: string, requestOptions?: ApiRequestOptions): Promise<void> {
-    return this.client.request<void>(backendApiPath(`/promotions/campaigns/${serializePathParameter(campaignId, { name: 'campaignId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+    return this.client.request<void>(backendApiPath(`/promotions/campaigns/${serializePathParameter(campaignId, { name: 'campaignId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'DELETE' as any });
   }
 }
 
@@ -194,7 +194,7 @@ export class PromotionsDiscountApplicationsApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: DiscountApplication[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/discount_applications`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: DiscountApplication[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/discount_applications`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -223,7 +223,7 @@ export class PromotionsCodesApi {
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
       { name: 'code_batch_id', value: params?.codeBatchId, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionCode[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/codes`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionCode[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/codes`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -250,12 +250,12 @@ export class PromotionsCouponStocksApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: CouponStock[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/coupon_stocks`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: CouponStock[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/coupon_stocks`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** couponStocks.create */
   async create(body: CouponStockRequest, requestOptions?: ApiRequestOptions): Promise<CouponStock> {
-    return this.client.request<CouponStock>(backendApiPath(`/promotions/coupon_stocks`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<CouponStock>(backendApiPath(`/promotions/coupon_stocks`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -269,7 +269,7 @@ export class PromotionsOffersStatusApi {
 
 /** Enable or disable a promotion offer */
   async update(offerId: string, body: UpdatePromotionStatusRequest, requestOptions?: ApiRequestOptions): Promise<{ accepted: boolean; resourceId?: string; status?: string; }> {
-    return this.client.request<{ accepted: boolean; resourceId?: string; status?: string; }>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}/status`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'command' });
+    return this.client.request<{ accepted: boolean; resourceId?: string; status?: string; }>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}/status`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'command' });
   }
 }
 
@@ -298,27 +298,27 @@ export class PromotionsOffersApi {
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<{ items: PromotionOffer[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/offers`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+    return this.client.request<{ items: PromotionOffer[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/offers`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** offers.create */
   async create(body: PromotionOfferRequest, requestOptions?: ApiRequestOptions): Promise<PromotionOffer> {
-    return this.client.request<PromotionOffer>(backendApiPath(`/promotions/offers`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionOffer>(backendApiPath(`/promotions/offers`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** offers.retrieve */
   async retrieve(offerId: string, requestOptions?: ApiRequestOptions): Promise<PromotionOffer> {
-    return this.client.request<PromotionOffer>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionOffer>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** offers.update */
   async update(offerId: string, body: PromotionOfferRequest, requestOptions?: ApiRequestOptions): Promise<PromotionOffer> {
-    return this.client.request<PromotionOffer>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionOffer>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** offers.delete */
   async delete(offerId: string, requestOptions?: ApiRequestOptions): Promise<void> {
-    return this.client.request<void>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+    return this.client.request<void>(backendApiPath(`/promotions/offers/${serializePathParameter(offerId, { name: 'offerId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'DELETE' as any });
   }
 }
 
@@ -332,12 +332,11 @@ export class PromotionsOverviewApi {
 
 /** Retrieve the promotion operations overview */
   async retrieve(requestOptions?: ApiRequestOptions): Promise<PromotionOverview> {
-    return this.client.request<PromotionOverview>(backendApiPath(`/promotions/overview`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
+    return this.client.request<PromotionOverview>(backendApiPath(`/promotions/overview`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class PromotionsApi {
-  private client: HttpClient;
   public readonly overview: PromotionsOverviewApi;
   public readonly offers: PromotionsOffersApi;
   public readonly couponStocks: PromotionsCouponStocksApi;
@@ -350,7 +349,6 @@ export class PromotionsApi {
   public readonly couponLedgerEntries: PromotionsCouponLedgerEntriesApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.overview = new PromotionsOverviewApi(client);
     this.offers = new PromotionsOffersApi(client);
     this.couponStocks = new PromotionsCouponStocksApi(client);

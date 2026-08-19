@@ -9,10 +9,10 @@ use sdkwork_commerce_promotion_repository_sqlx::{
 use sdkwork_commerce_promotion_service::{
     ApplyPromotionDiscountCommand, ClaimPromotionUserCouponCommand, ConsumeMemberCardCommand,
     GrantMemberCardCommand, MemberCardConsumptionOutcome, MemberCardListQuery, PointsBalance,
-    PromotionCodeRedemptionPreview,
     PointsBalanceQuery, PointsHistoryItem, PointsHistoryQuery, PromotionCodeRedemptionCommand,
-    PromotionCodeRedemptionOutcome, PromotionMemberCard, PromotionUserCouponItem,
-    PromotionUserCouponListQuery, RetrieveMemberCardQuery, ReversePromotionDiscountCommand,
+    PromotionCodeRedemptionOutcome, PromotionCodeRedemptionPreview, PromotionMemberCard,
+    PromotionUserCouponItem, PromotionUserCouponListQuery, RetrieveMemberCardQuery,
+    ReversePromotionDiscountCommand,
 };
 use sdkwork_contract_service::CommerceServiceError;
 use sdkwork_iam_context_service::IamAppContext;
@@ -171,8 +171,6 @@ struct PromotionCodeRedemptionOutcomeResponse {
     member_card_no: Option<String>,
 }
 
-
-
 impl CommercePromotionStore for PostgresCommercePromotionStore {
     fn list_promotion_user_coupons<'a>(
         &'a self,
@@ -258,8 +256,6 @@ impl CommercePromotionStore for PostgresCommercePromotionStore {
         Box::pin(async move { self.retrieve_member_card(query).await })
     }
 }
-
-
 
 pub fn app_promotion_router_with_postgres_pool(pool: PgPool) -> Router {
     build_app_promotion_router(Arc::new(PostgresCommercePromotionStore::new(pool.clone()))).merge(
@@ -562,7 +558,6 @@ async fn reverse_promotion_discount(
     }
 }
 
-
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct PromotionCodeRedemptionPreviewResponse {
@@ -576,7 +571,9 @@ struct PromotionCodeRedemptionPreviewResponse {
     expires_at: Option<String>,
 }
 
-fn map_redemption_preview(value: PromotionCodeRedemptionPreview) -> PromotionCodeRedemptionPreviewResponse {
+fn map_redemption_preview(
+    value: PromotionCodeRedemptionPreview,
+) -> PromotionCodeRedemptionPreviewResponse {
     PromotionCodeRedemptionPreviewResponse {
         benefit_kind: value.benefit_kind,
         credited_amount: value.credited_amount,
@@ -844,7 +841,6 @@ fn map_promotion_code_redemption_outcome(
     }
 }
 
-
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MemberCardResponse {
@@ -907,7 +903,9 @@ struct MemberCardConsumptionResponse {
     balance: i64,
 }
 
-fn map_member_card_consumption(value: MemberCardConsumptionOutcome) -> MemberCardConsumptionResponse {
+fn map_member_card_consumption(
+    value: MemberCardConsumptionOutcome,
+) -> MemberCardConsumptionResponse {
     MemberCardConsumptionResponse {
         accepted: value.accepted,
         replayed: value.replayed,
@@ -1000,7 +998,12 @@ async fn consume_member_card(
     };
     let amount: i64 = match body.amount.trim().parse() {
         Ok(value) if value > 0 => value,
-        _ => return crate::api_response::validation(ctx, "member card consumption amount must be a positive integer"),
+        _ => {
+            return crate::api_response::validation(
+                ctx,
+                "member card consumption amount must be a positive integer",
+            )
+        }
     };
     let command = match ConsumeMemberCardCommand::new(
         &subject.tenant_id,

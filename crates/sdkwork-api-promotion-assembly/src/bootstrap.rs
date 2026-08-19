@@ -27,8 +27,15 @@ pub async fn assemble_api_router(
 ) -> ApiAssembly {
     host.spawn_member_card_lifecycle_worker();
     let mut router = axum::Router::new();
-    router = router.merge(sdkwork_routes_promotion_app_api::gateway_mount(host.clone()).await);
-    router = router.merge(sdkwork_routes_promotion_backend_api::gateway_mount(host.clone()).await);
+    // Business-only mounts without a nested Web Framework layer — the
+    // consuming host (platform cloud gateway or standalone into_hosted)
+    // installs framework/security once on the combined router
+    // (API_ASSEMBLY_SPEC §4/§6.1). Nested wraps without this manifest
+    // silently 401 Public catalogue routes.
+    router =
+        router.merge(sdkwork_routes_promotion_app_api::gateway_mount_business(host.clone()).await);
+    router = router
+        .merge(sdkwork_routes_promotion_backend_api::gateway_mount_business(host.clone()).await);
     ApiAssemblyContribution::from_manifest(
         "sdkwork-promotion",
         "SDKWork Promotion API",

@@ -77,8 +77,6 @@ struct AppCommercePointsExchangeRateResponse {
     rate: String,
 }
 
-
-
 impl CommerceExchangeStore for PostgresCommerceExchangeStore {
     fn list_exchange_rules<'a>(
         &'a self,
@@ -115,8 +113,6 @@ impl AppCommerceExchangeApiResult<()> {
     }
 }
 
-
-
 pub fn app_exchange_router_with_postgres_pool(pool: PgPool) -> Router {
     build_app_exchange_router(Arc::new(PostgresCommerceExchangeStore::new(pool)))
 }
@@ -138,12 +134,11 @@ async fn points_exchange_rate(
     State(state): State<AppExchangeState>,
     runtime_context: Option<Extension<IamAppContext>>,
 ) -> Response {
-    let subject = match resolve_subject(runtime_context) {
-        Ok(subject) => subject,
-        Err(response) => return response,
-    };
+    // Public catalogue: anonymous callers read the platform global rate.
+    // Optional IAM context is used only when DualTokenOrAnonymous hosts inject
+    // a signed-in subject; Public hosts never require credentials.
     let query = AppCommerceExchangeRuleQuery {
-        subject: Some(subject),
+        subject: optional_subject(runtime_context),
         source_asset_type: Some(POINTS_ASSET_TYPE.to_owned()),
         target_asset_type: Some(CASH_ASSET_TYPE.to_owned()),
     };
@@ -167,10 +162,7 @@ async fn points_exchange_rules(
     Query(params): Query<ExchangeRulesQueryRequest>,
     runtime_context: Option<Extension<IamAppContext>>,
 ) -> Response {
-    let subject = match resolve_subject(runtime_context) {
-        Ok(subject) => subject,
-        Err(response) => return response,
-    };
+    let subject = optional_subject(runtime_context);
     let source_asset_type = match normalize_optional_asset_type(params.source_asset_type.as_deref())
     {
         Ok(value) => value,
@@ -185,7 +177,7 @@ async fn points_exchange_rules(
     match state
         .store
         .list_exchange_rules(AppCommerceExchangeRuleQuery {
-            subject: Some(subject),
+            subject,
             source_asset_type,
             target_asset_type,
         })
@@ -199,16 +191,16 @@ async fn points_exchange_rules(
     }
 }
 
-fn resolve_subject(
+fn optional_subject(
     runtime_context: Option<Extension<IamAppContext>>,
-) -> Result<AppCommerceSubject, Response> {
-    let subject =
-        app_runtime_subject_from_extension(runtime_context).map_err(unauthorized_response)?;
-    Ok(AppCommerceSubject {
-        tenant_id: subject.tenant_id,
-        organization_id: subject.organization_id,
-        user_id: subject.user_id,
-    })
+) -> Option<AppCommerceSubject> {
+    app_runtime_subject_from_extension(runtime_context)
+        .ok()
+        .map(|subject| AppCommerceSubject {
+            tenant_id: subject.tenant_id,
+            organization_id: subject.organization_id,
+            user_id: subject.user_id,
+        })
 }
 
 fn normalize_optional_asset_type(value: Option<&str>) -> Result<Option<String>, String> {
