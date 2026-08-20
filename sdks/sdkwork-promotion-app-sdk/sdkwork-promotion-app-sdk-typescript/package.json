@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/promotion-app-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SDKWork Promotion App API composed consumer facade.",
   "type": "module",
   "private": false,
