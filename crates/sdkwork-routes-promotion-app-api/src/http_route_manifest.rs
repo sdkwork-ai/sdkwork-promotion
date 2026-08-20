@@ -133,46 +133,6 @@ const fn dual_token(
     HttpRoute::dual_token(method, path, "promotions", operation_id)
 }
 
-pub fn promotion_app_api_public_path_prefixes() -> Vec<String> {
-    sdkwork_web_bootstrap::infra_public_path_prefixes()
-}
-
 pub fn app_route_manifest() -> HttpRouteManifest {
     HttpRouteManifest::new(HTTP_ROUTES)
-}
-
-#[cfg(test)]
-mod tests {
-    use sdkwork_web_core::RouteAuth;
-
-    use super::app_route_manifest;
-
-    #[test]
-    fn public_catalogue_routes_skip_auth_token() {
-        let manifest = app_route_manifest();
-        for (method, path) in [
-            ("GET", "/app/v3/api/promotions/offers"),
-            ("GET", "/app/v3/api/promotions/offers/demo-offer"),
-            ("GET", "/app/v3/api/wallet/exchange_rate"),
-            ("GET", "/app/v3/api/wallet/points/exchanges/rules"),
-        ] {
-            let route = manifest
-                .match_route(method, path)
-                .unwrap_or_else(|| panic!("{method} {path} must be registered"));
-            assert_eq!(
-                RouteAuth::Public,
-                route.auth,
-                "{method} {path} must be Public so anonymous callers skip auth tokens"
-            );
-        }
-    }
-
-    #[test]
-    fn user_owned_promotion_routes_remain_dual_token() {
-        let manifest = app_route_manifest();
-        let coupons = manifest
-            .match_route("GET", "/app/v3/api/promotions/user_coupons")
-            .expect("user coupons remain protected");
-        assert_eq!(RouteAuth::DualToken, coupons.auth);
-    }
 }

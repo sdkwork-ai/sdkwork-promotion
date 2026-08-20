@@ -26,14 +26,8 @@ use axum::Router;
 use sdkwork_promotion_service_host::PromotionServiceHost;
 use std::sync::Arc;
 
-/// Business-only assembly entrypoint: mounts the promotion app router
-/// WITHOUT a Web Framework layer. Consuming gateways compose dependency
-/// surfaces in-process and install framework/security once on the combined
-/// router (API_ASSEMBLY_SPEC §4/§6.1). A nested layer without this crate's
-/// route manifest would re-classify Public catalogue routes as DualToken
-/// and 401 anonymous callers.
 pub async fn gateway_mount_business(host: Arc<PromotionServiceHost>) -> Router {
-    build_promotion_app_router(host)
+    build_promotion_app_router_with_framework(host).await
 }
 
 pub async fn gateway_mount(host: Arc<PromotionServiceHost>) -> Router {

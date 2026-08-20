@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/promotion-app-sdk",
-  "version": "0.1.2",
+  "version": "0.1.0",
   "description": "SDKWork Promotion App API composed consumer facade.",
   "type": "module",
   "private": false,
@@ -15,8 +15,8 @@
     }
   },
   "dependencies": {
-    "@sdkwork/sdk-common": "^1.0.5",
-    "@sdkwork/utils": "^0.11.0"
+    "@sdkwork/sdk-common": "workspace:*",
+    "@sdkwork/utils": "workspace:*"
   },
   "publishConfig": {
     "access": "public",
