@@ -1,0 +1,5 @@
+specVersion = 1
+kind = "sdkwork.webserver.server"
+id = "promotion"
+enabled = false
+description = "sdkwork-promotion webserver placeholder (align-application-deploy-layout)"
