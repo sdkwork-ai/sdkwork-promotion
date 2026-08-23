@@ -1,6 +1,5 @@
 version: 2
 defaultProfile: cloud.production
-
 profiles:
   cloud.development:
     deployment:
@@ -21,13 +20,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion-dev.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: cloud.development
         env: etc/topology/cloud.development.env
-
   cloud.production:
     deployment:
       deploymentProfile: cloud
@@ -47,13 +65,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: cloud.production
         env: etc/topology/cloud.production.env
-
   cloud.staging:
     deployment:
       deploymentProfile: cloud
@@ -73,13 +110,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion-staging.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: cloud.staging
         env: etc/topology/cloud.staging.env
-
   cloud.test:
     deployment:
       deploymentProfile: cloud
@@ -99,13 +155,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion-test.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: cloud.test
         env: etc/topology/cloud.test.env
-
   standalone.development:
     deployment:
       deploymentProfile: standalone
@@ -125,13 +200,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion-dev.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: standalone.development
         env: etc/topology/standalone.development.env
-
   standalone.production:
     deployment:
       deploymentProfile: standalone
@@ -151,13 +245,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: standalone.production
         env: etc/topology/standalone.production.env
-
   standalone.staging:
     deployment:
       deploymentProfile: standalone
@@ -177,13 +290,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: promotion-staging.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: standalone.staging
         env: etc/topology/standalone.staging.env
-
   standalone.test:
     deployment:
       deploymentProfile: standalone
@@ -201,6 +333,26 @@ profiles:
     expose:
       - domain: promotion-test.sdkwork.com
         tls: sdkwork.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.dtupay.cn
+        tls: dtupay.cn
         mode: web+api
         web: adaptive
     packages: []

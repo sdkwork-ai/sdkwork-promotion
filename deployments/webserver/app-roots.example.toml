@@ -1,0 +1,17 @@
+# Adaptive Web roots for sdkwork-promotion (copy into runtime config when in-process).
+# Docker entrypoint generates /etc/sdkwork/webserver/module-app-roots/sdkwork-promotion.toml
+
+[app_roots]
+tablet_surface = "pc"
+
+[app_roots.pc_static_by_environment]
+development = "apps/sdkwork-promotion-pc/dist/dev"
+test = "apps/sdkwork-promotion-pc/dist/test"
+staging = "apps/sdkwork-promotion-pc/dist/staging"
+production = "apps/sdkwork-promotion-pc/dist/prod"
+
+[app_roots.static_fallback_by_environment]
+development = "deployments/webserver/static"
+test = "deployments/webserver/static"
+staging = "deployments/webserver/static"
+production = "deployments/webserver/static"

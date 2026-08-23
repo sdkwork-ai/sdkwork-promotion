@@ -1,1 +1,11 @@
 profile = "standalone"
+
+[http]
+
+[[http.upstream]]
+name = "gateway"
+
+[[http.upstream.target]]
+address = "127.0.0.1:3900"
+weight = 1
+
