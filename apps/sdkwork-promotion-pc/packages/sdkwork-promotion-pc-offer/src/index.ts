@@ -6,5 +6,4 @@ export * from "./offer-copy.ts";
 export * from "./offer-intl.tsx";
 export * from "./offer-service.ts";
 export * from "./pages/OfferPage.tsx";
-export * from "./pages/OfferPage";
 export * from "./routes.ts";

@@ -8,8 +8,4 @@ export * from "./components/coupon-detail-drawer.tsx";
 export * from "./components/coupon-redeem-dialog.tsx";
 export * from "./components/coupon-stat-grid.tsx";
 export * from "./pages/CouponPage.tsx";
-export * from "./components/coupon-stat-grid";
-export * from "./components/coupon-redeem-dialog";
-export * from "./components/coupon-detail-drawer";
-export * from "./pages/CouponPage";
 export * from "./routes.ts";
