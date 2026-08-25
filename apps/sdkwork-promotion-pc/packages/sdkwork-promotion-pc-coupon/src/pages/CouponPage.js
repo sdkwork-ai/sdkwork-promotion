@@ -1,0 +1,48 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useEffect } from "react";
+import { Button, LoadingBlock, StatusNotice, } from "@sdkwork/ui-pc-react";
+import { useSdkworkCouponController, useSdkworkCouponControllerState, } from "../coupon-controller";
+import { SdkworkCouponIntlProvider, useSdkworkCouponIntl, } from "../coupon-intl";
+import { resolveSdkworkCouponStatusTone } from "../coupon-appearance";
+import { SdkworkCouponDetailDrawer } from "../components/coupon-detail-drawer";
+import { SdkworkCouponRedeemDialog } from "../components/coupon-redeem-dialog";
+function SdkworkCouponPageContent({ controller: controllerProp, }) {
+    const { copy, formatCurrencyCny, locale, formatPointCost, formatRemainingDays, formatStatus, } = useSdkworkCouponIntl();
+    const controller = useSdkworkCouponController(controllerProp, {
+        locale,
+        messages: copy,
+    });
+    const state = useSdkworkCouponControllerState(controller);
+    useEffect(() => {
+        if (!state.isBootstrapped && !state.isLoading && !state.lastError) {
+            void controller.bootstrap().catch(() => undefined);
+        }
+    }, [controller, state.isBootstrapped, state.isLoading, state.lastError]);
+    const stats = [
+        {
+            label: copy.stats.availableCoupons,
+            value: state.dashboard.userDigest.availableCoupons,
+        },
+        {
+            label: copy.stats.expiringSoon,
+            value: state.dashboard.userDigest.expiringSoonCoupons,
+        },
+        {
+            label: copy.page.highestDiscountLabel,
+            value: formatCurrencyCny(state.dashboard.userDigest.highestDiscountAmountCny),
+        },
+        {
+            label: copy.stats.claimableOffers,
+            value: state.dashboard.catalogDigest.claimableCoupons,
+        },
+    ];
+    return (_jsxs("div", { className: "flex h-full min-h-0 flex-col overflow-hidden", children: [_jsx("div", { className: "flex min-h-0 flex-1 flex-col px-4 py-4 sm:px-5 sm:py-5", children: _jsxs("div", { className: "mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-4", children: [_jsxs("section", { className: "shrink-0 rounded-[var(--sdk-radius-panel)] border border-[var(--sdk-color-border-default)] bg-[var(--sdk-color-surface-panel)]", children: [_jsxs("div", { className: "flex flex-col gap-4 border-b border-[var(--sdk-color-border-subtle)] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6", children: [_jsxs("div", { children: [_jsx("h1", { className: "text-lg font-semibold tracking-tight text-[var(--sdk-color-text-primary)]", children: copy.page.title }), _jsx("p", { className: "mt-1 max-w-xl text-sm text-[var(--sdk-color-text-secondary)]", children: copy.page.description })] }), _jsxs("div", { className: "flex shrink-0 flex-wrap gap-2", children: [_jsx(Button, { onClick: () => controller.openRedeemDialog(), type: "button", children: copy.actions.redeemCode }), _jsx(Button, { onClick: () => void controller.refresh().catch(() => { }), type: "button", variant: "outline", children: copy.actions.refreshInventory })] })] }), _jsx("dl", { className: "grid grid-cols-2 divide-[var(--sdk-color-border-subtle)] sm:grid-cols-4 sm:divide-x", children: stats.map((stat) => (_jsxs("div", { className: "px-5 py-4", children: [_jsx("dt", { className: "text-xs text-[var(--sdk-color-text-muted)]", children: stat.label }), _jsx("dd", { className: "mt-1 text-lg font-semibold tabular-nums text-[var(--sdk-color-text-primary)]", children: stat.value })] }, stat.label))) })] }), state.isLoading && !state.isBootstrapped ? (_jsx("div", { className: "shrink-0", children: _jsx(LoadingBlock, { label: copy.page.loading }) })) : null, state.lastError && !state.isMutating ? (_jsx("div", { className: "shrink-0", children: _jsx(StatusNotice, { title: copy.page.errorTitle, tone: "danger", children: state.lastError }) })) : null, _jsxs("section", { className: "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--sdk-radius-panel)] border border-[var(--sdk-color-border-default)] bg-[var(--sdk-color-surface-panel)]", children: [_jsxs("div", { className: "flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--sdk-color-border-subtle)] px-5 py-4 sm:px-6", children: [_jsx("div", { children: _jsx("h2", { className: "text-sm font-semibold text-[var(--sdk-color-text-primary)]", children: copy.page.inventoryTitle }) }), _jsxs("div", { className: "flex flex-wrap gap-2", children: [_jsx(Button, { onClick: () => controller.setTab("discover"), type: "button", variant: state.activeTab === "discover" ? "secondary" : "outline", children: copy.actions.discover }), _jsx(Button, { onClick: () => controller.setTab("my"), type: "button", variant: state.activeTab === "my" ? "secondary" : "outline", children: copy.actions.myCoupons }), _jsx(Button, { onClick: () => controller.setTab("history"), type: "button", variant: state.activeTab === "history" ? "secondary" : "outline", children: copy.actions.history })] })] }), _jsx("div", { className: "min-h-0 flex-1 overflow-y-auto", children: state.activeTab === "discover" ? (state.visibleCatalogCoupons.length === 0 ? (_jsx("div", { className: "flex min-h-full items-center justify-center px-5 py-10 text-sm text-[var(--sdk-color-text-secondary)] sm:px-6", children: copy.inventory.emptyDiscover })) : (_jsx("div", { className: "divide-y divide-[var(--sdk-color-border-subtle)]", children: state.visibleCatalogCoupons.map((coupon) => (_jsx("article", { className: "px-5 py-4 sm:px-6", children: _jsxs("div", { className: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between", children: [_jsxs("div", { className: "min-w-0 flex-1", children: [_jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [_jsx("h3", { className: "text-sm font-medium text-[var(--sdk-color-text-primary)]", children: coupon.name }), _jsx("span", { className: "rounded-full border border-[var(--sdk-color-border-default)] px-2 py-0.5 text-xs text-[var(--sdk-color-text-secondary)]", "data-sdk-coupon-status": coupon.status, "data-sdk-tone": resolveSdkworkCouponStatusTone(coupon.status), children: formatStatus(coupon.status) })] }), _jsx("p", { className: "mt-1 text-sm text-[var(--sdk-color-text-secondary)]", children: coupon.description || copy.inventory.catalogFallbackDescription }), _jsx("p", { className: "mt-2 text-lg font-semibold tabular-nums text-[var(--sdk-color-text-primary)]", children: formatCurrencyCny(coupon.amountCny) }), _jsxs("p", { className: "mt-1 text-xs text-[var(--sdk-color-text-muted)]", children: [copy.inventory.pointCostLabel, ": ", formatPointCost(coupon.pointCost)] })] }), _jsxs("div", { className: "flex shrink-0 flex-wrap gap-2", children: [_jsx(Button, { onClick: () => void controller.openCatalogDetail(coupon.id).catch(() => { }), type: "button", variant: "outline", children: copy.actions.viewDetails }), coupon.canReceive ? (_jsx(Button, { onClick: () => void controller.receiveCoupon(coupon.id).catch(() => { }), type: "button", children: copy.actions.claimCoupon })) : null, coupon.pointsExchange ? (_jsx(Button, { onClick: () => void controller.exchangeCouponByPoints({ couponId: coupon.id }).catch(() => { }), type: "button", variant: "outline", children: copy.actions.exchangePoints })) : null] })] }) }, coupon.id))) }))) : (state.visibleUserCoupons.length === 0 ? (_jsx("div", { className: "flex min-h-full items-center justify-center px-5 py-10 text-sm text-[var(--sdk-color-text-secondary)] sm:px-6", children: copy.inventory.emptyVisible })) : (_jsx("div", { className: "divide-y divide-[var(--sdk-color-border-subtle)]", children: state.visibleUserCoupons.map((coupon) => (_jsx("article", { className: "px-5 py-4 sm:px-6", children: _jsxs("div", { className: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between", children: [_jsxs("div", { className: "min-w-0 flex-1", children: [_jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [_jsx("h3", { className: "text-sm font-medium text-[var(--sdk-color-text-primary)]", children: coupon.name }), _jsx("span", { className: "rounded-full border border-[var(--sdk-color-border-default)] px-2 py-0.5 text-xs text-[var(--sdk-color-text-secondary)]", "data-sdk-coupon-status": coupon.status, "data-sdk-tone": resolveSdkworkCouponStatusTone(coupon.status), children: formatStatus(coupon.status) })] }), _jsxs("p", { className: "mt-1 text-sm text-[var(--sdk-color-text-secondary)]", children: [copy.inventory.codeLabel, ": ", coupon.code || copy.common.emptyValue] }), _jsx("p", { className: "mt-2 text-lg font-semibold tabular-nums text-[var(--sdk-color-text-primary)]", children: formatCurrencyCny(coupon.amountCny) }), _jsxs("p", { className: "mt-1 text-xs text-[var(--sdk-color-text-muted)]", children: [copy.inventory.remainingDaysLabel, ": ", formatRemainingDays(coupon.remainingDays)] })] }), _jsx("div", { className: "flex shrink-0 gap-2", children: _jsx(Button, { onClick: () => void controller.openUserCouponDetail(coupon.userCouponId ?? coupon.id).catch(() => { }), type: "button", variant: "outline", children: copy.actions.viewDetails }) })] }) }, coupon.id))) }))) })] })] }) }), _jsx(SdkworkCouponRedeemDialog, { controller: controller }), _jsx(SdkworkCouponDetailDrawer, { controller: controller })] }));
+}
+export function SdkworkCouponPage({ locale, messages, ...props }) {
+    const content = _jsx(SdkworkCouponPageContent, { ...props });
+    if (locale || messages) {
+        return (_jsx(SdkworkCouponIntlProvider, { locale: locale, messages: messages, children: content }));
+    }
+    return content;
+}
+//# sourceMappingURL=CouponPage.js.map

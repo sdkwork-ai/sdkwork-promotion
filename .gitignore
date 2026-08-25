@@ -36,6 +36,12 @@ Thumbs.db
 config/*.local.toml
 apps/*/config/*/*.local.toml
 
+# Generated SDK compiled outputs (only .ts sources are tracked)
+**/generated/**/*.js
+**/generated/**/*.d.ts
+**/generated/**/*.js.map
+**/generated/**/*.d.ts.map
+
 # SDKWork local workspace state
 .sdkwork/local/
 .sdkwork/tmp/
