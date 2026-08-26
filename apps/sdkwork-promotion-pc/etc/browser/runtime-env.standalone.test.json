@@ -1,0 +1,12 @@
+{
+  "environment": "test",
+  "deploymentProfile": "standalone",
+  "profileId": "standalone.test",
+  "runtimeTarget": "browser",
+  "browserOriginMode": "same-origin",
+  "appApiBaseUrl": "/",
+  "backendApiBaseUrl": "/",
+  "driveAppApiBaseUrl": "/",
+  "appbaseAppApiBaseUrl": "/",
+  "deployAppApiBaseUrl": "/"
+}

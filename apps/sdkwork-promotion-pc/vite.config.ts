@@ -1,4 +1,12 @@
 import { resolveBrowserDistOutDir } from '../../../../sdkwork-specs/tools/browser-dist-layout.mjs';
+function resolveViteEnvironment(mode: string | undefined, processEnv = process.env) {
+  const profileMatch = /^(standalone|cloud)\.(development|test|staging|production)$/u.exec(mode ?? '');
+  return profileMatch?.[2]
+    ?? (['development', 'test', 'staging', 'production'].includes(processEnv.SDKWORK_ENVIRONMENT ?? '')
+      ? (processEnv.SDKWORK_ENVIRONMENT ?? 'production')
+      : 'production');
+}
+
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
