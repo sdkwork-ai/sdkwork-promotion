@@ -43,6 +43,8 @@ packages:
   - "../sdkwork-search/apps/sdkwork-search-pc/packages/sdkwork-search-pc-react"
   - "../sdkwork-ui/sdkwork-ui-mobile-react"
 
+  - "../sdkwork-membership/apps/sdkwork-membership-pc/packages/sdkwork-membership-pc-core"
+  - "../sdkwork-payment/apps/sdkwork-payment-pc/packages/sdkwork-payment-pc-core"
 catalog:
   "@monaco-editor/react": ^4.7.0
   "@playwright/test": ^1.52.0
@@ -152,3 +154,5 @@ catalog:
   vite-plugin-dts: ^4.5.4
   vitest: ^4.1.8
   zustand: ^5.0.12
+
+
