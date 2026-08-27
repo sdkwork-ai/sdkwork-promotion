@@ -20,6 +20,9 @@ tmp/
 .DS_Store
 Thumbs.db
 
+# Runtime-generated env config (not tracked)
+**/public/runtime-env.json
+
 .env
 .env.*
 !.env.example
