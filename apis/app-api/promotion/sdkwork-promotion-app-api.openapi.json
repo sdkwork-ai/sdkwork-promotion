@@ -33,7 +33,7 @@
     "/app/v3/api/promotions/codes/redemptions": {
       "post": {
         "description": "Create. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.codes.redemptions.create",
+        "operationId": "codes.redemptions.create",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -130,7 +130,7 @@
     "/app/v3/api/promotions/discount_applications": {
       "post": {
         "description": "Create. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.discountApplications.create",
+        "operationId": "discountApplications.create",
         "parameters": [],
         "responses": {
           "201": {
@@ -216,7 +216,7 @@
     "/app/v3/api/promotions/discount_applications/reversals": {
       "post": {
         "description": "Create. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.discountApplications.reversals.create",
+        "operationId": "discountApplications.reversals.create",
         "parameters": [],
         "responses": {
           "201": {
@@ -302,7 +302,7 @@
     "/app/v3/api/promotions/discount_applications/{applicationId}/releases": {
       "post": {
         "description": "Release. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.discountApplications.releases.create",
+        "operationId": "discountApplications.releases.create",
         "parameters": [
           {
             "description": "Application id path parameter.",
@@ -398,7 +398,7 @@
     "/app/v3/api/promotions/discount_applications/{applicationId}/rollback": {
       "post": {
         "description": "Rollback. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.discountApplications.rollback",
+        "operationId": "discountApplications.rollback",
         "parameters": [
           {
             "description": "Application id path parameter.",
@@ -494,7 +494,7 @@
     "/app/v3/api/promotions/discount_applications/{applicationId}/settlements": {
       "post": {
         "description": "Settle. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.discountApplications.settlements.create",
+        "operationId": "discountApplications.settlements.create",
         "parameters": [
           {
             "description": "Application id path parameter.",
@@ -590,7 +590,7 @@
     "/app/v3/api/promotions/offers": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "promotions.offers.list",
+        "operationId": "offers.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -670,7 +670,7 @@
     "/app/v3/api/promotions/offers/{offerId}": {
       "get": {
         "description": "Retrieve. Reads system. Writes none. File targets none.",
-        "operationId": "promotions.offers.retrieve",
+        "operationId": "offers.retrieve",
         "parameters": [
           {
             "description": "Offer id path parameter.",
@@ -760,7 +760,7 @@
     "/app/v3/api/promotions/user_coupon_claims": {
       "post": {
         "description": "Create. Reads system. Writes ops_audit_log. File targets none.",
-        "operationId": "promotions.userCoupons.claims.create",
+        "operationId": "userCoupons.claims.create",
         "parameters": [],
         "responses": {
           "201": {
@@ -846,7 +846,7 @@
     "/app/v3/api/promotions/user_coupons": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "promotions.userCoupons.list",
+        "operationId": "userCoupons.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -930,7 +930,7 @@
     "/app/v3/api/promotions/user_coupons/wallet": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "promotions.userCoupons.wallet.list",
+        "operationId": "userCoupons.wallet.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -1014,7 +1014,7 @@
     "/app/v3/api/promotions/user_coupons/wallet/{userCouponId}": {
       "get": {
         "description": "Retrieve. Reads system. Writes none. File targets none.",
-        "operationId": "promotions.userCoupons.wallet.retrieve",
+        "operationId": "userCoupons.wallet.retrieve",
         "parameters": [
           {
             "description": "User coupon id path parameter.",
@@ -1108,7 +1108,7 @@
     "/app/v3/api/promotions/user_coupons/{userCouponId}": {
       "get": {
         "description": "Retrieve. Reads system. Writes none. File targets none.",
-        "operationId": "promotions.userCoupons.retrieve",
+        "operationId": "userCoupons.retrieve",
         "parameters": [
           {
             "description": "User coupon id path parameter.",
@@ -1202,7 +1202,7 @@
     "/app/v3/api/promotions/member_cards": {
       "get": {
         "description": "Member card operation.",
-        "operationId": "promotions.memberCards.list",
+        "operationId": "memberCards.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -1256,7 +1256,7 @@
     "/app/v3/api/promotions/member_cards/{cardId}": {
       "get": {
         "description": "Member card operation.",
-        "operationId": "promotions.memberCards.retrieve",
+        "operationId": "memberCards.retrieve",
         "parameters": [],
         "responses": {
           "200": {
@@ -1310,7 +1310,7 @@
     "/app/v3/api/promotions/member_cards/{cardId}/consumptions": {
       "post": {
         "description": "Member card operation.",
-        "operationId": "promotions.memberCards.consumptions.create",
+        "operationId": "memberCards.consumptions.create",
         "parameters": [],
         "responses": {
           "201": {
@@ -1375,7 +1375,7 @@
     "/app/v3/api/promotions/codes/redemptions/preview": {
       "post": {
         "description": "Preview promotion code redemption without consuming stock or recording.",
-        "operationId": "promotions.codes.redemptions.preview",
+        "operationId": "codes.redemptions.preview",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -1440,7 +1440,7 @@
     "/app/v3/api/wallet/exchange_rate": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "wallet.exchangeRate",
+        "operationId": "wallet.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -1520,7 +1520,7 @@
     "/app/v3/api/wallet/points/exchanges/rules": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "points.exchangeRules",
+        "operationId": "points.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -1600,7 +1600,7 @@
     "/app/v3/api/wallet/points": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "wallet.points.balance",
+        "operationId": "wallet.points.list",
         "parameters": [],
         "responses": {
           "200": {
@@ -1684,7 +1684,7 @@
     "/app/v3/api/wallet/points/history": {
       "get": {
         "description": "List. Reads system. Writes none. File targets none.",
-        "operationId": "wallet.points.history",
+        "operationId": "wallet.points.list",
         "parameters": [],
         "responses": {
           "200": {

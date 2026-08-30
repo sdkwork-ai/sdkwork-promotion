@@ -1,281 +1,294 @@
 {
- "schemaVersion": 3,
- "kind": "sdkwork.app",
- "app": {
-  "key": "sdkwork-promotion-pc",
-  "name": "SDKWork Promotion PC",
-  "displayName": "SDKWork Promotion PC",
-  "description": "SDKWork Promotion PC SDKWork application (coupon marketing center).",
-  "vendor": "SDKWork",
-  "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-promotion-pc",
-  "supportUrl": "https://sdkwork.com/support",
-  "privacyPolicyUrl": "https://sdkwork.com/privacy",
-  "termsOfServiceUrl": "https://sdkwork.com/terms",
-  "iconUrl": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/assets/icon-1024.png",
-  "appType": "APP_REACT",
-  "versionSource": "package.json",
-  "identifiers": {
-   "packageName": null,
-   "bundleId": null,
-   "desktopAppId": "com.sdkwork.sdkwork.promotion.pc.desktop",
-   "containerImage": "registry.sdkwork.com/apps/sdkwork-promotion-pc"
-  }
- },
- "backend": {
-  "profileKey": "backend-root-admin",
-  "ownerMode": "tenant",
-  "grantMode": "current",
-  "platform": "WEB",
-  "appId": "sdkwork-promotion",
-  "organizationId": "0",
-  "tenantId": "100001",
-  "accessTokenPermissionScope": [
-   "commerce.marketing.read",
-   "commerce.marketing.manage",
-   "promotion.app.read",
-   "iam.users.read"
-  ]
- },
- "runtime": {
-  "family": "web",
-  "framework": "react",
-  "runtimes": [
-   "WEB",
-   "BROWSER"
-  ],
-  "deliveryModes": [
-   "WEB_URL",
-   "DIRECT_DOWNLOAD"
-  ],
-  "defaultPlatform": "WEB",
-  "defaultArchitecture": "x64",
-  "supportedDeploymentProfiles": [
-   "cloud",
-   "standalone"
-  ],
-  "defaultDeploymentProfile": "cloud"
- },
- "media": {
-  "icons": {
-   "primary": {
-    "id": "sdkwork-promotion-pc-primary-icon",
-    "type": "ICON",
-    "purpose": "PRIMARY",
-    "url": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/assets/icon-1024.png",
-    "platform": "APP",
-    "locale": "en-US",
-    "width": 1024,
-    "height": 1024,
-    "format": "PNG",
-    "fileSizeBytes": 524288,
-    "alphaChannel": false,
-    "sortOrder": 0,
-    "enabled": true,
-    "metadata": {
-     "generatedPlaceholder": true
+  "schemaVersion": 3,
+  "kind": "sdkwork.app",
+  "app": {
+    "key": "sdkwork-promotion",
+    "name": "SDKWork Promotion PC",
+    "displayName": "SDKWork Promotion PC",
+    "description": "SDKWork Promotion PC SDKWork application (coupon marketing center).",
+    "vendor": "SDKWork",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-promotion-pc",
+    "supportUrl": "https://sdkwork.com/support",
+    "privacyPolicyUrl": "https://sdkwork.com/privacy",
+    "termsOfServiceUrl": "https://sdkwork.com/terms",
+    "iconUrl": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/assets/icon-1024.png",
+    "appType": "APP_REACT",
+    "versionSource": "package.json",
+    "identifiers": {
+      "packageName": null,
+      "bundleId": null,
+      "desktopAppId": "com.sdkwork.sdkwork.promotion.pc.desktop",
+      "containerImage": "registry.sdkwork.com/apps/sdkwork-promotion-pc"
     }
-   },
-   "platform": [],
-   "metadata": {
-    "generatedBy": "apps/scripts/initialize-sdkwork-app-standard-v3.mjs"
-   }
   },
-  "screenshots": [
-   {
-    "id": "sdkwork-cloudrouter-pc-web-screenshot",
-    "type": "SCREENSHOT",
-    "purpose": "CATALOG_SCREENSHOT",
-    "url": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/media/web-screenshot.png",
+  "backend": {
+    "profileKey": "backend-root-admin",
+    "ownerMode": "tenant",
+    "grantMode": "current",
     "platform": "WEB",
-    "locale": "en-US",
-    "deviceClass": "BROWSER",
-    "displayType": "WEB_DESKTOP",
-    "width": 1920,
-    "height": 1080,
-    "format": "PNG",
-    "fileSizeBytes": 1048576,
-    "alphaChannel": false,
-    "caption": "SDKWork CloudRouter PC product screenshot.",
-    "sortOrder": 0,
-    "enabled": true,
-    "metadata": {
-     "generatedPlaceholder": true,
-     "altText": "SDKWork CloudRouter PC app screenshot."
-    }
-   }
-  ],
-  "previews": [
-   {
-    "id": "sdkwork-cloudrouter-pc-catalog-preview",
-    "type": "PREVIEW_IMAGE",
-    "purpose": "CATALOG_PREVIEW",
-    "url": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/media/preview-cover.png",
-    "platform": "WEB",
-    "locale": "en-US",
-    "width": 1600,
-    "height": 900,
-    "format": "PNG",
-    "fileSizeBytes": 786432,
-    "alphaChannel": false,
-    "caption": "SDKWork CloudRouter PC preview.",
-    "sortOrder": 0,
-    "enabled": true,
-    "metadata": {
-     "generatedPlaceholder": true,
-     "altText": "SDKWork CloudRouter PC preview cover."
-    }
-   }
-  ],
-  "metadata": {
-   "assetVersion": "0.0.0",
-   "defaultLocale": "en-US"
-  }
- },
- "publish": {
-  "status": "ACTIVE",
-  "installSkill": {
-   "name": "sdkwork-skills-app"
+    "appId": "sdkwork-promotion",
+    "organizationId": "0",
+    "tenantId": "100001",
+    "accessTokenPermissionScope": [
+      "commerce.marketing.read",
+      "commerce.marketing.manage",
+      "promotion.app.read",
+      "iam.users.read"
+    ]
   },
-  "platforms": [
-   "WEB"
-  ],
-  "installPlatforms": [
-   "WEB"
-  ],
-  "defaultPackageId": "web-universal-cloud-browser-zip",
-  "storeUrl": "https://sdkwork.com/apps/sdkwork-cloudrouter-pc",
-  "stores": [],
-  "config": {
-   "workspaceRoot": ".",
-   "framework": "react",
-   "managedBy": "apps/scripts/initialize-sdkwork-app-standard-v3.mjs"
-  }
- },
- "artifacts": {
-  "installConfig": {
-   "defaultPackageId": "web-universal-cloud-browser-zip",
-   "installCommand": "sdkwork install sdkwork-cloudrouter-pc",
-   "launchCommand": "sdkwork open sdkwork-cloudrouter-pc",
-   "uninstallCommand": "sdkwork uninstall sdkwork-cloudrouter-pc",
-   "packages": [
-    {
-     "id": "web-universal-cloud-browser-zip",
-     "name": "SDKWork CloudRouter PC Web Bundle",
-     "sourceType": "WEB_URL",
-     "packageFormat": "ZIP",
-     "platform": "WEB",
-     "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/web.zip",
-     "enabled": true,
-     "metadata": {},
-     "checksumAlgorithm": "SHA-256",
-     "checksum": "57a967c857a967c857a967c857a967c857a967c857a967c857a967c857a967c8",
-     "architecture": "universal",
-     "deploymentProfile": "cloud",
-     "runtimeTarget": "browser"
-    },
-    {
-     "id": "windows-x64-standalone-desktop-zip",
-     "name": "SDKWork CloudRouter PC Windows Bundle",
-     "sourceType": "BINARY_URL",
-     "packageFormat": "ZIP",
-     "platform": "DESKTOP_WINDOWS",
-     "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/windows/x64/app.zip",
-     "enabled": true,
-     "metadata": {},
-     "architecture": "x64",
-     "checksumAlgorithm": "SHA-256",
-     "checksum": "d341259cd341259cd341259cd341259cd341259cd341259cd341259cd341259c",
-     "deploymentProfile": "standalone",
-     "runtimeTarget": "desktop"
-    },
-    {
-     "id": "macos-universal-standalone-desktop-dmg",
-     "name": "SDKWork CloudRouter PC macOS Bundle",
-     "sourceType": "BINARY_URL",
-     "packageFormat": "DMG",
-     "platform": "DESKTOP_MACOS",
-     "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/macos/universal/app.dmg",
-     "enabled": true,
-     "metadata": {},
-     "architecture": "universal",
-     "checksumAlgorithm": "SHA-256",
-     "checksum": "f98710ccf98710ccf98710ccf98710ccf98710ccf98710ccf98710ccf98710cc",
-     "deploymentProfile": "standalone",
-     "runtimeTarget": "desktop"
-    },
-    {
-     "id": "linux-x64-standalone-desktop-appimage",
-     "name": "SDKWork CloudRouter PC Linux Bundle",
-     "sourceType": "BINARY_URL",
-     "packageFormat": "APPIMAGE",
-     "platform": "DESKTOP_LINUX",
-     "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/linux/generic/x64/app.AppImage",
-     "enabled": true,
-     "metadata": {
-      "linux": {
-       "distro": "generic"
-      }
-     },
-     "architecture": "x64",
-     "checksumAlgorithm": "SHA-256",
-     "checksum": "f97cc64df97cc64df97cc64df97cc64df97cc64df97cc64df97cc64df97cc64d",
-     "deploymentProfile": "standalone",
-     "runtimeTarget": "desktop"
-    }
-   ],
-   "metadata": {
-    "workspaceRoot": ".",
+  "runtime": {
+    "family": "web",
     "framework": "react",
-    "packageManager": "pnpm@10.33.0",
-    "migratedFromLegacyConfig": true
-   }
+    "runtimes": [
+      "WEB",
+      "BROWSER"
+    ],
+    "deliveryModes": [
+      "WEB_URL",
+      "DIRECT_DOWNLOAD"
+    ],
+    "defaultPlatform": "WEB",
+    "defaultArchitecture": "x64",
+    "supportedDeploymentProfiles": [
+      "cloud",
+      "standalone"
+    ],
+    "defaultDeploymentProfile": "cloud"
+  },
+  "media": {
+    "icons": {
+      "primary": {
+        "id": "sdkwork-promotion-pc-primary-icon",
+        "type": "ICON",
+        "purpose": "PRIMARY",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/assets/icon-1024.png",
+        "platform": "APP",
+        "locale": "en-US",
+        "width": 1024,
+        "height": 1024,
+        "format": "PNG",
+        "fileSizeBytes": 524288,
+        "alphaChannel": false,
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true
+        }
+      },
+      "platform": [],
+      "metadata": {
+        "generatedPlaceholder": true
+      }
+    },
+    "screenshots": [
+      {
+        "id": "sdkwork-promotion-pc-web-screenshot",
+        "type": "SCREENSHOT",
+        "purpose": "CATALOG_SCREENSHOT",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/media/web-screenshot.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "deviceClass": "BROWSER",
+        "displayType": "WEB_DESKTOP",
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "fileSizeBytes": 1048576,
+        "alphaChannel": false,
+        "caption": "SDKWork Promotion PC product screenshot.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Promotion PC app screenshot."
+        }
+      }
+    ],
+    "previews": [
+      {
+        "id": "sdkwork-promotion-pc-catalog-preview",
+        "type": "PREVIEW_IMAGE",
+        "purpose": "CATALOG_PREVIEW",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-promotion-pc/media/preview-cover.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "width": 1600,
+        "height": 900,
+        "format": "PNG",
+        "fileSizeBytes": 786432,
+        "alphaChannel": false,
+        "caption": "SDKWork Promotion PC preview.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Promotion PC preview cover."
+        }
+      }
+    ],
+    "metadata": {
+      "assetVersion": "0.1.0",
+      "defaultLocale": "en-US"
+    }
+  },
+  "publish": {
+    "status": "ACTIVE",
+    "installSkill": {
+      "name": "sdkwork-skills-app"
+    },
+    "platforms": [
+      "WEB"
+    ],
+    "installPlatforms": [
+      "WEB"
+    ],
+    "defaultPackageId": "web-universal-cloud-browser-zip",
+    "storeUrl": "https://sdkwork.com/apps/sdkwork-cloudrouter-pc",
+    "stores": [],
+    "config": {
+      "workspaceRoot": ".",
+      "framework": "react",
+      "managedBy": "apps/scripts/initialize-sdkwork-app-standard-v3.mjs"
+    }
+  },
+  "artifacts": {
+    "installConfig": {
+      "defaultPackageId": "web-universal-cloud-browser-zip",
+      "installCommand": "sdkwork install sdkwork-promotion-pc",
+      "launchCommand": "sdkwork open sdkwork-promotion-pc",
+      "uninstallCommand": "sdkwork uninstall sdkwork-promotion-pc",
+      "packages": [
+        {
+          "id": "web-universal-cloud-browser-zip",
+          "name": "SDKWork CloudRouter PC Web Bundle",
+          "sourceType": "WEB_URL",
+          "packageFormat": "ZIP",
+          "platform": "WEB",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/web.zip",
+          "enabled": true,
+          "metadata": {},
+          "checksumAlgorithm": "SHA-256",
+          "checksum": "57a967c857a967c857a967c857a967c857a967c857a967c857a967c857a967c8",
+          "architecture": "universal",
+          "deploymentProfile": "cloud",
+          "runtimeTarget": "browser",
+          "profileBinding": "fixed",
+          "targetPlatform": "web",
+          "clientArchitecture": "pc-web"
+        },
+        {
+          "id": "windows-x64-standalone-desktop-zip",
+          "name": "SDKWork CloudRouter PC Windows Bundle",
+          "sourceType": "BINARY_URL",
+          "packageFormat": "ZIP",
+          "platform": "DESKTOP_WINDOWS",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/windows/x64/app.zip",
+          "enabled": true,
+          "metadata": {},
+          "architecture": "x64",
+          "checksumAlgorithm": "SHA-256",
+          "checksum": "d341259cd341259cd341259cd341259cd341259cd341259cd341259cd341259c",
+          "deploymentProfile": "standalone",
+          "runtimeTarget": "desktop",
+          "profileBinding": "fixed",
+          "targetPlatform": "windows",
+          "clientArchitecture": "tauri"
+        },
+        {
+          "id": "macos-universal-standalone-desktop-dmg",
+          "name": "SDKWork CloudRouter PC macOS Bundle",
+          "sourceType": "BINARY_URL",
+          "packageFormat": "DMG",
+          "platform": "DESKTOP_MACOS",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/macos/universal/app.dmg",
+          "enabled": true,
+          "metadata": {},
+          "architecture": "universal",
+          "checksumAlgorithm": "SHA-256",
+          "checksum": "f98710ccf98710ccf98710ccf98710ccf98710ccf98710ccf98710ccf98710cc",
+          "deploymentProfile": "standalone",
+          "runtimeTarget": "desktop",
+          "profileBinding": "fixed",
+          "targetPlatform": "macos",
+          "clientArchitecture": "tauri"
+        },
+        {
+          "id": "linux-x64-standalone-desktop-appimage",
+          "name": "SDKWork CloudRouter PC Linux Bundle",
+          "sourceType": "BINARY_URL",
+          "packageFormat": "APPIMAGE",
+          "platform": "DESKTOP_LINUX",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-cloudrouter-pc/STABLE/0.0.0/linux/generic/x64/app.AppImage",
+          "enabled": true,
+          "metadata": {
+            "linux": {
+              "distro": "generic"
+            }
+          },
+          "architecture": "x64",
+          "checksumAlgorithm": "SHA-256",
+          "checksum": "f97cc64df97cc64df97cc64df97cc64df97cc64df97cc64df97cc64df97cc64d",
+          "deploymentProfile": "standalone",
+          "runtimeTarget": "desktop",
+          "profileBinding": "fixed",
+          "targetPlatform": "linux",
+          "clientArchitecture": "tauri"
+        }
+      ],
+      "metadata": {
+        "workspaceRoot": ".",
+        "framework": "react",
+        "packageManager": "pnpm@10.33.0",
+        "migratedFromLegacyConfig": true
+      }
+    }
+  },
+  "release": {
+    "currentVersion": "0.0.0",
+    "defaultChannel": "STABLE",
+    "latest": {
+      "STABLE": "0.0.0"
+    },
+    "notes": [
+      {
+        "version": "0.0.0",
+        "releaseChannel": "STABLE",
+        "title": "SDKWork Promotion PC 0.0.0",
+        "summary": "SDKWork Promotion PC initialized standard release.",
+        "content": "Initial SDKWork App Standard v3 manifest for SDKWork Promotion PC.",
+        "highlights": [
+          "SDKWork App Standard v3 configuration initialized",
+          "platform_app projection metadata standardized",
+          "Download package matrix normalized"
+        ],
+        "packageIds": [
+          "web-universal-cloud-browser-zip",
+          "windows-x64-standalone-desktop-zip",
+          "macos-universal-standalone-desktop-dmg",
+          "linux-x64-standalone-desktop-appimage"
+        ],
+        "publishedAt": "2026-05-07T00:00:00Z",
+        "current": true,
+        "forceUpdate": false,
+        "minSupportedVersion": "0.0.0",
+        "metadata": {}
+      }
+    ]
+  },
+  "security": {
+    "checksumRequired": false,
+    "signatureRequired": false,
+    "sbomRequired": true
+  },
+  "devApp": {
+    "build": {
+      "targets": []
+    },
+    "sourceRoot": "."
+  },
+  "metadata": {
+    "standardOwner": "sdkwork-promotion",
+    "initializedAt": "2026-08-04T00:00:00Z",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json"
   }
- },
- "release": {
-  "currentVersion": "0.0.0",
-  "defaultChannel": "STABLE",
-  "latest": {
-   "STABLE": "0.0.0"
-  },
-  "notes": [
-   {
-    "version": "0.0.0",
-    "releaseChannel": "STABLE",
-    "title": "SDKWork CloudRouter PC 0.0.0",
-    "summary": "SDKWork CloudRouter PC initialized standard release.",
-    "content": "Initial SDKWork App Standard v3 manifest for SDKWork CloudRouter PC.",
-    "highlights": [
-     "SDKWork App Standard v3 configuration initialized",
-     "platform_app projection metadata standardized",
-     "Download package matrix normalized"
-    ],
-    "packageIds": [
-     "web-universal-cloud-browser-zip",
-     "windows-x64-standalone-desktop-zip",
-     "macos-universal-standalone-desktop-dmg",
-     "linux-x64-standalone-desktop-appimage"
-    ],
-    "publishedAt": "2026-05-07T00:00:00Z",
-    "current": true,
-    "forceUpdate": false,
-    "minSupportedVersion": "0.0.0",
-    "metadata": {}
-   }
-  ]
- },
- "security": {
-  "checksumRequired": false,
-  "signatureRequired": false,
-  "sbomRequired": true
- },
- "devApp": {
-  "build": {
-   "targets": []
-  },
-  "sourceRoot": "."
- },
- "metadata": {
-  "standardOwner": "sdkwork-promotion",
-  "initializedAt": "2026-08-04T00:00:00Z"
- }
 }

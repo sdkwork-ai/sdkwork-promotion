@@ -41,7 +41,8 @@
     "build:pc:dev:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment dev --deployment-profile cloud",
     "build:pc:test:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment test --deployment-profile cloud",
     "build:pc:staging:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment staging --deployment-profile cloud",
-    "build:pc:prod:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment prod --deployment-profile cloud"
+    "build:pc:prod:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment prod --deployment-profile cloud",
+    "topology:validate": "node ../sdkwork-app-topology/scripts/sdkwork-topology.mjs validate --root . --spec specs/topology.spec.json"
   },
   "devDependencies": {
     "@sdkwork/appbase-pc-react": "workspace:*",
