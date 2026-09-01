@@ -21,7 +21,8 @@
   ],
   "lifecycle": {
     "activeSeedLocales": [
-      "zh-CN"
+      "zh-CN",
+      "en-US"
     ],
     "supportedSeedLocales": [
       "zh-CN",

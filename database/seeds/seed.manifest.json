@@ -23,7 +23,8 @@
     "ko-KR"
   ],
   "activeLocales": [
-    "zh-CN"
+    "zh-CN",
+    "en-US"
   ],
   "localeSets": {
     "zh-CN": {
