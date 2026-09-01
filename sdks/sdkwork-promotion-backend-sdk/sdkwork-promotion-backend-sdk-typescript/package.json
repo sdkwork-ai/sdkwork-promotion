@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/promotion-backend-sdk",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "SDKWork Promotion backend SDK composed consumer facade.",
   "type": "module",
   "private": false,
