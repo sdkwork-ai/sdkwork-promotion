@@ -5,10 +5,10 @@
 mod bootstrap;
 mod generated;
 
-pub use bootstrap::{assemble_api_router, assemble_api_router_with_pool, ApiAssembly};
+pub use bootstrap::{assemble_api_router, ApiAssembly, assemble_api_router_with_pool, web_module_with_pool};
 
 use sdkwork_database_sqlx::DatabasePool;
-use sdkwork_web_bootstrap::{ApiAssemblyContribution, ReadinessCheck};
+use sdkwork_web_bootstrap::{ApiAssemblyContribution, ReadinessCheck, WebModule};
 use sdkwork_web_core::DomainContextInjector;
 use std::sync::Arc;
 
@@ -88,4 +88,11 @@ pub fn assembly_route_count() -> usize {
 /// App-api surface route manifest owned by the dependency assembly.
 pub fn app_api_route_manifest() -> sdkwork_web_core::HttpRouteManifest {
     sdkwork_routes_promotion_app_api::promotion_app_api_route_manifest()
+}
+
+/// Canonical Web Module definition for this application
+/// (API_ASSEMBLY_SPEC §4.1.1): the complete HTTP surface — every route,
+/// manifest, and OpenAPI document of this owner — as one installable module.
+pub async fn web_module() -> Result<WebModule, String> {
+    Ok(WebModule::from_contribution(assemble_api_router_from_env().await?))
 }

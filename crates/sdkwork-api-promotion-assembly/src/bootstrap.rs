@@ -7,7 +7,7 @@
 //! contribution with its process-shared PostgreSQL pool.
 
 use sdkwork_database_sqlx::DatabasePool;
-use sdkwork_web_bootstrap::{ApiAssemblyContribution, DatabasePoolReadinessCheck, ReadinessCheck};
+use sdkwork_web_bootstrap::{ApiAssemblyContribution, DatabasePoolReadinessCheck, ReadinessCheck, WebModule};
 use sdkwork_web_core::{DomainContextInjector, HttpRouteManifest};
 use std::sync::Arc;
 
@@ -49,4 +49,10 @@ pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAsse
         sdkwork_promotion_service_host::PromotionServiceHost::from_pool(&pool).await?,
     );
     Ok(assemble_api_router(host).await)
+}
+
+/// Same as [`web_module`] but composed on a process-shared database pool
+/// (platform gateways, API_ASSEMBLY_SPEC §4.1.1).
+pub async fn web_module_with_pool(pool: DatabasePool) -> Result<WebModule, String> {
+    Ok(WebModule::from_contribution(assemble_api_router_with_pool(pool).await?))
 }

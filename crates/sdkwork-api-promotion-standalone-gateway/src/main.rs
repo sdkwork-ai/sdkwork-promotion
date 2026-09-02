@@ -7,7 +7,7 @@ use sdkwork_api_promotion_assembly::assemble_api_router_from_env;
 use sdkwork_iam_web_adapter::{
     build_web_framework_builder, iam_web_request_context_resolver_from_env,
 };
-use sdkwork_web_bootstrap::{infra_public_path_prefixes, ComposedApiAssembly};
+use sdkwork_web_bootstrap::{ApiModuleRegistry, ComposedApiAssembly, infra_public_path_prefixes};
 use tower_http::trace::TraceLayer;
 
 /// 环境变量名：允许的跨域来源列表，逗号分隔。
@@ -25,7 +25,10 @@ async fn main() {
         assembly.route_manifest.clone(),
         infra_public_path_prefixes(),
     );
-    let app = ComposedApiAssembly::try_compose("SDKWork Promotion API", vec![assembly])
+    let mut module_registry = ApiModuleRegistry::new();
+    module_registry.add_modules(vec![assembly]);
+    let app = module_registry
+        .try_compose("SDKWork Promotion API")
         .expect("promotion API composition failed")
         .into_hosted(framework)
         .router

@@ -1785,7 +1785,6 @@ dependencies = [
  "serde_json",
  "sqlx",
  "thiserror",
- "tokio",
  "tracing",
 ]
 
