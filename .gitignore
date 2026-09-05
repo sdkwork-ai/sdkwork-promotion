@@ -19,6 +19,9 @@ tmp/
 *.sqlite3
 .DS_Store
 Thumbs.db
+# Cargo local cache
+.cargo/
+**/.cargo/
 
 # Runtime-generated env config (not tracked)
 **/public/runtime-env.json

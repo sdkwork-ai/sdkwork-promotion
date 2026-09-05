@@ -32,5 +32,5 @@ pub async fn gateway_mount_business(host: Arc<PromotionServiceHost>) -> Router {
 }
 
 pub async fn gateway_mount(host: Arc<PromotionServiceHost>) -> Router {
-    build_promotion_backend_router_with_framework(host).await
+    gateway_mount_business(host).await
 }
