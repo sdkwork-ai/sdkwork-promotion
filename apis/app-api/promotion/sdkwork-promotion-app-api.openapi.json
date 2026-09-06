@@ -123,8 +123,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.codes.redemptions.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/discount_applications": {
@@ -209,8 +208,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.discountApplications.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/discount_applications/reversals": {
@@ -295,8 +293,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.discountApplications.reversals.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/discount_applications/{applicationId}/releases": {
@@ -391,8 +388,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.discountApplications.releases.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/discount_applications/{applicationId}/rollback": {
@@ -487,8 +483,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.discountApplications.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/discount_applications/{applicationId}/settlements": {
@@ -583,8 +578,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.discountApplications.settlements.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/offers": {
@@ -663,7 +657,6 @@
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
         "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.offers.access",
         "x-sdkwork-auth-mode": "anonymous"
       }
     },
@@ -753,7 +746,6 @@
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
         "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.offers.access",
         "x-sdkwork-auth-mode": "anonymous"
       }
     },
@@ -839,8 +831,7 @@
         ],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.userCoupons.claims.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/user_coupons": {
@@ -923,8 +914,7 @@
         "x-write-tables": [],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.userCoupons.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/user_coupons/wallet": {
@@ -1007,8 +997,7 @@
         "x-write-tables": [],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.userCoupons.wallet.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/user_coupons/wallet/{userCouponId}": {
@@ -1101,8 +1090,7 @@
         "x-write-tables": [],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.userCoupons.wallet.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/user_coupons/{userCouponId}": {
@@ -1195,8 +1183,7 @@
         "x-write-tables": [],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.userCoupons.access"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/member_cards": {
@@ -1241,7 +1228,6 @@
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-resource": "promotions.memberCards",
         "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.memberCards.access",
         "tags": [
           "promotions"
         ],
@@ -1295,7 +1281,6 @@
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-resource": "promotions.memberCards",
         "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.memberCards.access",
         "tags": [
           "promotions"
         ],
@@ -1360,7 +1345,6 @@
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-resource": "promotions.memberCards",
         "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.memberCards.access",
         "tags": [
           "promotions"
         ],
@@ -1425,7 +1409,6 @@
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
         "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-permission": "commerce.promotions.codes.redemptions.access",
         "tags": [
           "promotions"
         ],
@@ -1509,7 +1492,6 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-owner": "sdkwork-promotion",
-        "x-sdkwork-permission": "commerce.promotions.wallet.exchangeRate.access",
         "x-sdkwork-resource": "wallet.exchangeRate",
         "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
         "x-write-tables": [],
@@ -1589,7 +1571,6 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-owner": "sdkwork-promotion",
-        "x-sdkwork-permission": "commerce.promotions.points.exchangeRules.access",
         "x-sdkwork-resource": "points.exchangeRules",
         "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
         "x-write-tables": [],
@@ -1669,7 +1650,6 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-owner": "sdkwork-promotion",
-        "x-sdkwork-permission": "commerce.promotions.wallet.points.access",
         "x-sdkwork-resource": "wallet.points",
         "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
         "x-write-tables": [],
@@ -1753,7 +1733,6 @@
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-owner": "sdkwork-promotion",
-        "x-sdkwork-permission": "commerce.promotions.wallet.points.history.access",
         "x-sdkwork-resource": "wallet.points.history",
         "x-source-file": "tools/bootstrap_frontend_contract_from_route_manifest.py",
         "x-write-tables": [],
