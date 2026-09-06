@@ -28,6 +28,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion-dev.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion-dev.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -38,6 +42,10 @@ profiles:
         web: adaptive
       - domain: promotion-dev.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion-dev.skubc.com
@@ -105,6 +113,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -115,6 +127,10 @@ profiles:
         web: adaptive
       - domain: promotion.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion.skubc.com
@@ -182,6 +198,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion-staging.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion-staging.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -192,6 +212,10 @@ profiles:
         web: adaptive
       - domain: promotion-staging.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion-staging.skubc.com
@@ -259,6 +283,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion-test.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion-test.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -269,6 +297,10 @@ profiles:
         web: adaptive
       - domain: promotion-test.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion-test.skubc.com
@@ -336,6 +368,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion-dev.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion-dev.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -346,6 +382,10 @@ profiles:
         web: adaptive
       - domain: promotion-dev.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-dev.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion-dev.skubc.com
@@ -413,6 +453,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -423,6 +467,10 @@ profiles:
         web: adaptive
       - domain: promotion.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion.skubc.com
@@ -490,6 +538,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion-staging.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion-staging.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -500,6 +552,10 @@ profiles:
         web: adaptive
       - domain: promotion-staging.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-staging.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion-staging.skubc.com
@@ -567,6 +623,10 @@ profiles:
         tls: dtupay.com
         mode: web+api
         web: adaptive
+      - domain: promotion-test.noaper.com
+        tls: noaper.com
+        mode: web+api
+        web: adaptive
       - domain: promotion-test.sdkwork.cn
         tls: sdkwork.cn
         mode: web+api
@@ -577,6 +637,10 @@ profiles:
         web: adaptive
       - domain: promotion-test.dtupay.cn
         tls: dtupay.cn
+        mode: web+api
+        web: adaptive
+      - domain: promotion-test.noaper.cn
+        tls: noaper.cn
         mode: web+api
         web: adaptive
       - domain: promotion-test.skubc.com
