@@ -48,6 +48,12 @@ apps/*/config/*/*.local.toml
 **/generated/**/*.js.map
 **/generated/**/*.d.ts.map
 
+# TypeScript/JavaScript build artifacts emitted alongside source (tsc declaration/emit)
+*.d.ts.map
+*.js.map
+**/src/**/*.js
+**/src/**/*.d.ts
+
 # SDKWork local workspace state
 .sdkwork/local/
 .sdkwork/tmp/
