@@ -6,18 +6,20 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "stop": "node ../sdkwork-specs/tools/stop-sdkwork-workspace-processes.mjs --workspace .",
-    "dev": "pnpm --dir apps/sdkwork-promotion-pc dev",
-    "build": "pnpm --dir apps/sdkwork-promotion-pc build",
+    "stop": "pnpm exec sdkwork-app stop",
+    "dev": "pnpm dev:standalone",
+    "dev:standalone": "pnpm exec sdkwork-app dev --deployment-profile standalone",
+    "dev:cloud": "pnpm exec sdkwork-app dev --deployment-profile cloud",
+    "build": "pnpm exec sdkwork-app build",
+    "test": "pnpm exec sdkwork-app test",
+    "check": "pnpm exec sdkwork-app check",
+    "verify": "pnpm exec sdkwork-app verify",
+    "clean": "pnpm exec sdkwork-app clean",
     "start": "cargo run -p sdkwork-api-promotion-standalone-gateway --bin promotion-server",
-    "test": "pnpm test:node && pnpm test:vitest && cargo test --workspace",
     "test:node": "node --test --test-reporter=spec tests/static/placeholder.test.mjs",
     "test:vitest": "vitest run --config vitest.config.ts --configLoader native --pool forks --maxWorkers 2",
     "typecheck": "tsc --noEmit",
-    "verify": "pnpm typecheck && pnpm test:vitest && cargo test --workspace && pnpm run check:app-composition && pnpm check:cors-standard",
     "format:rust:check": "cargo fmt --all -- --check",
-    "clean": "node -e \"require('fs').rmSync('apps/sdkwork-promotion-pc/dist',{recursive:true,force:true}); require('fs').rmSync('.runtime/dev-sites',{recursive:true,force:true})\"",
-    "check": "pnpm run check:app-composition && pnpm db:validate && pnpm api:assembly:validate && pnpm format:rust:check",
     "db:validate": "node ../sdkwork-specs/tools/check-database-framework-standard.mjs --root .",
     "db:materialize:contract": "node ../sdkwork-specs/tools/materialize-database-contract-from-baseline.mjs --root . --baseline database/ddl/baseline/postgres/0001_promotion_baseline.sql --module-id promotion --owner sdkwork-promotion --prefixes promotion_ --engines postgres",
     "db:plan": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . plan",
@@ -45,7 +47,13 @@
     "build:pc:staging:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment staging --deployment-profile cloud",
     "build:pc:demo:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment demo --deployment-profile cloud",
     "build:pc:prod:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment prod --deployment-profile cloud",
-    "topology:validate": "node ../sdkwork-app-topology/scripts/sdkwork-topology.mjs validate --root . --spec specs/topology.spec.json"
+    "topology:validate": "node ../sdkwork-app-topology/scripts/sdkwork-topology.mjs validate --root . --spec specs/topology.spec.json",
+    "_sdkwork:build": "pnpm --dir apps/sdkwork-promotion-pc build",
+    "_sdkwork:test": "pnpm test:node && pnpm test:vitest && cargo test --workspace",
+    "_sdkwork:check": "pnpm run check:app-composition && pnpm db:validate && pnpm api:assembly:validate && pnpm format:rust:check",
+    "_sdkwork:verify": "pnpm typecheck && pnpm test:vitest && cargo test --workspace && pnpm run check:app-composition && pnpm check:cors-standard",
+    "_sdkwork:clean": "node -e \"require('fs').rmSync('apps/sdkwork-promotion-pc/dist',{recursive:true,force:true}); require('fs').rmSync('.runtime/dev-sites',{recursive:true,force:true})\"",
+    "_sdkwork:dev:standalone": "pnpm --dir apps/sdkwork-promotion-pc dev"
   },
   "devDependencies": {
     "@sdkwork/appbase-pc-react": "workspace:*",
@@ -63,7 +71,8 @@
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
     "vitest": "^4.1.2",
-    "lucide-react": "^1.7.0"
+    "lucide-react": "^1.7.0",
+    "@sdkwork/app-topology": "workspace:*"
   },
   "exports": {
     ".": {

@@ -94,7 +94,6 @@ coverage/
 Thumbs.db
 
 # Build artifacts
-/bin/
 
 # --- SDKWork: generated TypeScript SDK build outputs (never committed) ---
 **/generated/server-openapi/src/**/*.js
