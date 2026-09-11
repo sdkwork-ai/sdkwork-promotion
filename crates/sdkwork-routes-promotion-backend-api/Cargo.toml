@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-routes-promotion-backend-api"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
+
+[lints]
+workspace = true
 [lib]
 path = "src/lib.rs"
 

@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-api-promotion-assembly"
 edition.workspace = true
 license.workspace = true
 version.workspace = true
 description = "Generated API assembly for sdkwork-promotion application HTTP plane."
 
+
+[lints]
+workspace = true
 [lib]
 name = "sdkwork_api_promotion_assembly"
 path = "src/lib.rs"

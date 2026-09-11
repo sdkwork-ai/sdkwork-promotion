@@ -1,4 +1,5 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-api-promotion-standalone-gateway"
 version.workspace = true
 edition.workspace = true
@@ -9,6 +10,9 @@ publish.workspace = true
 name = "sdkwork-api-promotion-standalone-gateway"
 path = "src/main.rs"
 
+
+[lints]
+workspace = true
 [dependencies]
 sdkwork_api_promotion_assembly.workspace = true
 axum = { workspace = true }
