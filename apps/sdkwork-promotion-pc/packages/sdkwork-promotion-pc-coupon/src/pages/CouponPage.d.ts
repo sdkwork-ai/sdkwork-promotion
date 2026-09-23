@@ -5,5 +5,5 @@ export interface SdkworkCouponPageProps {
     locale?: string | null;
     messages?: SdkworkCouponMessagesOverrides;
 }
-export declare function SdkworkCouponPage({ locale, messages, ...props }: SdkworkCouponPageProps): import("react").JSX.Element;
+export declare function SdkworkCouponPage({ locale, messages, ...props }: SdkworkCouponPageProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=CouponPage.d.ts.map

@@ -5,5 +5,5 @@ export interface SdkworkCouponStatGridProps {
     statistics: SdkworkCouponStatistics;
     userDigest: SdkworkUserCouponDigest;
 }
-export declare function SdkworkCouponStatGrid({ catalogDigest, statistics, userDigest, }: SdkworkCouponStatGridProps): import("react").JSX.Element;
+export declare function SdkworkCouponStatGrid({ catalogDigest, statistics, userDigest, }: SdkworkCouponStatGridProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=coupon-stat-grid.d.ts.map

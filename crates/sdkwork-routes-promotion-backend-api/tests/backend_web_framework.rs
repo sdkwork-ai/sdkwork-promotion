@@ -229,6 +229,8 @@ fn organization_tokens() -> (String, String) {
     let mut auth = shared.clone();
     auth["token_type"] = json!("auth");
     auth["auth_level"] = json!("mfa");
+    // token-claims-gate: legacy-fixture — constructs a pre-slimming credential so this
+    // test can assert the claim is no longer an authorization source.
     auth["permission_scope"] = json!("commerce.marketing.read");
     let mut access = shared;
     access["token_type"] = json!("access");

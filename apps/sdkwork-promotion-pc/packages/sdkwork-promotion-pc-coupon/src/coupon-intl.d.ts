@@ -15,6 +15,6 @@ export interface SdkworkCouponIntlProviderProps extends PropsWithChildren {
     locale?: string | null;
     messages?: SdkworkCouponMessagesOverrides;
 }
-export declare function SdkworkCouponIntlProvider({ children, locale, messages, }: SdkworkCouponIntlProviderProps): import("react").JSX.Element;
+export declare function SdkworkCouponIntlProvider({ children, locale, messages, }: SdkworkCouponIntlProviderProps): import("react/jsx-runtime").JSX.Element;
 export declare function useSdkworkCouponIntl(): SdkworkCouponIntlValue;
 //# sourceMappingURL=coupon-intl.d.ts.map
