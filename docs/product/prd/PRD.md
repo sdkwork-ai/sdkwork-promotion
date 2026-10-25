@@ -45,7 +45,7 @@ Primary API prefixes:
 - App: `/app/v3/api/promotions`
 - Backend: `/backend/v3/api/promotions`
 
-Migration status: complete for active promotion ownership. Release workflow governance remains a pre-launch gap until `sdkwork.workflow.json` and `.github/workflows/package.yml` are approved and added.
+Migration status: complete for active promotion ownership. Release workflow governance remains a pre-launch gap until `agent.workflow.json` and `.github/workflows/package.yml` are approved and added.
 
 ## 5. User Scenarios
 

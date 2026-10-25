@@ -73,7 +73,7 @@ Standard capability workspace:
 
 - Local development: `pnpm dev` for the PC application and `cargo test --workspace` for Rust crates.
 - Standalone runtime: `sdkwork-api-promotion-standalone-gateway`.
-- Production packaging: not yet complete. `sdkwork.workflow.json` and `.github/workflows/package.yml` are required by `GITHUB_WORKFLOW_SPEC.md` before commercial release readiness can be claimed.
+- Production packaging: not yet complete. `agent.workflow.json` and `.github/workflows/package.yml` are required by `GITHUB_WORKFLOW_SPEC.md` before commercial release readiness can be claimed.
 
 ## 8. Verification
 
