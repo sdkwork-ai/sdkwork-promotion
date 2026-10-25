@@ -6,7 +6,7 @@
     "name": "sdkwork-promotion",
     "repository": "sdkwork-ai/sdkwork-promotion",
     "sourcePath": ".",
-    "configPath": "sdkwork.app.config.json"
+    "configPath": "agent.app.config.json"
   },
   "release": {
     "artifactPrefix": "sdkwork-promotion",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "kind": "sdkwork.app",
+  "kind": "agent.app",
   "app": {
     "key": "sdkwork-promotion-pc",
     "name": "SDKWork Promotion PC",

@@ -10,7 +10,7 @@ Use `../sdkwork-specs/README.md` as the task router and `../sdkwork-specs/AGENTS
 
 ## Application Identity
 
-Read `apps/sdkwork-promotion-pc/sdkwork.app.config.json` when changing PC application behavior, runtime config, SDK wiring, release metadata, packaging, app-owned capabilities, or deployment metadata. Stop if the manifest is missing, empty, or ambiguous.
+Read `apps/sdkwork-promotion-pc/agent.app.config.json` when changing PC application behavior, runtime config, SDK wiring, release metadata, packaging, app-owned capabilities, or deployment metadata. Stop if the manifest is missing, empty, or ambiguous.
 
 - Domain: `commerce`
 - Capability: `promotion`

@@ -10,7 +10,7 @@ Use `../../../sdkwork-specs/README.md` as the task router and `../../../sdkwork-
 
 ## Application Identity
 
-Read `sdkwork.app.config.json` when changing application behavior, runtime config, SDK wiring, release metadata, packaging, app-owned capabilities, or deployment metadata. Stop if the manifest is missing, empty, or ambiguous.
+Read `agent.app.config.json` when changing application behavior, runtime config, SDK wiring, release metadata, packaging, app-owned capabilities, or deployment metadata. Stop if the manifest is missing, empty, or ambiguous.
 
 - Application root: `apps/sdkwork-promotion-pc/`
 - Domain: `commerce`
@@ -21,7 +21,7 @@ Read `sdkwork.app.config.json` when changing application behavior, runtime confi
 
 - `AGENTS.md`: application execution rules and standards router.
 - `.sdkwork/`: application-local skills, plugins, and workspace metadata.
-- `sdkwork.app.config.json`: application identity and release manifest.
+- `agent.app.config.json`: application identity and release manifest.
 - `packages/`: React packages for promotion UI surfaces.
 - `specs/`: application-level machine contracts.
 - `src/`, `tests/`, `vite.config.ts`, `tsconfig.json`: shell source, tests, and build configuration.
