@@ -32,13 +32,6 @@ Thumbs.db
 !.env.*.example
 
 # SDKWork local environment and runtime config overrides
-.env.local
-.env.development.local
-.env.test.local
-.env.staging.local
-.env.production.local
-.env.postgres
-.env.release.local
 config/*.local.toml
 apps/*/config/*/*.local.toml
 
@@ -63,7 +56,6 @@ apps/*/config/*/*.local.toml
 **/.sdkwork/secrets/
 **/.sdkwork/manual-backups/
 **/.runtime/
-!.env.postgres.example
 coverage/
 **/.pnpm-store/
 .idea/
