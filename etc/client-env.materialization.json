@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.client-env-materialization",
+  "application": "sdkwork-promotion",
+  "command": "pnpm workflow:materialize-client-env",
+  "deploymentConfig": "sdkwork.deployment.config.json",
+  "sourceIdentity": {
+    "deploymentProfileKeys": [
+      "SDKWORK_PROMOTION_DEPLOYMENT_PROFILE",
+      "SDKWORK_DEPLOYMENT_PROFILE"
+    ],
+    "environmentKeys": [
+      "SDKWORK_PROMOTION_ENVIRONMENT",
+      "SDKWORK_ENVIRONMENT"
+    ],
+    "profileIdKeys": [
+      "SDKWORK_PROMOTION_PROFILE_ID",
+      "SDKWORK_PROFILE_ID"
+    ]
+  },
+  "profiles": [
+    "standalone.development",
+    "standalone.test",
+    "standalone.staging",
+    "standalone.demo",
+    "standalone.production",
+    "cloud.development",
+    "cloud.test",
+    "cloud.staging",
+    "cloud.demo",
+    "cloud.production"
+  ],
+  "surfaces": [
+    {
+      "id": "sdkwork-promotion-pc",
+      "root": "apps/sdkwork-promotion-pc",
+      "format": "vite",
+      "runtimeTarget": "browser",
+      "includePrefixes": [],
+      "includeKeys": [],
+      "bindings": {
+        "VITE_SDKWORK_PROMOTION_APPLICATION_PUBLIC_HTTP_URL": {
+          "sources": [
+            "SDKWORK_PROMOTION_APPLICATION_PUBLIC_HTTP_URL"
+          ],
+          "required": false
+        },
+        "VITE_SDKWORK_PROMOTION_PLATFORM_API_GATEWAY_HTTP_URL": {
+          "sources": [
+            "SDKWORK_PROMOTION_PLATFORM_API_GATEWAY_HTTP_URL"
+          ],
+          "required": false
+        },
+        "VITE_SDKWORK_CORS_ALLOWED_ORIGINS": {
+          "sources": [
+            "SDKWORK_CORS_ALLOWED_ORIGINS"
+          ],
+          "required": false
+        }
+      },
+      "constants": {
+        "VITE_SDKWORK_APPLICATION_CODE": "promotion",
+        "VITE_SDKWORK_SURFACE": "pc"
+      },
+      "requiredOutputKeys": [
+        "VITE_SDKWORK_ENVIRONMENT",
+        "VITE_SDKWORK_DEPLOYMENT_PROFILE",
+        "VITE_SDKWORK_PROFILE_ID",
+        "VITE_SDKWORK_RUNTIME_TARGET"
+      ]
+    }
+  ]
+}
