@@ -100,8 +100,85 @@
   ],
   "toolchains": {},
   "lifecycle": {},
-  "targets": {},
+  "targets": [
+    {
+      "id": "web-universal-cloud-browser-zip",
+      "packageId": "web-universal-cloud-browser-zip",
+      "profileBinding": "fixed",
+      "deploymentProfile": "cloud",
+      "runtimeTarget": "browser",
+      "targetPlatform": "web",
+      "clientArchitecture": "pc-web",
+      "profile": "browser",
+      "platform": "web",
+      "architecture": "universal",
+      "formats": [
+        "zip"
+      ],
+      "runner": "ubuntu-24.04",
+      "outputGlobs": [
+        "dist/**"
+      ]
+    },
+    {
+      "id": "windows-x64-standalone-desktop-zip",
+      "packageId": "windows-x64-standalone-desktop-zip",
+      "profileBinding": "fixed",
+      "deploymentProfile": "standalone",
+      "runtimeTarget": "desktop",
+      "targetPlatform": "windows",
+      "clientArchitecture": "tauri",
+      "profile": "desktop",
+      "platform": "windows",
+      "architecture": "x64",
+      "formats": [
+        "zip"
+      ],
+      "runner": "windows-2022",
+      "outputGlobs": [
+        "dist/**"
+      ]
+    },
+    {
+      "id": "macos-universal-standalone-desktop-dmg",
+      "packageId": "macos-universal-standalone-desktop-dmg",
+      "profileBinding": "fixed",
+      "deploymentProfile": "standalone",
+      "runtimeTarget": "desktop",
+      "targetPlatform": "macos",
+      "clientArchitecture": "tauri",
+      "profile": "desktop",
+      "platform": "macos",
+      "architecture": "universal",
+      "formats": [
+        "dmg"
+      ],
+      "runner": "macos-14",
+      "outputGlobs": [
+        "dist/desktop/*.dmg"
+      ]
+    },
+    {
+      "id": "linux-x64-standalone-desktop-appimage",
+      "packageId": "linux-x64-standalone-desktop-appimage",
+      "profileBinding": "fixed",
+      "deploymentProfile": "standalone",
+      "runtimeTarget": "desktop",
+      "targetPlatform": "linux",
+      "clientArchitecture": "tauri",
+      "profile": "desktop",
+      "platform": "linux",
+      "architecture": "x64",
+      "formats": [
+        "appimage"
+      ],
+      "runner": "ubuntu-24.04",
+      "outputGlobs": [
+        "dist/desktop/*.AppImage"
+      ]
+    }
+  ],
   "security": {},
   "publish": {},
-  "deployments": {}
+  "deployments": []
 }
