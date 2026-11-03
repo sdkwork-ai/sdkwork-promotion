@@ -10,7 +10,7 @@ use sdkwork_commerce_promotion_service::{
     PromotionCouponStockItem, PromotionDiscountApplicationItem, PromotionDistributionInput,
     PromotionDistributionTaskItem, PromotionOfferInput, PromotionOfferItem, PromotionOverview,
 };
-use sdkwork_iam_web_adapter::IamDatabaseWebRequestContextResolver;
+use sdkwork_iam_web_adapter::IamWebRequestContextResolver;
 use sdkwork_routes_promotion_backend_api::{
     build_backend_promotion_router, wrap_router_with_web_framework,
 };
@@ -250,7 +250,7 @@ async fn authenticated_overview_receives_iam_context_and_returns_success() {
         sdkwork_commerce_promotion_service::PromotionAdminService::new(repository.clone()),
     );
     let app = wrap_router_with_web_framework(
-        IamDatabaseWebRequestContextResolver::new(None),
+        IamWebRequestContextResolver::new(None),
         build_backend_promotion_router(service),
     );
     let (auth_token, access_token) = organization_tokens();
