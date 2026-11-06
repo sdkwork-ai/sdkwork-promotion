@@ -73,10 +73,7 @@
         "tenantId": "100001",
         "organizationId": "0",
         "permissionScope": [
-          "commerce.marketing.read",
-          "commerce.marketing.manage",
-          "promotion.app.read",
-          "iam.users.read"
+          "iam:self"
         ]
       }
     }
