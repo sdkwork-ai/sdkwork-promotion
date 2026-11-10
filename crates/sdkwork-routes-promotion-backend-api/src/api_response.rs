@@ -148,6 +148,33 @@ pub(crate) fn internal_error(
     )
 }
 
+/// `409` for a domain conflict: stale optimistic-concurrency version, an
+/// in-use resource, or a state that contradicts the request.
+pub(crate) fn conflict(
+    context: Option<&WebRequestContext>,
+    detail: impl Into<String>,
+) -> Response {
+    problem(
+        context,
+        StatusCode::CONFLICT,
+        SdkWorkResultCode::Conflict,
+        detail,
+    )
+}
+
+/// `422` for a well-formed request that cannot be applied to the current state.
+pub(crate) fn invalid_state(
+    context: Option<&WebRequestContext>,
+    detail: impl Into<String>,
+) -> Response {
+    problem(
+        context,
+        StatusCode::UNPROCESSABLE_ENTITY,
+        SdkWorkResultCode::UnprocessableEntity,
+        detail,
+    )
+}
+
 fn problem(
     context: Option<&WebRequestContext>,
     status: StatusCode,

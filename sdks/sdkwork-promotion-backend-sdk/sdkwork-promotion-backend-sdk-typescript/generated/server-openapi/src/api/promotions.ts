@@ -1,8 +1,37 @@
 import { backendApiPath } from './paths';
 import type { ApiRequestOptions, HttpClient } from '../http/client';
 
-import type { CouponStock, CouponStockRequest, DiscountApplication, PageInfo, PromotionCampaign, PromotionCampaignRequest, PromotionCode, PromotionCodeBatch, PromotionCodeBatchRequest, PromotionCouponLedgerEntry, PromotionDistributionRequest, PromotionDistributionTask, PromotionOffer, PromotionOfferRequest, PromotionOverview, PromotionUserCoupon, UpdatePromotionStatusRequest } from '../types';
+import type { CouponStock, CouponStockRequest, DiscountApplication, DiscountApplicationRelease, DiscountApplicationReleaseRequest, DiscountApplicationSettlement, PageInfo, PromotionCampaign, PromotionCampaignRequest, PromotionCode, PromotionCodeBatch, PromotionCodeBatchDisable, PromotionCodeBatchDisableRequest, PromotionCodeBatchRequest, PromotionCodeDisable, PromotionCodeDisableRequest, PromotionCodeExport, PromotionCodeReissue, PromotionCodeReissueRequest, PromotionCodeReveal, PromotionCouponLedgerEntry, PromotionDistributionRequest, PromotionDistributionTask, PromotionOffer, PromotionOfferRequest, PromotionOverview, PromotionRedemptionAttempt, PromotionReport, PromotionUserCoupon, PromotionUserCouponExtension, PromotionUserCouponExtensionRequest, PromotionUserCouponVoid, PromotionUserCouponVoidRequest, UpdatePromotionStatusRequest } from '../types';
 
+
+export interface PromotionsRedemptionAttemptsListParams {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+  outcome?: 'succeeded' | 'failed';
+  codeId?: string;
+}
+
+export class PromotionsRedemptionAttemptsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** redemptionAttempts.list */
+  async list(params?: PromotionsRedemptionAttemptsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: PromotionRedemptionAttempt[]; pageInfo: PageInfo; }> {
+    const query = buildQueryString([
+      { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
+      { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
+      { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
+      { name: 'outcome', value: params?.outcome, style: 'form', explode: true, allowReserved: false },
+      { name: 'code_id', value: params?.codeId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<{ items: PromotionRedemptionAttempt[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/redemption_attempts`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+}
 
 export interface PromotionsCouponLedgerEntriesListParams {
   page?: number;
@@ -31,6 +60,34 @@ export class PromotionsCouponLedgerEntriesApi {
   }
 }
 
+export class PromotionsUserCouponsExtensionsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Extend one wallet coupon's expiry (stop-loss) */
+  async create(userCouponId: string, body: PromotionUserCouponExtensionRequest, requestOptions?: ApiRequestOptions): Promise<PromotionUserCouponExtension> {
+    return this.client.request<PromotionUserCouponExtension>(backendApiPath(`/promotions/user_coupons/${serializePathParameter(userCouponId, { name: 'userCouponId', style: 'simple', explode: false })}/extensions`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export class PromotionsUserCouponsVoidsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Void one wallet coupon (stop-loss) */
+  async create(userCouponId: string, body: PromotionUserCouponVoidRequest, requestOptions?: ApiRequestOptions): Promise<PromotionUserCouponVoid> {
+    return this.client.request<PromotionUserCouponVoid>(backendApiPath(`/promotions/user_coupons/${serializePathParameter(userCouponId, { name: 'userCouponId', style: 'simple', explode: false })}/voids`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
 export interface PromotionsUserCouponsListParams {
   page?: number;
   pageSize?: number;
@@ -40,9 +97,13 @@ export interface PromotionsUserCouponsListParams {
 
 export class PromotionsUserCouponsApi {
   private client: HttpClient;
+  public readonly voids: PromotionsUserCouponsVoidsApi;
+  public readonly extensions: PromotionsUserCouponsExtensionsApi;
 
   constructor(client: HttpClient) {
     this.client = client;
+    this.voids = new PromotionsUserCouponsVoidsApi(client);
+    this.extensions = new PromotionsUserCouponsExtensionsApi(client);
   }
 
 
@@ -90,6 +151,34 @@ export class PromotionsDistributionTasksApi {
   }
 }
 
+export class PromotionsCodeBatchesDisablesApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Disable a code batch's eligible codes (stop-loss) */
+  async create(batchId: string, body: PromotionCodeBatchDisableRequest, requestOptions?: ApiRequestOptions): Promise<PromotionCodeBatchDisable> {
+    return this.client.request<PromotionCodeBatchDisable>(backendApiPath(`/promotions/code_batches/${serializePathParameter(batchId, { name: 'batchId', style: 'simple', explode: false })}/disables`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export class PromotionsCodeBatchesCodeExportsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Export a code batch's promotion codes (audited) */
+  async create(batchId: string, requestOptions?: ApiRequestOptions): Promise<PromotionCodeExport> {
+    return this.client.request<PromotionCodeExport>(backendApiPath(`/promotions/code_batches/${serializePathParameter(batchId, { name: 'batchId', style: 'simple', explode: false })}/code_exports`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  }
+}
+
 export interface PromotionsCodeBatchesListParams {
   page?: number;
   pageSize?: number;
@@ -100,9 +189,13 @@ export interface PromotionsCodeBatchesListParams {
 
 export class PromotionsCodeBatchesApi {
   private client: HttpClient;
+  public readonly codeExports: PromotionsCodeBatchesCodeExportsApi;
+  public readonly disables: PromotionsCodeBatchesDisablesApi;
 
   constructor(client: HttpClient) {
     this.client = client;
+    this.codeExports = new PromotionsCodeBatchesCodeExportsApi(client);
+    this.disables = new PromotionsCodeBatchesDisablesApi(client);
   }
 
 
@@ -171,18 +264,53 @@ export class PromotionsCampaignsApi {
   }
 }
 
+export class PromotionsDiscountApplicationsReleasesApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Release one discount application */
+  async create(applicationId: string, body: DiscountApplicationReleaseRequest, requestOptions?: ApiRequestOptions): Promise<DiscountApplicationRelease> {
+    return this.client.request<DiscountApplicationRelease>(backendApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/releases`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export class PromotionsDiscountApplicationsSettlementsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Settle one discount application */
+  async create(applicationId: string, requestOptions?: ApiRequestOptions): Promise<DiscountApplicationSettlement> {
+    return this.client.request<DiscountApplicationSettlement>(backendApiPath(`/promotions/discount_applications/${serializePathParameter(applicationId, { name: 'applicationId', style: 'simple', explode: false })}/settlements`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  }
+}
+
 export interface PromotionsDiscountApplicationsListParams {
   page?: number;
   pageSize?: number;
   q?: string;
   status?: 'active' | 'disabled';
+  codeId?: string;
+  userCouponId?: string;
+  orderId?: string;
 }
 
 export class PromotionsDiscountApplicationsApi {
   private client: HttpClient;
+  public readonly settlements: PromotionsDiscountApplicationsSettlementsApi;
+  public readonly releases: PromotionsDiscountApplicationsReleasesApi;
 
   constructor(client: HttpClient) {
     this.client = client;
+    this.settlements = new PromotionsDiscountApplicationsSettlementsApi(client);
+    this.releases = new PromotionsDiscountApplicationsReleasesApi(client);
   }
 
 
@@ -193,8 +321,53 @@ export class PromotionsDiscountApplicationsApi {
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'status', value: params?.status, style: 'form', explode: true, allowReserved: false },
+      { name: 'code_id', value: params?.codeId, style: 'form', explode: true, allowReserved: false },
+      { name: 'user_coupon_id', value: params?.userCouponId, style: 'form', explode: true, allowReserved: false },
+      { name: 'order_id', value: params?.orderId, style: 'form', explode: true, allowReserved: false },
     ]);
     return this.client.request<{ items: DiscountApplication[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/promotions/discount_applications`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+}
+
+export class PromotionsCodesReissuesApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Reissue one unused promotion code (lost/compromised code replacement) */
+  async create(codeId: string, body: PromotionCodeReissueRequest, requestOptions?: ApiRequestOptions): Promise<PromotionCodeReissue> {
+    return this.client.request<PromotionCodeReissue>(backendApiPath(`/promotions/codes/${serializePathParameter(codeId, { name: 'codeId', style: 'simple', explode: false })}/reissues`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export class PromotionsCodesDisablesApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Disable one promotion code (stop-loss) */
+  async create(codeId: string, body: PromotionCodeDisableRequest, requestOptions?: ApiRequestOptions): Promise<PromotionCodeDisable> {
+    return this.client.request<PromotionCodeDisable>(backendApiPath(`/promotions/codes/${serializePathParameter(codeId, { name: 'codeId', style: 'simple', explode: false })}/disables`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export class PromotionsCodesRevealsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Reveal one promotion code (audited) */
+  async create(codeId: string, requestOptions?: ApiRequestOptions): Promise<PromotionCodeReveal> {
+    return this.client.request<PromotionCodeReveal>(backendApiPath(`/promotions/codes/${serializePathParameter(codeId, { name: 'codeId', style: 'simple', explode: false })}/reveals`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -208,9 +381,15 @@ export interface PromotionsCodesListParams {
 
 export class PromotionsCodesApi {
   private client: HttpClient;
+  public readonly reveals: PromotionsCodesRevealsApi;
+  public readonly disables: PromotionsCodesDisablesApi;
+  public readonly reissues: PromotionsCodesReissuesApi;
 
   constructor(client: HttpClient) {
     this.client = client;
+    this.reveals = new PromotionsCodesRevealsApi(client);
+    this.disables = new PromotionsCodesDisablesApi(client);
+    this.reissues = new PromotionsCodesReissuesApi(client);
   }
 
 
@@ -322,6 +501,29 @@ export class PromotionsOffersApi {
   }
 }
 
+export interface PromotionsPromotionReportsRetrieveParams {
+  from_?: string;
+  to?: string;
+}
+
+export class PromotionsPromotionReportsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Retrieve the coupon-centre operating report for a time window */
+  async retrieve(params?: PromotionsPromotionReportsRetrieveParams, requestOptions?: ApiRequestOptions): Promise<PromotionReport> {
+    const query = buildQueryString([
+      { name: 'from', value: params?.from_, style: 'form', explode: true, allowReserved: false },
+      { name: 'to', value: params?.to, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<PromotionReport>(appendQueryString(backendApiPath(`/promotions/reports`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'item' });
+  }
+}
+
 export class PromotionsOverviewApi {
   private client: HttpClient;
 
@@ -338,6 +540,7 @@ export class PromotionsOverviewApi {
 
 export class PromotionsApi {
   public readonly overview: PromotionsOverviewApi;
+  public readonly promotionReports: PromotionsPromotionReportsApi;
   public readonly offers: PromotionsOffersApi;
   public readonly couponStocks: PromotionsCouponStocksApi;
   public readonly codes: PromotionsCodesApi;
@@ -347,9 +550,11 @@ export class PromotionsApi {
   public readonly distributionTasks: PromotionsDistributionTasksApi;
   public readonly userCoupons: PromotionsUserCouponsApi;
   public readonly couponLedgerEntries: PromotionsCouponLedgerEntriesApi;
+  public readonly redemptionAttempts: PromotionsRedemptionAttemptsApi;
 
   constructor(client: HttpClient) {
     this.overview = new PromotionsOverviewApi(client);
+    this.promotionReports = new PromotionsPromotionReportsApi(client);
     this.offers = new PromotionsOffersApi(client);
     this.couponStocks = new PromotionsCouponStocksApi(client);
     this.codes = new PromotionsCodesApi(client);
@@ -359,6 +564,7 @@ export class PromotionsApi {
     this.distributionTasks = new PromotionsDistributionTasksApi(client);
     this.userCoupons = new PromotionsUserCouponsApi(client);
     this.couponLedgerEntries = new PromotionsCouponLedgerEntriesApi(client);
+    this.redemptionAttempts = new PromotionsRedemptionAttemptsApi(client);
   }
 
 }

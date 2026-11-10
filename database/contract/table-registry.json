@@ -67,6 +67,42 @@
       "owner": "sdkwork-promotion",
       "compliance_level": "L2",
       "lifecycle_status": "active"
+    },
+    {
+      "table_name": "promotion_member_card",
+      "owner": "sdkwork-promotion",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "promotion_member_card_consumption",
+      "owner": "sdkwork-promotion",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "promotion_code_redemption_attempt",
+      "owner": "sdkwork-promotion",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "promotion_audit_event",
+      "owner": "sdkwork-promotion",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "promotion_budget_account",
+      "owner": "sdkwork-promotion",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
+    },
+    {
+      "table_name": "promotion_budget_ledger_entry",
+      "owner": "sdkwork-promotion",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     }
   ]
 }

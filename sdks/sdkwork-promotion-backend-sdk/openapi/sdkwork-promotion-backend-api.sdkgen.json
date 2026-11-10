@@ -61,6 +61,56 @@
         ]
       }
     },
+    "/backend/v3/api/promotions/reports": {
+      "get": {
+        "operationId": "promotionReports.retrieve",
+        "summary": "Retrieve the coupon-centre operating report for a time window",
+        "description": "Windowed coupon-centre report: counts, basis-point rates, money per currency (budget figures are a current snapshot), and the top offers of the window. Defaults to the last 30 days ending now.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReportFrom"
+          },
+          {
+            "$ref": "#/components/parameters/ReportTo"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coupon-centre operating report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionReportEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
     "/backend/v3/api/promotions/offers": {
       "get": {
         "operationId": "offers.list",
@@ -388,6 +438,69 @@
         ]
       }
     },
+    "/backend/v3/api/promotions/codes/{codeId}/reveals": {
+      "post": {
+        "operationId": "codes.reveals.create",
+        "summary": "Reveal one promotion code (audited)",
+        "description": "Returns the redeemable value of one promotion code and records a `promotion_audit_event` row (`action = codes.reveal`, `aggregate_type = promotion_code`) in the same transaction as the read. The audit row is written first: if that write fails the operation fails and no code is returned. The actor is the authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "codeId",
+            "in": "path",
+            "required": true,
+            "description": "Promotion code id (`promotion_code.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Audited code reveal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCodeRevealEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
     "/backend/v3/api/promotions/discount_applications": {
       "get": {
         "operationId": "discountApplications.list",
@@ -411,6 +524,15 @@
           },
           {
             "$ref": "#/components/parameters/Status"
+          },
+          {
+            "$ref": "#/components/parameters/CodeId"
+          },
+          {
+            "$ref": "#/components/parameters/UserCouponId"
+          },
+          {
+            "$ref": "#/components/parameters/OrderId"
           }
         ],
         "responses": {
@@ -958,6 +1080,69 @@
         ]
       }
     },
+    "/backend/v3/api/promotions/code_batches/{batchId}/code_exports": {
+      "post": {
+        "operationId": "codeBatches.codeExports.create",
+        "summary": "Export a code batch's promotion codes (audited)",
+        "description": "Returns the redeemable codes of one code batch, ordered by `codeNo`, capped at 5000 rows, and records a `promotion_audit_event` row (`action = codes.export`, `aggregate_type = promotion_code_batch`) in the same transaction as the read. The audit row is written first: if that write fails the operation fails and no code is returned. `truncated` is true when the batch holds more codes than the cap. A batch outside the operator's tenant/organization scope is a 404.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "batchId",
+            "in": "path",
+            "required": true,
+            "description": "Promotion code batch id (`promotion_code_batch.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Audited code export",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCodeExportEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
     "/backend/v3/api/promotions/distribution_tasks": {
       "get": {
         "operationId": "distributionTasks.list",
@@ -1171,6 +1356,646 @@
           }
         ]
       }
+    },
+    "/backend/v3/api/promotions/redemption_attempts": {
+      "get": {
+        "operationId": "redemptionAttempts.list",
+        "summary": "redemptionAttempts.list",
+        "description": "Paginated code-redemption attempt ledger (successes and failures), newest first by `occurredAt` with `id` as the tiebreaker. Backs the admin support view; `q` searches the submitted-code suffix, the subject id, and the request number. The submitted code itself is never returned.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "$ref": "#/components/parameters/Search"
+          },
+          {
+            "$ref": "#/components/parameters/Outcome"
+          },
+          {
+            "$ref": "#/components/parameters/CodeId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionRedemptionAttemptListEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/codes/{codeId}/disables": {
+      "post": {
+        "operationId": "codes.disables.create",
+        "summary": "Disable one promotion code (stop-loss)",
+        "description": "Stops a leaked code. Allowed only when `status = 'active'` and the code has never been claimed (`COALESCE(claimed_quantity, 0) = 0`); a claimed code is a `409` (\"code has already been claimed and cannot be disabled\") and a non-active code is a `409` (\"code is not active\"). Records a `promotion_audit_event` row (`action = codes.disable`, `aggregate_type = promotion_code`). The audit-evidence row is written inside the same transaction as the mutation and before it; if that write fails the operation fails and nothing is changed. The actor is the IAM-authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "codeId",
+            "in": "path",
+            "required": true,
+            "description": "Promotion code id (`promotion_code.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionCodeDisableRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stop-loss code disable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCodeDisableEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/codes/{codeId}/reissues": {
+      "post": {
+        "operationId": "codes.reissues.create",
+        "summary": "Reissue one unused promotion code (lost/compromised code replacement)",
+        "description": "Replaces one unused code with a newly issued one. Allowed only when the original is `status = 'active'` and has never been claimed (`COALESCE(claimed_quantity, 0) = 0`); a claimed code is a `409` (\"code has already been claimed and cannot be reissued\") and a non-active code is a `409` (\"code is not active\"). The original becomes `disabled` with `voided_at`/`void_reason` and `replaced_by_code_id`; the replacement is inserted with `reissued_from_code_id`, inheriting the original's `stockId`, `offerId`, `offerVersionId`, `codeBatchId`, `codeType`, validity window, and `maxClaims`, with `status = 'active'` and `claimedQuantity = 0`. Without `code` the value is generated from the code batch's `codePrefix`/`codeLength` (16 characters when the batch defines neither); an explicit `code` is trimmed, upper-cased, validated as 4–64 characters of `A-Z0-9-_`, and must be unique in the tenant (`409` on a collision). The disable, the insert, and the audit-evidence row happen in one transaction, and the audit row (`action = codes.reissue`, `aggregate_type = promotion_code`, `subjectCount = 2`, both ids and the reason in `detailJson`) is written before either mutation. The response carries the new code's id, `codeNo`, display mask, and last four characters plus the replaced id — never the new redeemable value, which stays readable only through the audited reveal (`codes.reveals.create`) and export (`codeBatches.codeExports.create`) operations. The actor is the IAM-authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "codeId",
+            "in": "path",
+            "required": true,
+            "description": "Id of the code being replaced (`promotion_code.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionCodeReissueRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Code reissue with the new code masked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCodeReissueEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/code_batches/{batchId}/disables": {
+      "post": {
+        "operationId": "codeBatches.disables.create",
+        "summary": "Disable a code batch's eligible codes (stop-loss)",
+        "description": "Stops every eligible code of one batch with a single `UPDATE`: codes that are `active` and never claimed are disabled, and the rest are reported as `skippedCount` instead of failing the batch. Records a `promotion_audit_event` row (`action = codes.batch_disable`, `aggregate_type = promotion_code_batch`, `subject_count = disabledCount`). A batch outside the operator's tenant/organization scope is a `404`. The audit-evidence row is written inside the same transaction as the mutation and before it; if that write fails the operation fails and nothing is changed. The actor is the IAM-authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "batchId",
+            "in": "path",
+            "required": true,
+            "description": "Promotion code batch id (`promotion_code_batch.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionCodeBatchDisableRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stop-loss code batch disable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCodeBatchDisableEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/user_coupons/{userCouponId}/voids": {
+      "post": {
+        "operationId": "userCoupons.voids.create",
+        "summary": "Void one wallet coupon (stop-loss)",
+        "description": "Voids a wallet coupon that is still usable (`claimed`, `active`, or `pending`, case-insensitive) and records `voided_at` + `void_reason` on the row. A redeemed/used coupon is a `409` (\"coupon has already been redeemed\"); an already voided/expired/cancelled/disabled coupon is a `409` (\"coupon is not active\"). Records a `promotion_audit_event` row (`action = user_coupons.void`, `aggregate_type = promotion_user_coupon`). The audit-evidence row is written inside the same transaction as the mutation and before it; if that write fails the operation fails and nothing is changed. The actor is the IAM-authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "userCouponId",
+            "in": "path",
+            "required": true,
+            "description": "Wallet coupon id (`promotion_user_coupon.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionUserCouponVoidRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stop-loss wallet coupon void",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionUserCouponVoidEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/user_coupons/{userCouponId}/extensions": {
+      "post": {
+        "operationId": "userCoupons.extensions.create",
+        "summary": "Extend one wallet coupon's expiry (stop-loss)",
+        "description": "Moves a still-usable wallet coupon's expiry (`claimed`, `active`, or `pending`) to `expiresAt`, which must parse as a promotion timestamp and be later than the database clock — the comparison is `(<canonical>)::timestamptz > CURRENT_TIMESTAMP` in SQL, not a Rust clock read. A coupon with no previous expiry is allowed. Records a `promotion_audit_event` row (`action = user_coupons.extend`, `aggregate_type = promotion_user_coupon`, old and new expiry in `detail_json`). The audit-evidence row is written inside the same transaction as the mutation and before it; if that write fails the operation fails and nothing is changed. The actor is the IAM-authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "userCouponId",
+            "in": "path",
+            "required": true,
+            "description": "Wallet coupon id (`promotion_user_coupon.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionUserCouponExtensionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stop-loss wallet coupon extension",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionUserCouponExtensionEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/discount_applications/{applicationId}/settlements": {
+      "post": {
+        "operationId": "discountApplications.settlements.create",
+        "summary": "Settle one discount application",
+        "description": "Moves an `applied` discount application to `settled`: the reserved coupon budget amount moves from `reserved` to `used` in one guarded update, `settledAt` is written on the row, and a `promotion_budget_ledger_entry` row with `direction = settle` is appended. Records a `promotion_audit_event` row (`action = discount_applications.settle`, `aggregate_type = promotion_discount_application`) inside the same transaction and before the mutation; if that write fails the operation fails and nothing changes. A non-`applied` application is a `409` with a state-specific message (`already been settled` / `already been released` / `was rolled back`). The actor is the IAM-authenticated operator; no request field can select it. The operation takes no request body.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "required": true,
+            "description": "Discount application id (`promotion_discount_application.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Discount application settled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscountApplicationSettlementEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
+    },
+    "/backend/v3/api/promotions/discount_applications/{applicationId}/releases": {
+      "post": {
+        "operationId": "discountApplications.releases.create",
+        "summary": "Release one discount application",
+        "description": "Moves an `applied` discount application to `released`: the reserved coupon budget amount goes back to the available pool in one guarded update, `releasedAt` plus `releaseReason` are written on the row, and a `promotion_budget_ledger_entry` row with `direction = release` is appended. Records a `promotion_audit_event` row (`action = discount_applications.release`, `aggregate_type = promotion_discount_application`, reason in `detail_json`) inside the same transaction and before the mutation; if that write fails the operation fails and nothing changes. A non-`applied` application is a `409` with a state-specific message. The actor is the IAM-authenticated operator; no request field can select it.",
+        "tags": [
+          "promotions"
+        ],
+        "x-sdkwork-owner": "sdkwork-promotion",
+        "x-sdkwork-api-authority": "sdkwork-promotion-backend-api",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-permission": "commerce.marketing.manage",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "required": true,
+            "description": "Discount application id (`promotion_discount_application.id`, TEXT).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscountApplicationReleaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Discount application released",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscountApplicationReleaseEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1245,6 +2070,58 @@
           "format": "int64",
           "minimum": 1
         }
+      },
+      "Outcome": {
+        "name": "outcome",
+        "in": "query",
+        "description": "Filter by attempt outcome. The vocabulary is closed: any other value is rejected with 400 instead of returning an unfiltered list.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "failed"
+          ]
+        }
+      },
+      "CodeId": {
+        "name": "code_id",
+        "in": "query",
+        "description": "Filter by promotion code id (TEXT id, never numeric). Used by the redemption-attempt and discount-application lists.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "UserCouponId": {
+        "name": "user_coupon_id",
+        "in": "query",
+        "description": "Filter discount applications by the user coupon that produced them (TEXT id, never numeric).",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "OrderId": {
+        "name": "order_id",
+        "in": "query",
+        "description": "Filter discount applications by the order they were applied to (TEXT id, never numeric).",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ReportFrom": {
+        "name": "from",
+        "in": "query",
+        "description": "Inclusive start of the report window. Accepts RFC 3339 (for example `2026-10-12T00:00:00Z`) or the canonical server form `2026-10-12 00:00:00` (UTC). Defaults to 30 days before `to`. An unparseable value, or a `from` after `to`, is rejected with 400.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ReportTo": {
+        "name": "to",
+        "in": "query",
+        "description": "Inclusive end of the report window. Accepts RFC 3339 or the canonical server form `2026-11-11 23:59:59` (UTC). Defaults to now. An unparseable value, or a `from` after `to`, is rejected with 400.",
+        "schema": {
+          "type": "string"
+        }
       }
     },
     "responses": {
@@ -1264,6 +2141,16 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/PromotionOverviewEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionReportResponse": {
+        "description": "Coupon-centre operating report",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionReportEnvelope"
             }
           }
         }
@@ -1294,6 +2181,26 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/PromotionCodeListEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionCodeRevealResponse": {
+        "description": "Audited code reveal",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionCodeRevealEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionCodeExportResponse": {
+        "description": "Audited code export",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionCodeExportEnvelope"
             }
           }
         }
@@ -1417,6 +2324,86 @@
             }
           }
         }
+      },
+      "PromotionRedemptionAttemptListResponse": {
+        "description": "Success",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionRedemptionAttemptListEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionCodeDisableResponse": {
+        "description": "Stop-loss code disable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionCodeDisableEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionCodeReissueResponse": {
+        "description": "Code reissue with the new code masked",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionCodeReissueEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionCodeBatchDisableResponse": {
+        "description": "Stop-loss code batch disable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionCodeBatchDisableEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionUserCouponVoidResponse": {
+        "description": "Stop-loss wallet coupon void",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionUserCouponVoidEnvelope"
+            }
+          }
+        }
+      },
+      "PromotionUserCouponExtensionResponse": {
+        "description": "Stop-loss wallet coupon extension",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PromotionUserCouponExtensionEnvelope"
+            }
+          }
+        }
+      },
+      "DiscountApplicationSettlementResponse": {
+        "description": "Discount application settled",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DiscountApplicationSettlementEnvelope"
+            }
+          }
+        }
+      },
+      "DiscountApplicationReleaseResponse": {
+        "description": "Discount application released",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DiscountApplicationReleaseEnvelope"
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -1450,6 +2437,22 @@
           },
           "traceId": {
             "type": "string"
+          },
+          "i18nKey": {
+            "type": "string",
+            "description": "Stable SDKWork message key a client can localize instead of rendering `detail` verbatim. Display metadata only; never used for control flow."
+          },
+          "locale": {
+            "type": "string",
+            "description": "BCP 47 locale the server rendered `detail` in. Display metadata only."
+          },
+          "instance": {
+            "type": "string",
+            "description": "Request path the problem was raised for (RFC 9457 `instance`)."
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Operation that raised the problem, for example `redemptionAttempts.list`."
           }
         }
       },
@@ -1660,25 +2663,32 @@
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Discount calculation mode. Allowed values: `FIXED` (fixed amount off), `PERCENTAGE` (percentage off; `discountValue` is the percentage), `NONE` (benefit-only coupon; no order discount). Input is case-insensitive; the stored value is upper case."
           },
           "discountValue": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Discount value. `FIXED`: the amount off in decimal major units. `PERCENTAGE`: the percentage in the range (0, 100], where `12.5` means 12.50%. `NONE`: must be `0`. Plain non-negative decimal with at most 2 fraction digits: no sign, exponent, comma, or extra precision.",
+            "x-sdkwork-money-unit": "major"
           },
           "minimumAmount": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Minimum order amount this coupon requires, in decimal major units (`0` means no minimum). Plain non-negative decimal with at most 2 fraction digits.",
+            "x-sdkwork-money-unit": "major"
           },
           "maximumDiscountAmount": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Optional cap on a `PERCENTAGE` discount, in decimal major units. Must be greater than `0`, and is rejected for `FIXED` and `NONE`.",
+            "x-sdkwork-money-unit": "major"
           },
           "currencyCode": {
             "type": [
@@ -1876,6 +2886,19 @@
           "totalQuota": {
             "type": "string",
             "pattern": "^[1-9][0-9]*$"
+          },
+          "productId": {
+            "type": "string",
+            "description": "Membership product the coupon grants. Required together with skuId and packageId for the order-side redemption path."
+          },
+          "skuId": {
+            "type": "string",
+            "description": "Membership SKU the coupon grants."
+          },
+          "packageId": {
+            "type": "string",
+            "description": "Membership package id the coupon grants; must match an active membership package with the declared SKU and duration.",
+            "pattern": "^[1-9][0-9]*$"
           }
         }
       },
@@ -1971,6 +2994,50 @@
               "realtime",
               "batch"
             ]
+          },
+          "budgetAmountMinor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Hard monetary cap of the stock's budget account in integer minor units (int64 decimal string). Null when the stock has no budget account."
+          },
+          "budgetAvailableMinor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Amount of the stock budget still available to reserve, in integer minor units (int64 decimal string). Null when the stock has no budget account."
+          },
+          "budgetReservedMinor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Amount of the stock budget currently held by live reservations, in integer minor units (int64 decimal string). Null when the stock has no budget account."
+          },
+          "budgetUsedMinor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Amount of the stock budget already spent, in integer minor units (int64 decimal string). Null when the stock has no budget account."
           }
         }
       },
@@ -1982,6 +3049,8 @@
           "offerId",
           "codeNo",
           "promotionCode",
+          "codeMasked",
+          "codeLast4",
           "codeType",
           "maxClaims",
           "claimedQuantity",
@@ -2001,7 +3070,19 @@
             "type": "string"
           },
           "promotionCode": {
-            "type": "string"
+            "type": "string",
+            "deprecated": true,
+            "description": "Full redeemable code. It is still stored plaintext in this phase because the audited `codes.reveals.create` / `codeBatches.codeExports.create` operations return it, so it is not removed yet; uniqueness and redemption lookup use the non-reversible hash of `UPPER(TRIM(code))` (`promotion_code.code_hash`) instead of this value. Deprecated as a list-response field: prefer `codeMasked`/`codeLast4` for display and the audited reveal/export operations for the full value."
+          },
+          "codeMasked": {
+            "type": "string",
+            "description": "Masked display form of `promotionCode`: the first four and last four characters when the code has at least 9 characters (`3C76****4E21`), otherwise every character except the last two is masked. Never equal to the full code.",
+            "example": "3C76****4E21"
+          },
+          "codeLast4": {
+            "type": "string",
+            "description": "Last four characters of the code (fewer when the code is shorter). A stable, non-redeemable fragment safe to show or quote to support.",
+            "example": "4E21"
           },
           "codeType": {
             "type": "string"
@@ -2068,10 +3149,14 @@
             "type": "string"
           },
           "discountType": {
-            "type": "string"
+            "type": "string",
+            "description": "Monetary discount kind: NONE (benefit-only coupon, no order discount), FIXED (fixed amount off), or PERCENTAGE (percent off)."
           },
           "discountAmount": {
-            "type": "string"
+            "type": "string",
+            "description": "Computed discount actually taken off the order, in integer minor units (currency minor unit, e.g. cents for CNY).",
+            "pattern": "^[0-9]+$",
+            "x-sdkwork-money-unit": "minor"
           },
           "currencyCode": {
             "type": "string"
@@ -2107,6 +3192,284 @@
             ]
           }
         }
+      },
+      "PromotionReport": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "counts",
+          "rates",
+          "byCurrency",
+          "topOffers"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Inclusive start of the report window, canonical RFC 3339 UTC."
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Inclusive end of the report window, canonical RFC 3339 UTC."
+          },
+          "counts": {
+            "$ref": "#/components/schemas/PromotionReportCounts"
+          },
+          "rates": {
+            "$ref": "#/components/schemas/PromotionReportRates"
+          },
+          "byCurrency": {
+            "type": "array",
+            "description": "Money totals, one row per currency. Money is never summed across currencies.",
+            "items": {
+              "$ref": "#/components/schemas/PromotionReportCurrencyTotal"
+            }
+          },
+          "topOffers": {
+            "type": "array",
+            "description": "Offers with the most wallet coupons redeemed in the window, tie-broken by settled discount amount then offer id.",
+            "items": {
+              "$ref": "#/components/schemas/PromotionReportTopOffer"
+            }
+          }
+        }
+      },
+      "PromotionReportCounts": {
+        "type": "object",
+        "required": [
+          "issuedCodes",
+          "claimedCoupons",
+          "redeemedCoupons",
+          "expiredCoupons",
+          "voidedCoupons",
+          "disabledCodes",
+          "applicationsApplied",
+          "applicationsSettled",
+          "applicationsReleased"
+        ],
+        "properties": {
+          "issuedCodes": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Promotion codes created in the window (windowed by `promotion_code.created_at`). Shared denominator of every rate."
+          },
+          "claimedCoupons": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Wallet coupons claimed in the window (windowed by `promotion_user_coupon.claimed_at`)."
+          },
+          "redeemedCoupons": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Wallet coupons claimed in the window that reached `redeemed`/`used`."
+          },
+          "expiredCoupons": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Wallet coupons claimed in the window that expired."
+          },
+          "voidedCoupons": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Wallet coupons claimed in the window that an operator voided."
+          },
+          "disabledCodes": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Promotion codes created in the window that are currently `disabled`."
+          },
+          "applicationsApplied": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Discount applications created in the window (windowed by `promotion_discount_application.applied_at`), any status."
+          },
+          "applicationsSettled": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Discount applications created in the window that settled."
+          },
+          "applicationsReleased": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Discount applications created in the window that were released."
+          }
+        }
+      },
+      "PromotionReportRates": {
+        "type": "object",
+        "required": [
+          "claimRateBp",
+          "redemptionRateBp",
+          "voidRateBp"
+        ],
+        "description": "Integer ratios in basis points (100% = 10000), all over the issued-code denominator; 0 when the denominator is 0, clamped to 0..10000.",
+        "properties": {
+          "claimRateBp": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "`claimedCoupons * 10000 / issuedCodes`, integer division (round down)."
+          },
+          "redemptionRateBp": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "`redeemedCoupons * 10000 / issuedCodes`, integer division (round down)."
+          },
+          "voidRateBp": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "`voidedCoupons * 10000 / issuedCodes`, integer division (round down)."
+          }
+        }
+      },
+      "PromotionReportCurrencyTotal": {
+        "type": "object",
+        "required": [
+          "currencyCode",
+          "discountAppliedMinor",
+          "discountSettledMinor",
+          "budgetTotalMinor",
+          "budgetReservedMinor",
+          "budgetUsedMinor"
+        ],
+        "properties": {
+          "currencyCode": {
+            "type": "string",
+            "description": "ISO 4217 currency code. Each row totals only its own currency."
+          },
+          "discountAppliedMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Sum of `promotion_discount_application.discount_amount` for this currency inside the window, in integer minor units."
+          },
+          "discountSettledMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Sum of discount amounts of applications in this currency and status `settled` inside the window, in integer minor units."
+          },
+          "budgetTotalMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Current snapshot (not window-filtered): sum of `promotion_budget_account.total_amount_minor` for this currency, in integer minor units."
+          },
+          "budgetReservedMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Current snapshot (not window-filtered): sum of `promotion_budget_account.reserved_amount_minor` for this currency, in integer minor units."
+          },
+          "budgetUsedMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Current snapshot (not window-filtered): sum of `promotion_budget_account.used_amount_minor` for this currency, in integer minor units."
+          }
+        }
+      },
+      "PromotionReportTopOffer": {
+        "type": "object",
+        "required": [
+          "offerId",
+          "offerNo",
+          "displayName",
+          "redeemed",
+          "discountSettledMinor",
+          "currencyCode"
+        ],
+        "properties": {
+          "offerId": {
+            "type": "string"
+          },
+          "offerNo": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "redeemed": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Wallet coupons of this offer redeemed in the window."
+          },
+          "discountSettledMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "x-sdkwork-money-unit": "minor",
+            "description": "Settled discount amount of this offer in `currencyCode` inside the window, in integer minor units."
+          },
+          "currencyCode": {
+            "type": "string",
+            "description": "The single currency this row's amounts belong to (the currency of the offer's settled amount)."
+          }
+        }
+      },
+      "PromotionReportEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdkWorkApiResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "data"
+            ],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "item"
+                ],
+                "properties": {
+                  "item": {
+                    "$ref": "#/components/schemas/PromotionReport"
+                  }
+                }
+              }
+            }
+          }
+        ]
       },
       "SdkWorkApiResponse": {
         "type": "object",
@@ -2404,6 +3767,7 @@
       },
       "PromotionCampaignRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "displayName",
           "channelScope",
@@ -2455,6 +3819,7 @@
       },
       "PromotionOfferRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "offerType",
           "displayName",
@@ -2524,19 +3889,26 @@
             ]
           },
           "discountType": {
-            "type": "string"
+            "type": "string",
+            "description": "Discount calculation mode. Allowed values: `FIXED` (fixed amount off), `PERCENTAGE` (percentage off; `discountValue` is the percentage), `NONE` (benefit-only coupon; no order discount). Input is case-insensitive; the stored value is upper case."
           },
           "discountValue": {
-            "type": "string"
+            "type": "string",
+            "description": "Discount value. `FIXED`: the amount off in decimal major units. `PERCENTAGE`: the percentage in the range (0, 100], where `12.5` means 12.50%. `NONE`: must be `0`. Plain non-negative decimal with at most 2 fraction digits: no sign, exponent, comma, or extra precision.",
+            "x-sdkwork-money-unit": "major"
           },
           "minimumAmount": {
-            "type": "string"
+            "type": "string",
+            "description": "Minimum order amount this coupon requires, in decimal major units (`0` means no minimum). Plain non-negative decimal with at most 2 fraction digits.",
+            "x-sdkwork-money-unit": "major"
           },
           "maximumDiscountAmount": {
             "type": [
               "string",
               "null"
-            ]
+            ],
+            "description": "Optional cap on a `PERCENTAGE` discount, in decimal major units. Must be greater than `0`, and is rejected for `FIXED` and `NONE`.",
+            "x-sdkwork-money-unit": "major"
           },
           "currencyCode": {
             "type": "string"
@@ -2554,6 +3926,7 @@
       },
       "CouponStockRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "offerId",
           "stockType",
@@ -2612,6 +3985,15 @@
             ],
             "default": "REALTIME",
             "description": "Coupon code issuance mode: REALTIME generates a code at claim time; BATCH dispenses a pre-generated pool code"
+          },
+          "budgetAmountMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "minimum": 1,
+            "description": "Optional hard monetary cap for this coupon stock, in integer minor units (int64 decimal string, must be > 0 when present). Omitted means no cap and apply never reserves. Amounts are integer minor units; legacy decimal-major offer amounts are converted at the service boundary and are never stored here.",
+            "x-sdkwork-money-unit": "minor"
           }
         }
       },
@@ -2692,12 +4074,11 @@
       },
       "PromotionCodeBatchRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "stockId",
           "codeType",
           "requestedQuantity",
-          "codeLength",
-          "codePrefix",
           "idempotencyKey"
         ],
         "properties": {
@@ -2715,6 +4096,22 @@
           },
           "codePrefix": {
             "type": "string"
+          },
+          "customCodes": {
+            "type": "array",
+            "description": "Full coupon codes defined by the admin. When present, the batch stores these codes verbatim (trimmed and upper-cased) instead of generating prefix plus random suffixes; the array length must equal requestedQuantity and codes must be unique.",
+            "items": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 64
+            }
+          },
+          "maxClaims": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 1000000,
+            "description": "Redemption cap per generated code. 1 means single use; larger values issue a shared multi-use code."
           },
           "startsAt": {
             "type": [
@@ -2811,6 +4208,7 @@
       },
       "PromotionDistributionRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "stockId",
           "ownerUserIds",
@@ -2826,8 +4224,10 @@
             "maxItems": 200,
             "uniqueItems": true,
             "items": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "int64",
+              "pattern": "^[1-9][0-9]*$",
+              "x-sdkwork-int64-string": true
             }
           },
           "idempotencyKey": {
@@ -3288,6 +4688,716 @@
               },
               "pageInfo": {
                 "$ref": "#/components/schemas/PageInfo"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionRedemptionAttempt": {
+        "type": "object",
+        "description": "One code-redemption attempt (success or failure). Append-only evidence: rows are never updated or deleted. The submitted code itself is never stored or returned, only its suffix.",
+        "required": [
+          "id",
+          "submittedCodeSuffix",
+          "subjectType",
+          "subjectId",
+          "outcome",
+          "requestNo",
+          "traceId",
+          "occurredAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Attempt id (TEXT)."
+          },
+          "codeId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Resolved promotion code id; null when the submission never matched a code."
+          },
+          "submittedCodeSuffix": {
+            "type": "string",
+            "maxLength": 8,
+            "description": "Last four characters of the trimmed submitted code. Never the redeemable value."
+          },
+          "subjectType": {
+            "type": "string",
+            "description": "Subject that submitted the code, for example `user`."
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "Subject id that submitted the code."
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "succeeded",
+              "failed"
+            ],
+            "description": "Closed outcome vocabulary."
+          },
+          "failureCode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "code_unavailable",
+              "issue_limit_reached",
+              "per_user_limit_reached",
+              "idempotency_conflict",
+              "redemption_in_progress",
+              "benefit_invalid",
+              "internal_error",
+              null
+            ],
+            "description": "Closed failure taxonomy; always present when `outcome` is `failed` and null when it is `succeeded`."
+          },
+          "failureDetail": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 512,
+            "description": "Human-readable rejection message, truncated to 512 characters. Classification lives in the failure code, so clients must not parse this text."
+          },
+          "benefitKind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Granted benefit kind on success (`points_credit`, `token_bank_credit`, `cash_credit`, `subscription`)."
+          },
+          "grantedAmount": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Granted amount as a decimal string in the smallest currency unit, or granted points for `points_credit`."
+          },
+          "currencyCode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Currency of `grantedAmount`."
+          },
+          "requestNo": {
+            "type": "string",
+            "description": "Caller request number that produced the attempt."
+          },
+          "orderId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Order the code was redeemed against, when the attempt came from an order."
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Trace id captured from the redemption command. Empty when the caller supplied none."
+          },
+          "occurredAt": {
+            "type": "string",
+            "description": "Instant the attempt was evaluated (server form `YYYY-MM-DD HH:MM:SS`)."
+          }
+        }
+      },
+      "PromotionRedemptionAttemptListEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "items",
+              "pageInfo"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PromotionRedemptionAttempt"
+                }
+              },
+              "pageInfo": {
+                "$ref": "#/components/schemas/PageInfo"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionCodeReveal": {
+        "type": "object",
+        "description": "One audited reveal result. The full redeemable code is only available through this schema (and the export equivalent), always preceded by an audit-evidence row.",
+        "required": [
+          "codeNo",
+          "code"
+        ],
+        "properties": {
+          "codeNo": {
+            "type": "string",
+            "description": "Human-readable code number (`promotion_code.code_no`)."
+          },
+          "code": {
+            "type": "string",
+            "description": "Full redeemable promotion code."
+          }
+        }
+      },
+      "PromotionCodeRevealEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionCodeReveal"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionCodeExport": {
+        "type": "object",
+        "description": "One audited batch export. Codes are ordered by `codeNo` and capped at 5000 rows.",
+        "required": [
+          "items",
+          "count",
+          "truncated"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 5000,
+            "items": {
+              "$ref": "#/components/schemas/PromotionCodeReveal"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 5000,
+            "description": "Number of codes actually returned (never more than 5000)."
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "True when the batch holds more codes than the 5000-row cap."
+          }
+        }
+      },
+      "PromotionCodeExportEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionCodeExport"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionCodeDisableRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Why the code is being disabled (trimmed, 1..256 characters). The actor is the authenticated operator; no request field can select it."
+          }
+        }
+      },
+      "PromotionCodeDisable": {
+        "type": "object",
+        "required": [
+          "codeId",
+          "status"
+        ],
+        "properties": {
+          "codeId": {
+            "type": "string",
+            "description": "Disabled promotion code id (`promotion_code.id`, TEXT)."
+          },
+          "status": {
+            "type": "string",
+            "description": "Resulting code status; always `disabled`."
+          }
+        }
+      },
+      "PromotionCodeDisableEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionCodeDisable"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionCodeReissueRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Why the code is being reissued (trimmed, 1..256 characters). The actor is the authenticated operator; no request field can select it."
+          },
+          "code": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "description": "Optional explicit replacement code. Trimmed and upper-cased before storage; 4–64 characters of `A-Z0-9-_`. Must be unique in the tenant (`409` on collision). Omit to generate the value from the batch's `codePrefix`/`codeLength`."
+          }
+        }
+      },
+      "PromotionCodeReissue": {
+        "type": "object",
+        "required": [
+          "codeId",
+          "codeNo",
+          "codeMasked",
+          "codeLast4",
+          "replacedCodeId"
+        ],
+        "properties": {
+          "codeId": {
+            "type": "string",
+            "description": "Newly issued replacement code id (`promotion_code.id`, TEXT)."
+          },
+          "codeNo": {
+            "type": "string",
+            "description": "Human-readable number of the replacement (`promotion_code.code_no`)."
+          },
+          "codeMasked": {
+            "type": "string",
+            "description": "Display mask of the replacement; never equal to the redeemable value, which only the audited reveal/export operations return."
+          },
+          "codeLast4": {
+            "type": "string",
+            "description": "Last four characters of the replacement."
+          },
+          "replacedCodeId": {
+            "type": "string",
+            "description": "Id of the disabled original (`promotion_code.id`, TEXT)."
+          }
+        }
+      },
+      "PromotionCodeReissueEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionCodeReissue"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionCodeBatchDisableRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Why the batch is being disabled (trimmed, 1..256 characters). The actor is the authenticated operator; no request field can select it."
+          }
+        }
+      },
+      "PromotionCodeBatchDisable": {
+        "type": "object",
+        "required": [
+          "disabledCount",
+          "skippedCount"
+        ],
+        "properties": {
+          "disabledCount": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Number of codes this operation disabled (`active` AND never claimed)."
+          },
+          "skippedCount": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Codes of the batch the guard skipped (already claimed or no longer active)."
+          }
+        }
+      },
+      "PromotionCodeBatchDisableEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionCodeBatchDisable"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionUserCouponVoidRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Why the coupon is being voided (trimmed, 1..256 characters). The actor is the authenticated operator; no request field can select it."
+          }
+        }
+      },
+      "PromotionUserCouponVoid": {
+        "type": "object",
+        "required": [
+          "userCouponId",
+          "status"
+        ],
+        "properties": {
+          "userCouponId": {
+            "type": "string",
+            "description": "Voided wallet coupon id (`promotion_user_coupon.id`, TEXT)."
+          },
+          "status": {
+            "type": "string",
+            "description": "Resulting coupon status; always `voided`."
+          }
+        }
+      },
+      "PromotionUserCouponVoidEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionUserCouponVoid"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotionUserCouponExtensionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expiresAt"
+        ],
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "description": "New expiry, RFC 3339 (`2026-12-01T00:00:00.000Z`) or the canonical server form (`2026-12-01 00:00:00`). Must be later than the database clock."
+          }
+        }
+      },
+      "PromotionUserCouponExtension": {
+        "type": "object",
+        "required": [
+          "userCouponId",
+          "expiresAt"
+        ],
+        "properties": {
+          "userCouponId": {
+            "type": "string",
+            "description": "Extended wallet coupon id."
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "New expiry in the canonical RFC 3339 UTC shape (`YYYY-MM-DDTHH:MM:SS.sssZ`)."
+          }
+        }
+      },
+      "PromotionUserCouponExtensionEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/PromotionUserCouponExtension"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "DiscountApplicationSettlement": {
+        "type": "object",
+        "required": [
+          "applicationId",
+          "status",
+          "settledAmountMinor"
+        ],
+        "properties": {
+          "applicationId": {
+            "type": "string",
+            "description": "Settled discount application id."
+          },
+          "status": {
+            "type": "string",
+            "description": "Resulting application status; always `settled`."
+          },
+          "settledAmountMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Amount that left the reservation pool and became spent, in integer minor units (int64 decimal string). `0` when the application never reserved budget.",
+            "x-sdkwork-money-unit": "minor"
+          }
+        }
+      },
+      "DiscountApplicationRelease": {
+        "type": "object",
+        "required": [
+          "applicationId",
+          "status",
+          "releasedAmountMinor"
+        ],
+        "properties": {
+          "applicationId": {
+            "type": "string",
+            "description": "Released discount application id."
+          },
+          "status": {
+            "type": "string",
+            "description": "Resulting application status; always `released`."
+          },
+          "releasedAmountMinor": {
+            "type": "string",
+            "format": "int64",
+            "pattern": "^-?[0-9]+$",
+            "x-sdkwork-int64-string": true,
+            "description": "Reservation returned to the available pool, in integer minor units (int64 decimal string). `0` when the application never reserved budget.",
+            "x-sdkwork-money-unit": "minor"
+          }
+        }
+      },
+      "DiscountApplicationReleaseRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Why the reservation is being released (trimmed, 1..256 characters). The actor is the authenticated operator; no request field can select it."
+          }
+        }
+      },
+      "DiscountApplicationSettlementEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/DiscountApplicationSettlement"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "DiscountApplicationReleaseEnvelope": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/DiscountApplicationRelease"
               }
             }
           },

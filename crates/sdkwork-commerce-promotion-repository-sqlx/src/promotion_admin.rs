@@ -1,10 +1,15 @@
 use sdkwork_commerce_promotion_service::{
-    PromotionAdminFuture, PromotionAdminListQuery, PromotionAdminPage,
+    CodeReissueOutcome, PromotionAdminFuture, PromotionAdminListQuery, PromotionAdminPage,
     PromotionAdminRepositoryPort, PromotionAdminScope, PromotionAdminUserCouponItem,
-    PromotionCampaignInput, PromotionCampaignItem, PromotionCodeBatchInput, PromotionCodeBatchItem,
-    PromotionCodeItem, PromotionCouponLedgerItem, PromotionCouponStockInput,
-    PromotionCouponStockItem, PromotionDiscountApplicationItem, PromotionDistributionInput,
-    PromotionDistributionTaskItem, PromotionOfferInput, PromotionOfferItem, PromotionOverview,
+    PromotionCampaignInput, PromotionCampaignItem, PromotionCodeBatchDisableItem,
+    PromotionCodeBatchInput, PromotionCodeBatchItem, PromotionCodeDisableItem,
+    PromotionCodeExportItem, PromotionCodeItem, PromotionCodeRevealItem, PromotionCouponLedgerItem,
+    PromotionCouponStockInput, PromotionCouponStockItem, PromotionDiscountApplicationItem,
+    PromotionDiscountApplicationReleaseItem, PromotionDiscountApplicationSettlementItem,
+    PromotionDistributionInput, PromotionDistributionTaskItem, PromotionOfferInput,
+    PromotionOfferItem, PromotionOverview, PromotionRedemptionAttemptItem,
+    PromotionRedemptionAttemptListQuery, PromotionReport, PromotionUserCouponExtendItem,
+    PromotionUserCouponVoidItem,
 };
 use sdkwork_contract_service::CommerceServiceError;
 use sqlx::postgres::PgRow;
@@ -30,7 +35,7 @@ const POSTGRES_OFFER_LIST_SQL: &str = "SELECT o.id, o.campaign_id, o.offer_no, o
 
 
 const POSTGRES_STOCK_COUNT_SQL: &str = "SELECT COUNT(*) FROM promotion_coupon_stock WHERE tenant_id = $1 AND organization_id = $2 AND ($3 = '%%' OR LOWER(stock_no) LIKE $3) AND ($4 IS NULL OR status = $4)";
-const POSTGRES_STOCK_LIST_SQL: &str = "SELECT id, offer_id, stock_no, stock_type, code_issue_mode, total_quantity, available_quantity, claimed_quantity, redeemed_quantity, locked_quantity, per_user_limit, claim_starts_at AS claim_starts_at, claim_ends_at AS claim_ends_at, status FROM promotion_coupon_stock WHERE tenant_id = $1 AND organization_id = $2 AND ($3 = '%%' OR LOWER(stock_no) LIKE $3) AND ($4 IS NULL OR status = $4) ORDER BY created_at DESC LIMIT $5 OFFSET $6";
+const POSTGRES_STOCK_LIST_SQL: &str = "SELECT s.id, s.offer_id, s.stock_no, s.stock_type, s.code_issue_mode, s.total_quantity, s.available_quantity, s.claimed_quantity, s.redeemed_quantity, s.locked_quantity, s.per_user_limit, s.claim_starts_at AS claim_starts_at, s.claim_ends_at AS claim_ends_at, s.status, b.total_amount_minor AS budget_amount_minor, b.available_amount_minor AS budget_available_minor, b.reserved_amount_minor AS budget_reserved_minor, b.used_amount_minor AS budget_used_minor FROM promotion_coupon_stock s LEFT JOIN promotion_budget_account b ON b.tenant_id = s.tenant_id AND b.stock_id = s.id WHERE s.tenant_id = $1 AND s.organization_id = $2 AND ($3 = '%%' OR LOWER(s.stock_no) LIKE $3) AND ($4 IS NULL OR s.status = $4) ORDER BY s.created_at DESC LIMIT $5 OFFSET $6";
 
 
 
@@ -39,8 +44,8 @@ const POSTGRES_CODE_LIST_SQL: &str = "SELECT id, stock_id, offer_id, code_no, pr
 
 
 
-const POSTGRES_APPLICATION_COUNT_SQL: &str = "SELECT COUNT(*) FROM promotion_discount_application WHERE tenant_id = $1 AND organization_id = $2 AND ($3 = '%%' OR LOWER(application_no) LIKE $3 OR LOWER(COALESCE(order_no, '')) LIKE $3) AND ($4 IS NULL OR status = $4)";
-const POSTGRES_APPLICATION_LIST_SQL: &str = "SELECT id, application_no, order_id, order_no, offer_id, discount_type, CAST(discount_amount AS TEXT) AS discount_amount, currency_code, status, applied_at AS applied_at, settled_at AS settled_at, released_at AS released_at, rolled_back_at AS rolled_back_at FROM promotion_discount_application WHERE tenant_id = $1 AND organization_id = $2 AND ($3 = '%%' OR LOWER(application_no) LIKE $3 OR LOWER(COALESCE(order_no, '')) LIKE $3) AND ($4 IS NULL OR status = $4) ORDER BY applied_at DESC LIMIT $5 OFFSET $6";
+const POSTGRES_APPLICATION_COUNT_SQL: &str = "SELECT COUNT(*) FROM promotion_discount_application a LEFT JOIN promotion_user_coupon uc ON uc.tenant_id = a.tenant_id AND uc.id = a.user_coupon_id WHERE a.tenant_id = $1 AND a.organization_id = $2 AND ($3 = '%%' OR LOWER(a.application_no) LIKE $3 OR LOWER(COALESCE(a.order_no, '')) LIKE $3) AND ($4 IS NULL OR a.status = $4) AND ($5 IS NULL OR uc.code_id = CAST($5 AS TEXT)) AND ($6 IS NULL OR a.user_coupon_id = CAST($6 AS TEXT)) AND ($7 IS NULL OR a.order_id = CAST($7 AS TEXT))";
+const POSTGRES_APPLICATION_LIST_SQL: &str = "SELECT a.id, a.application_no, a.order_id, a.order_no, a.offer_id, a.discount_type, CAST(a.discount_amount AS TEXT) AS discount_amount, a.currency_code, a.status, a.applied_at AS applied_at, a.settled_at AS settled_at, a.released_at AS released_at, a.rolled_back_at AS rolled_back_at FROM promotion_discount_application a LEFT JOIN promotion_user_coupon uc ON uc.tenant_id = a.tenant_id AND uc.id = a.user_coupon_id WHERE a.tenant_id = $1 AND a.organization_id = $2 AND ($3 = '%%' OR LOWER(a.application_no) LIKE $3 OR LOWER(COALESCE(a.order_no, '')) LIKE $3) AND ($4 IS NULL OR a.status = $4) AND ($5 IS NULL OR uc.code_id = CAST($5 AS TEXT)) AND ($6 IS NULL OR a.user_coupon_id = CAST($6 AS TEXT)) AND ($7 IS NULL OR a.order_id = CAST($7 AS TEXT)) ORDER BY a.applied_at DESC LIMIT $8 OFFSET $9";
 
 
 
@@ -97,6 +102,14 @@ impl AdminRow {
         .map_err(|error| decode_error(name, error))
     }
 
+    fn optional_i64(&self, name: &str) -> Result<Option<i64>, CommerceServiceError> {
+        match self {
+            Self::Postgres(row) => row.try_get(name),
+
+        }
+        .map_err(|error| decode_error(name, error))
+    }
+
 }
 
 macro_rules! impl_admin_repository {
@@ -109,6 +122,21 @@ macro_rules! impl_admin_repository {
                 Box::pin(async move {
                     let pool = AdminPool::$variant(self.pool.clone());
                     retrieve_overview(&pool, scope).await
+                })
+            }
+
+            /// Three focused read queries, one read-only transaction. The
+            /// window arrives as canonical RFC 3339 instants (the service layer
+            /// already normalized and ordered it) and every window predicate is
+            /// an instant comparison through `crate::timestamps::instant`.
+            fn retrieve_reports<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                from: &'a str,
+                to: &'a str,
+            ) -> PromotionAdminFuture<'a, PromotionReport> {
+                Box::pin(async move {
+                    crate::reports::retrieve_reports(&self.pool, scope, from, to).await
                 })
             }
 
@@ -412,6 +440,190 @@ macro_rules! impl_admin_repository {
                     list_discount_applications(&pool, scope, query).await
                 })
             }
+
+            fn list_redemption_attempts<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                query: &'a PromotionRedemptionAttemptListQuery,
+            ) -> PromotionAdminFuture<'a, PromotionAdminPage<PromotionRedemptionAttemptItem>>
+            {
+                Box::pin(async move {
+                    crate::promotion_admin_management::list_redemption_attempts(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        query,
+                    )
+                    .await
+                })
+            }
+
+            fn reveal_code<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                code_id: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionCodeRevealItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::reveal_code(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        code_id,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn export_code_batch<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                batch_id: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionCodeExportItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::export_code_batch(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        batch_id,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn disable_code<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                code_id: String,
+                reason: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionCodeDisableItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::disable_code(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        code_id,
+                        reason,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn disable_code_batch<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                batch_id: String,
+                reason: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionCodeBatchDisableItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::disable_code_batch(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        batch_id,
+                        reason,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn reissue_code<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                code_id: String,
+                reason: String,
+                explicit_code: Option<String>,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<CodeReissueOutcome>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::reissue_code(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        code_id,
+                        reason,
+                        explicit_code.as_deref(),
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn void_user_coupon<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                user_coupon_id: String,
+                reason: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionUserCouponVoidItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::void_user_coupon(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        user_coupon_id,
+                        reason,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn extend_user_coupon<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                user_coupon_id: String,
+                expires_at: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionUserCouponExtendItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::extend_user_coupon(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        user_coupon_id,
+                        expires_at,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn settle_discount_application<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                application_id: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionDiscountApplicationSettlementItem>>
+            {
+                Box::pin(async move {
+                    crate::promotion_admin_management::settle_discount_application(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        application_id,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
+
+            fn release_discount_application<'a>(
+                &'a self,
+                scope: &'a PromotionAdminScope,
+                application_id: String,
+                reason: String,
+                trace_id: String,
+            ) -> PromotionAdminFuture<'a, Option<PromotionDiscountApplicationReleaseItem>> {
+                Box::pin(async move {
+                    crate::promotion_admin_management::release_discount_application(
+                        &AdminPool::$variant(self.pool.clone()),
+                        scope,
+                        application_id,
+                        reason,
+                        trace_id.as_str(),
+                    )
+                    .await
+                })
+            }
         }
     };
 }
@@ -525,6 +737,10 @@ async fn list_coupon_stocks(
                 claim_starts_at: row.optional_string("claim_starts_at")?,
                 claim_ends_at: row.optional_string("claim_ends_at")?,
                 status: row.string("status")?,
+                budget_amount_minor: row.optional_i64("budget_amount_minor")?,
+                budget_available_minor: row.optional_i64("budget_available_minor")?,
+                budget_reserved_minor: row.optional_i64("budget_reserved_minor")?,
+                budget_used_minor: row.optional_i64("budget_used_minor")?,
             })
         })
         .collect::<Result<Vec<_>, CommerceServiceError>>()?;
@@ -590,20 +806,62 @@ async fn list_codes(
     Ok(PromotionAdminPage { items, total_items })
 }
 
+/// Lists discount applications, optionally narrowed to one code, user coupon,
+/// or order.
+///
+/// The three filters are bound equality predicates on raw columns (never a
+/// function over the column), so the planner can still use the existing
+/// indexes: `idx_promotion_discount_application_order` serves `order_id`,
+/// `idx_promotion_discount_application_owner_status` keeps the
+/// `applied_at DESC` sort usable, and `code_id`/`user_coupon_id` resolve
+/// through the `promotion_user_coupon` primary key on the same tenant.
+/// `code_id` is not a column on this table — the application records the user
+/// coupon, and the coupon records the code that produced it — so the filter is
+/// expressed as an equality on the joined coupon, not as a second denormalized
+/// column. Tenant/organization scoping keeps the platform sentinel semantics of
+/// every other admin list (`organization_id = '0'`).
 async fn list_discount_applications(
     pool: &AdminPool,
     scope: &PromotionAdminScope,
     query: &PromotionAdminListQuery,
 ) -> Result<PromotionAdminPage<PromotionDiscountApplicationItem>, CommerceServiceError> {
-    let (total_items, rows) = query_page(
-        pool,
-        scope,
-        query,
-        POSTGRES_APPLICATION_COUNT_SQL,
-        POSTGRES_APPLICATION_LIST_SQL,
-        "list promotion discount applications",
-    )
-    .await?;
+    let search = query.search_pattern();
+    let (total_items, rows) = match pool {
+        AdminPool::Postgres(pool) => {
+            let total_items =
+                sqlx::query_scalar::<_, i64>(sqlx::AssertSqlSafe(POSTGRES_APPLICATION_COUNT_SQL))
+                    .bind(scope.tenant_id.to_string())
+                    .bind(scope.organization_id.to_string())
+                    .bind(&search)
+                    .bind(query.status.as_deref())
+                    .bind(query.code_id.as_deref())
+                    .bind(query.user_coupon_id.as_deref())
+                    .bind(query.order_id.as_deref())
+                    .fetch_one(pool)
+                    .await
+                    .map_err(|error| {
+                        storage_error("list promotion discount applications", error)
+                    })?;
+            let rows: Vec<AdminRow> =
+                sqlx::query(sqlx::AssertSqlSafe(POSTGRES_APPLICATION_LIST_SQL))
+                    .bind(scope.tenant_id.to_string())
+                    .bind(scope.organization_id.to_string())
+                    .bind(&search)
+                    .bind(query.status.as_deref())
+                    .bind(query.code_id.as_deref())
+                    .bind(query.user_coupon_id.as_deref())
+                    .bind(query.order_id.as_deref())
+                    .bind(query.page_size)
+                    .bind(query.offset())
+                    .fetch_all(pool)
+                    .await
+                    .map_err(|error| storage_error("list promotion discount applications", error))?
+                    .into_iter()
+                    .map(AdminRow::Postgres)
+                    .collect();
+            (total_items, rows)
+        }
+    };
     let items = rows
         .into_iter()
         .map(|row| {
@@ -690,4 +948,127 @@ fn storage_error(context: &str, error: sqlx::Error) -> CommerceServiceError {
 
 fn decode_error(column: &str, error: sqlx::Error) -> CommerceServiceError {
     CommerceServiceError::storage(format!("decode promotion admin column {column}: {error}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        POSTGRES_APPLICATION_COUNT_SQL, POSTGRES_APPLICATION_LIST_SQL, POSTGRES_STOCK_LIST_SQL,
+    };
+
+    #[test]
+    fn discount_application_list_filters_by_code_user_coupon_and_order() {
+        for sql in [
+            POSTGRES_APPLICATION_COUNT_SQL,
+            POSTGRES_APPLICATION_LIST_SQL,
+        ] {
+            // Scoping keeps the sentinel semantics of every admin list: the
+            // organization predicate is the scope value (`0` = platform).
+            assert!(sql.contains("a.tenant_id = $1"));
+            assert!(sql.contains("a.organization_id = $2"));
+            // The pre-existing q/status behaviour is unchanged.
+            assert!(sql.contains("($3 = '%%'"));
+            assert!(sql.contains("($4 IS NULL OR a.status = $4)"));
+            // The three new filters are bound equality predicates.
+            assert!(sql.contains("($5 IS NULL OR uc.code_id = CAST($5 AS TEXT))"));
+            assert!(sql.contains("($6 IS NULL OR a.user_coupon_id = CAST($6 AS TEXT))"));
+            assert!(sql.contains("($7 IS NULL OR a.order_id = CAST($7 AS TEXT))"));
+            // Predicates stay on raw columns so the existing indexes remain usable.
+            assert!(!sql.contains("LOWER(a.order_id)"));
+            assert!(!sql.contains("LOWER(a.user_coupon_id)"));
+            assert!(!sql.contains("LOWER(uc.code_id)"));
+        }
+        // `promotion_discount_application` has no `code_id` column: the filter
+        // resolves through the user coupon that recorded the applied code.
+        assert!(POSTGRES_APPLICATION_LIST_SQL.contains(
+            "LEFT JOIN promotion_user_coupon uc ON uc.tenant_id = a.tenant_id AND uc.id = a.user_coupon_id"
+        ));
+        assert!(POSTGRES_APPLICATION_LIST_SQL.contains("ORDER BY a.applied_at DESC"));
+        assert!(POSTGRES_APPLICATION_LIST_SQL.contains("LIMIT $8 OFFSET $9"));
+    }
+
+    #[test]
+    fn discount_application_list_binds_every_filter_on_both_queries() {
+        let source = include_str!("promotion_admin.rs");
+        let start = source
+            .find("async fn list_discount_applications")
+            .expect("discount application list");
+        let rest = &source[start..];
+        let body = &rest[..rest.find("\nasync fn query_page").unwrap_or(rest.len())];
+
+        // The count and the page must bind the identical filter set, otherwise a
+        // page can disagree with its own total.
+        assert_eq!(body.matches(".bind(query.code_id.as_deref())").count(), 2);
+        assert_eq!(
+            body.matches(".bind(query.user_coupon_id.as_deref())")
+                .count(),
+            2
+        );
+        assert_eq!(body.matches(".bind(query.order_id.as_deref())").count(), 2);
+        assert_eq!(body.matches(".bind(query.status.as_deref())").count(), 2);
+        assert_eq!(body.matches(".bind(&search)").count(), 2);
+        // New filters are bound, never interpolated into the SQL text.
+        assert!(!body.contains("format!(\"{}\", query.code_id"));
+    }
+
+    #[test]
+    fn coupon_stock_reads_left_join_the_budget_account_snapshot() {
+        let join = "LEFT JOIN promotion_budget_account b ON b.tenant_id = s.tenant_id AND b.stock_id = s.id";
+        let columns = [
+            "b.total_amount_minor AS budget_amount_minor",
+            "b.available_amount_minor AS budget_available_minor",
+            "b.reserved_amount_minor AS budget_reserved_minor",
+            "b.used_amount_minor AS budget_used_minor",
+        ];
+
+        // List: one row per stock (the join key is `uk_pba_stock`), the
+        // existing ordering/filters and organization scoping stay untouched.
+        assert!(POSTGRES_STOCK_LIST_SQL.contains(join));
+        for &column in &columns {
+            assert!(
+                POSTGRES_STOCK_LIST_SQL.contains(column),
+                "stock list is missing {column}"
+            );
+        }
+        assert!(POSTGRES_STOCK_LIST_SQL.contains("s.organization_id = $2"));
+        assert!(POSTGRES_STOCK_LIST_SQL.contains("($3 = '%%' OR LOWER(s.stock_no) LIKE $3)"));
+        assert!(POSTGRES_STOCK_LIST_SQL.contains("($4 IS NULL OR s.status = $4)"));
+        assert!(POSTGRES_STOCK_LIST_SQL.contains("ORDER BY s.created_at DESC LIMIT $5 OFFSET $6"));
+
+        // Retrieve: same join, still scoped by id + tenant + organization.
+        let management = include_str!("promotion_admin_management.rs");
+        let start = management
+            .find("async fn retrieve_stock")
+            .expect("retrieve_stock");
+        let rest = &management[start..];
+        let body = &rest[..rest
+            .find("\npub(crate) async fn list_code_batches")
+            .unwrap_or(rest.len())];
+        assert!(body.contains(join));
+        for &column in &columns {
+            assert!(
+                body.contains(column),
+                "retrieve_stock is missing {column}"
+            );
+        }
+        assert!(body.contains("WHERE s.id=$1 AND s.tenant_id=$2 AND s.organization_id=$3"));
+
+        // The shared mapper decodes all four optional minor amounts.
+        let map_start = management.find("fn map_stock").expect("map_stock");
+        let map_rest = &management[map_start..];
+        let map_body = &map_rest[..map_rest
+            .find("\nfn map_code_batch")
+            .unwrap_or(map_rest.len())];
+        for field in [
+            "budget_amount_minor",
+            "budget_available_minor",
+            "budget_reserved_minor",
+            "budget_used_minor",
+        ] {
+            assert!(
+                map_body.contains(&format!("row.optional_i64(\"{field}\")?")),
+                "map_stock is missing {field}"
+            );
+        }
+    }
 }

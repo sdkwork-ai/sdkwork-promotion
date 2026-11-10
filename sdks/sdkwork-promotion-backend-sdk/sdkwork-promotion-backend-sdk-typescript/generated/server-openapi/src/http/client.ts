@@ -182,6 +182,11 @@ export class HttpClient extends BaseHttpClient {
     headers: Record<string, string>,
     preserveAccessToken: boolean,
   ): void {
+    // Identity projection headers forbidden by the Web Framework server guard
+    // (sdkwork-web-core::constants::FORBIDDEN_CLIENT_IDENTITY_HEADERS,
+    // API_SPEC §10.2 / SECURITY_SPEC §5.1 / spec B9). The server rejects any
+    // request carrying them with 400/40001 (surface classification), so
+    // generated clients strip them defensively on top of BaseHttpClient.
     [
       ...(preserveAccessToken ? [] : [HttpClient.ACCESS_TOKEN_HEADER, 'Access-Token']),
       'Authorization',

@@ -42,3 +42,21 @@ tables:
   - name: promotion_discount_application
     lifecycle_status: active
     owner: sdkwork-promotion
+  - name: promotion_member_card
+    lifecycle_status: active
+    owner: sdkwork-promotion
+  - name: promotion_member_card_consumption
+    lifecycle_status: active
+    owner: sdkwork-promotion
+  - name: promotion_code_redemption_attempt
+    lifecycle_status: active
+    owner: sdkwork-promotion
+  - name: promotion_audit_event
+    lifecycle_status: active
+    owner: sdkwork-promotion
+  - name: promotion_budget_account
+    lifecycle_status: active
+    owner: sdkwork-promotion
+  - name: promotion_budget_ledger_entry
+    lifecycle_status: active
+    owner: sdkwork-promotion

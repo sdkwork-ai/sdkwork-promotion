@@ -1,5 +1,6 @@
 mod api_response;
 mod backend_acl;
+mod code_mask;
 pub mod http_route_manifest;
 mod operations;
 pub mod routes;

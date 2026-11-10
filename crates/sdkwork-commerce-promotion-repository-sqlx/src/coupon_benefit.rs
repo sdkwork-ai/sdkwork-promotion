@@ -54,6 +54,15 @@ pub(crate) fn parse_order_coupon_benefit(
             let sku_id = required_text(benefit, "skuId")?;
             let package_id = positive_integer(benefit, "packageId")?;
             let period = PromotionSubscriptionPeriod::parse(&required_text(benefit, "period")?)?;
+            // The order side turns a subscription coupon into a membership
+            // grant, and the membership contract only accepts day/week/month/
+            // year. Rejecting a quarter coupon here fails *before* the coupon is
+            // consumed instead of after, when the grant is refused.
+            if period == PromotionSubscriptionPeriod::Quarter {
+                return Err(CommerceServiceError::validation(
+                    "subscription coupon period quarter is not supported by membership fulfilment; use month with 90-92 days",
+                ));
+            }
             let duration_days = positive_integer(benefit, "durationDays")?;
             PromotionOrderCouponBenefit::subscription(
                 &product_id,
@@ -84,17 +93,32 @@ pub(crate) fn parse_admin_coupon_benefit(
     };
     let kind = required_text(benefit, "kind")?;
     match kind.trim().to_ascii_lowercase().as_str() {
-        "token_bank_credit" => Ok(Some(PromotionCouponBenefit::token_bank_credit_with_bonus(
-            positive_integer(benefit, "grantAmount")?,
-            non_negative_integer(benefit, "bonusAmount")?,
-        )?)),
+        "token_bank_credit" => {
+            // The order-side parser rejects a non-token-bank target asset; the
+            // redemption parser must agree, otherwise a rule that is invalid on
+            // one path is honoured on the other.
+            if let Some(target_asset) = optional_text(benefit, "targetAsset") {
+                if target_asset != "token_bank" {
+                    return Err(CommerceServiceError::validation(
+                        "Token Bank coupon targetAsset must be token_bank",
+                    ));
+                }
+            }
+            Ok(Some(PromotionCouponBenefit::token_bank_credit_with_bonus(
+                positive_integer(benefit, "grantAmount")?,
+                non_negative_integer(benefit, "bonusAmount")?,
+            )?))
+        }
         "points_credit" => Ok(Some(PromotionCouponBenefit::points_credit(
             positive_integer(benefit, "grantPoints")?,
         )?)),
         "cash_credit" => Ok(Some(PromotionCouponBenefit::cash_credit(
             positive_integer(benefit, "grantAmount")?,
         )?)),
-        "subscription" => Ok(Some(PromotionCouponBenefit::subscription(
+        "subscription" => Ok(Some(PromotionCouponBenefit::subscription_with_package(
+            optional_text(benefit, "productId").unwrap_or_default().as_str(),
+            optional_text(benefit, "skuId").unwrap_or_default().as_str(),
+            optional_positive_integer(benefit, "packageId")?,
             PromotionSubscriptionPeriod::parse(&required_text(benefit, "period")?)?,
             positive_integer(benefit, "durationDays")?,
             positive_integer(benefit, "dailyQuota")?,
@@ -137,17 +161,30 @@ pub(crate) fn serialize_admin_coupon_benefit(
             "grantAmount": grant_amount.to_string(),
         }),
         PromotionCouponBenefit::Subscription {
+            product_id,
+            sku_id,
+            package_id,
             period,
             duration_days,
             daily_quota,
             total_quota,
-        } => serde_json::json!({
-            "kind": "subscription",
-            "period": period.as_str(),
-            "durationDays": duration_days,
-            "dailyQuota": daily_quota.to_string(),
-            "totalQuota": total_quota.to_string(),
-        }),
+        } => {
+            let mut value = serde_json::json!({
+                "kind": "subscription",
+                "period": period.as_str(),
+                "durationDays": duration_days,
+                "dailyQuota": daily_quota.to_string(),
+                "totalQuota": total_quota.to_string(),
+            });
+            // Persist the membership package identity only when the admin pinned
+            // one; the order-side redemption requires it, the claim path does not.
+            if !product_id.is_empty() && !sku_id.is_empty() && *package_id > 0 {
+                value["productId"] = serde_json::json!(product_id);
+                value["skuId"] = serde_json::json!(sku_id);
+                value["packageId"] = serde_json::json!(package_id.to_string());
+            }
+            value
+        }
     };
     serde_json::to_string(&serde_json::json!({ "couponBenefit": coupon_benefit }))
         .map(Some)
@@ -240,8 +277,15 @@ fn positive_integer(value: &Value, field: &str) -> Result<i64, CommerceServiceEr
         })
 }
 
-fn non_negative_integer(value: &Value, field: &str) -> Result<i64, CommerceServiceError> {
-    // 可选字段（如 bonusAmount）：缺失视为 0，保持与旧数据兼容
+/// Optional integer that must be positive when present (missing means 0).
+fn optional_positive_integer(value: &Value, field: &str) -> Result<i64, CommerceServiceError> {
+    match value.get(field) {
+        None => Ok(0),
+        Some(_) => positive_integer(value, field),
+    }
+}
+
+fn non_negative_integer(value: &Value, field: &str) -> Result<i64, CommerceServiceError> {    // 可选字段（如 bonusAmount）：缺失视为 0，保持与旧数据兼容
     let Some(raw) = value.get(field) else {
         return Ok(0);
     };
@@ -312,8 +356,71 @@ mod tests {
     }
 
     #[test]
-    fn admin_subscription_benefit_round_trips_through_canonical_rule_json() {
-        let benefit = PromotionCouponBenefit::subscription(
+    fn admin_subscription_package_reaches_the_order_parser() {
+        // The admin console must be able to pin the membership package, because
+        // the order-side redemption requires productId/skuId/packageId. Before
+        // this field set existed, every admin-created subscription coupon was
+        // rejected by the order path with "productId is required".
+        let benefit = PromotionCouponBenefit::subscription_with_package(
+            "membership",
+            "sku-pro-month",
+            1002,
+            PromotionSubscriptionPeriod::Month,
+            30,
+            1000,
+            30000,
+        )
+        .expect("admin benefit with package");
+        let rule_json = serialize_admin_coupon_benefit(Some(&benefit))
+            .expect("serialize benefit")
+            .expect("rule json");
+        assert!(rule_json.contains("\"productId\":\"membership\""), "{rule_json}");
+        assert!(rule_json.contains("\"skuId\":\"sku-pro-month\""), "{rule_json}");
+        assert!(rule_json.contains("\"packageId\":\"1002\""), "{rule_json}");
+        assert_eq!(
+            parse_admin_coupon_benefit(Some(&rule_json)).expect("parse benefit"),
+            Some(benefit)
+        );
+        let order_benefit = parse_order_coupon_benefit(Some(&rule_json), "0", "CNY", false)
+            .expect("order side accepts the pinned package");
+        assert!(matches!(
+            order_benefit.kind,
+            PromotionOrderCouponBenefitKind::Subscription {
+                package_id: 1002,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn partial_subscription_package_is_rejected_at_write_time() {
+        let error = PromotionCouponBenefit::subscription_with_package(
+            "membership",
+            "",
+            1002,
+            PromotionSubscriptionPeriod::Month,
+            30,
+            1000,
+            30000,
+        )
+        .expect_err("partial package must be rejected");
+        assert_eq!("validation", error.code());
+    }
+
+    #[test]
+    fn order_path_rejects_quarter_subscription_before_consuming_the_coupon() {
+        // Membership fulfilment has no quarter period; failing at parse time
+        // keeps the coupon unconsumed.
+        let rule = r#"{"couponBenefit":{"kind":"subscription","productId":"membership","skuId":"sku-q","packageId":"1003","period":"quarter","durationDays":90,"dailyQuota":100,"totalQuota":9000}}"#;
+        let error = parse_order_coupon_benefit(Some(rule), "0", "CNY", false)
+            .expect_err("quarter must be rejected on the order path");
+        assert_eq!("validation", error.code());
+        // The promotion-side parser still accepts it for the member-card path.
+        assert!(parse_admin_coupon_benefit(Some(rule)).is_ok());
+    }
+
+    #[test]
+    fn admin_subscription_benefit_round_trips_through_canonical_rule_json() {        let benefit = PromotionCouponBenefit::subscription(
             PromotionSubscriptionPeriod::Month,
             30,
             1000,
@@ -343,6 +450,7 @@ mod tests {
                 duration_days: 30,
                 daily_quota: 1000,
                 total_quota: 30000,
+                ..
             }
         ));
     }

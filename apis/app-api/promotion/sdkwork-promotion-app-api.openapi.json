@@ -1842,6 +1842,18 @@
           "type": {
             "format": "uri-reference",
             "type": "string"
+          },
+          "i18nKey": {
+            "type": "string",
+            "description": "Stable SDKWork message key a client can localize instead of rendering `detail` verbatim. Display metadata only; never used for control flow."
+          },
+          "locale": {
+            "type": "string",
+            "description": "BCP 47 locale the server rendered `detail` in. Display metadata only."
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Operation that raised the problem, for example `redemptionAttempts.list`."
           }
         },
         "required": [

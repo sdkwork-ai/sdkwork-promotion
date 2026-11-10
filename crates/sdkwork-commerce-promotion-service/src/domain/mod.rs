@@ -183,6 +183,11 @@ pub enum PromotionCouponBenefit {
         grant_amount: i64,
     },
     Subscription {
+        /// Membership package identity the coupon grants. Empty when the admin
+        /// has not pinned one yet; the order-side redemption path requires it.
+        product_id: String,
+        sku_id: String,
+        package_id: i64,
         period: PromotionSubscriptionPeriod,
         duration_days: i64,
         daily_quota: i64,
@@ -298,7 +303,35 @@ impl PromotionCouponBenefit {
         daily_quota: i64,
         total_quota: i64,
     ) -> Result<Self, CommerceServiceError> {
+        Self::subscription_with_package(
+            "",
+            "",
+            0,
+            period,
+            duration_days,
+            daily_quota,
+            total_quota,
+        )
+    }
+
+    /// Subscription coupon pinned to a concrete membership package.
+    ///
+    /// The order-side redemption path turns this benefit into a membership
+    /// grant and therefore needs the package identity; a coupon without it is
+    /// redeemable in promotion but rejected before the coupon is consumed.
+    pub fn subscription_with_package(
+        product_id: &str,
+        sku_id: &str,
+        package_id: i64,
+        period: PromotionSubscriptionPeriod,
+        duration_days: i64,
+        daily_quota: i64,
+        total_quota: i64,
+    ) -> Result<Self, CommerceServiceError> {
         let benefit = Self::Subscription {
+            product_id: product_id.trim().to_owned(),
+            sku_id: sku_id.trim().to_owned(),
+            package_id,
             period,
             duration_days,
             daily_quota,
@@ -306,6 +339,21 @@ impl PromotionCouponBenefit {
         };
         benefit.validate()?;
         Ok(benefit)
+    }
+
+    /// Membership package identity of a subscription coupon, when pinned.
+    pub fn subscription_package(&self) -> Option<(&str, &str, i64)> {
+        match self {
+            Self::Subscription {
+                product_id,
+                sku_id,
+                package_id,
+                ..
+            } if !product_id.is_empty() && !sku_id.is_empty() && *package_id > 0 => {
+                Some((product_id.as_str(), sku_id.as_str(), *package_id))
+            }
+            _ => None,
+        }
     }
 
     pub fn validate(&self) -> Result<(), CommerceServiceError> {
@@ -340,11 +388,28 @@ impl PromotionCouponBenefit {
                 }
             }
             Self::Subscription {
+                product_id,
+                sku_id,
+                package_id,
                 period,
                 duration_days,
                 daily_quota,
                 total_quota,
             } => {
+                // Package identity is optional, but a partially specified one is
+                // a configuration error: the order path needs all three or none.
+                let package_declared = !product_id.trim().is_empty()
+                    || !sku_id.trim().is_empty()
+                    || *package_id != 0;
+                if package_declared
+                    && (product_id.trim().is_empty()
+                        || sku_id.trim().is_empty()
+                        || *package_id <= 0)
+                {
+                    return Err(CommerceServiceError::validation(
+                        "promotion subscription coupon package requires productId, skuId, and a positive packageId",
+                    ));
+                }
                 period.validate_duration_days(*duration_days)?;
                 if *daily_quota <= 0 || *total_quota <= 0 {
                     return Err(CommerceServiceError::validation(

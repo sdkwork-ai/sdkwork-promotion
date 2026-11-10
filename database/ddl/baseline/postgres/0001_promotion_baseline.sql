@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS promotion_coupon_stock (
         AND redeemed_quantity >= 0 AND locked_quantity >= 0
     ),
     CONSTRAINT chk_promotion_coupon_stock_available_le_total CHECK (
-        stock_type = 'UNLIMITED' OR (available_quantity + claimed_quantity <= total_quantity)
+        stock_type = 'unlimited' OR (available_quantity + claimed_quantity <= total_quantity)
     )
 );
 
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS promotion_code_batch (
     CONSTRAINT uk_promotion_code_batch_no UNIQUE (tenant_id, batch_no),
     CONSTRAINT uk_promotion_code_batch_idempotency UNIQUE (tenant_id, idempotency_key),
     CONSTRAINT chk_promotion_code_batch_quantity CHECK (requested_quantity > 0 AND generated_quantity >= 0 AND generated_quantity <= requested_quantity),
-    CONSTRAINT chk_promotion_code_batch_length CHECK (code_length BETWEEN 12 AND 32)
+    CONSTRAINT chk_promotion_code_batch_length CHECK (code_length BETWEEN 4 AND 64)
 );
 
 CREATE INDEX IF NOT EXISTS idx_promotion_code_batch_stock
@@ -522,3 +522,257 @@ WHERE rule_json IS NOT NULL AND rule_json <> '';
 ALTER TABLE promotion_offer ADD COLUMN IF NOT EXISTS deleted_at TEXT;
 CREATE INDEX IF NOT EXISTS idx_promotion_offer_tenant_status_deleted
     ON promotion_offer (tenant_id, organization_id, status, deleted_at, priority DESC, starts_at DESC);
+
+-- folded migration: migrations/postgres/0003_coupon_redemption_evidence.up.sql
+-- sdkwork:migration
+-- id: 0003_coupon_redemption_evidence
+-- engine: postgres
+-- module: promotion
+-- purpose: redemption attempt evidence table and ledger organization scope (the normalized code lookup index this migration once introduced is superseded by 0007_code_hash)
+-- reversible: false
+-- transactional: true
+
+CREATE TABLE IF NOT EXISTS promotion_code_redemption_attempt (
+    id TEXT PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL UNIQUE,
+    tenant_id TEXT NOT NULL,
+    organization_id TEXT NOT NULL DEFAULT '0',
+    code_id TEXT,
+    stock_id TEXT,
+    offer_id TEXT,
+    user_coupon_id TEXT,
+    order_id TEXT,
+    submitted_code_hash VARCHAR(128) NOT NULL,
+    submitted_code_suffix VARCHAR(8) NOT NULL,
+    subject_type VARCHAR(32) NOT NULL,
+    subject_id TEXT NOT NULL,
+    channel VARCHAR(32) NOT NULL DEFAULT 'code',
+    outcome VARCHAR(16) NOT NULL,
+    failure_code VARCHAR(64),
+    failure_detail VARCHAR(512),
+    benefit_kind VARCHAR(32),
+    granted_amount TEXT,
+    currency_code VARCHAR(10),
+    request_no VARCHAR(128) NOT NULL,
+    idempotency_key VARCHAR(200) NOT NULL,
+    trace_id VARCHAR(128) NOT NULL DEFAULT '',
+    occurred_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    CONSTRAINT uk_pca_no UNIQUE (tenant_id, id),
+    CONSTRAINT chk_pca_outcome CHECK (outcome IN ('succeeded', 'failed')),
+    CONSTRAINT chk_pca_failure CHECK ((outcome = 'succeeded' AND failure_code IS NULL) OR (outcome = 'failed' AND failure_code IS NOT NULL))
+);
+
+CREATE INDEX IF NOT EXISTS idx_pca_code    ON promotion_code_redemption_attempt (tenant_id, code_id, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pca_hash    ON promotion_code_redemption_attempt (tenant_id, submitted_code_hash, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pca_subject ON promotion_code_redemption_attempt (tenant_id, subject_type, subject_id, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pca_failure ON promotion_code_redemption_attempt (tenant_id, outcome, failure_code, occurred_at DESC);
+
+ALTER TABLE promotion_coupon_ledger_entry ADD COLUMN IF NOT EXISTS organization_id TEXT NOT NULL DEFAULT '0';
+UPDATE promotion_coupon_ledger_entry l SET organization_id = s.organization_id
+  FROM promotion_coupon_stock s WHERE s.tenant_id = l.tenant_id AND s.id = l.stock_id AND l.organization_id = '0';
+CREATE INDEX IF NOT EXISTS idx_promotion_coupon_ledger_entry_org_created
+  ON promotion_coupon_ledger_entry (tenant_id, organization_id, created_at DESC);
+
+-- Superseded by `0007_code_hash`: `uk_promotion_code_hash` is the unique index
+-- over the normalized-code identity and answers the same equality lookup.
+
+-- folded migration: migrations/postgres/0004_audit_event.up.sql
+-- sdkwork:migration
+-- id: 0004_audit_event
+-- engine: postgres
+-- module: promotion
+-- purpose: append-only audit evidence for the audited code reveal/export operations
+-- reversible: false
+-- transactional: true
+
+CREATE TABLE IF NOT EXISTS promotion_audit_event (
+    id TEXT PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL UNIQUE,
+    tenant_id TEXT NOT NULL,
+    organization_id TEXT NOT NULL DEFAULT '0',
+    actor_id TEXT NOT NULL,
+    action VARCHAR(64) NOT NULL,            -- codes.reveal | codes.export | codes.disable | codes.batch_disable | user_coupons.void | user_coupons.extend | lifecycle.expire | discount_applications.settle | discount_applications.release | budget.release_expired | codes.reissue
+    aggregate_type VARCHAR(32) NOT NULL,    -- promotion_code | promotion_code_batch
+    aggregate_id TEXT NOT NULL,
+    subject_count BIGINT NOT NULL DEFAULT 0,
+    detail_json TEXT,
+    trace_id VARCHAR(128) NOT NULL DEFAULT '',
+    occurred_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    CONSTRAINT chk_pae_action CHECK (action IN ('codes.reveal','codes.export','codes.disable','codes.batch_disable','user_coupons.void','user_coupons.extend','lifecycle.expire','discount_applications.settle','discount_applications.release','budget.release_expired','codes.reissue'))
+);
+CREATE INDEX IF NOT EXISTS idx_pae_tenant_time ON promotion_audit_event (tenant_id, organization_id, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pae_aggregate  ON promotion_audit_event (tenant_id, aggregate_type, aggregate_id, occurred_at DESC);
+
+-- folded migration: migrations/postgres/0005_coupon_stop_loss.up.sql
+-- sdkwork:migration
+-- id: 0005_coupon_stop_loss
+-- engine: postgres
+-- module: promotion
+-- purpose: stop-loss void evidence columns and the coupon expiry sweep indexes
+-- reversible: false
+-- transactional: true
+
+ALTER TABLE promotion_user_coupon ADD COLUMN IF NOT EXISTS voided_at TEXT;
+ALTER TABLE promotion_user_coupon ADD COLUMN IF NOT EXISTS void_reason VARCHAR(256);
+ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS voided_at TEXT;
+ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS void_reason VARCHAR(256);
+
+CREATE INDEX IF NOT EXISTS idx_promotion_user_coupon_status_expires
+  ON promotion_user_coupon (tenant_id, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_promotion_code_status_expires
+  ON promotion_code (tenant_id, status, expires_at);
+
+-- folded migration: migrations/postgres/0006_budget_and_settlement.up.sql
+-- sdkwork:migration
+-- id: 0006_budget_and_settlement
+-- engine: postgres
+-- module: promotion
+-- purpose: coupon budget cap (account + append-only ledger) and the discount-application settlement lifecycle
+--   money unit rule: every new money column is `*_minor BIGINT` integer minor
+--   units; legacy decimal-major strings convert with money_cents at the boundary.
+-- reversible: false
+-- transactional: true
+
+CREATE TABLE IF NOT EXISTS promotion_budget_account (
+    id TEXT PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL UNIQUE,
+    tenant_id TEXT NOT NULL,
+    organization_id TEXT NOT NULL DEFAULT '0',
+    budget_no VARCHAR(128) NOT NULL,
+    offer_id TEXT NOT NULL,
+    offer_version_id TEXT,
+    stock_id TEXT,
+    currency_code VARCHAR(3) NOT NULL,
+    total_amount_minor BIGINT NOT NULL,          -- hard cap, > 0
+    available_amount_minor BIGINT NOT NULL,      -- never-negative pool
+    reserved_amount_minor BIGINT NOT NULL DEFAULT 0,
+    used_amount_minor BIGINT NOT NULL DEFAULT 0,
+    status VARCHAR(32) NOT NULL DEFAULT 'active',
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    CONSTRAINT uk_pba_no UNIQUE (tenant_id, budget_no),
+    CONSTRAINT uk_pba_stock UNIQUE (tenant_id, stock_id),
+    CONSTRAINT chk_pba_amounts CHECK (
+        total_amount_minor > 0 AND available_amount_minor >= 0
+        AND reserved_amount_minor >= 0 AND used_amount_minor >= 0
+        AND available_amount_minor + reserved_amount_minor + used_amount_minor <= total_amount_minor)
+);
+CREATE TABLE IF NOT EXISTS promotion_budget_ledger_entry (
+    id TEXT PRIMARY KEY,
+    uuid VARCHAR(64) NOT NULL UNIQUE,
+    tenant_id TEXT NOT NULL,
+    organization_id TEXT NOT NULL DEFAULT '0',
+    budget_account_id TEXT NOT NULL,
+    application_id TEXT,
+    direction VARCHAR(16) NOT NULL,              -- reserve | settle | release
+    amount_minor BIGINT NOT NULL,                -- always positive; direction carries the sign
+    available_after_minor BIGINT NOT NULL,
+    reserved_after_minor BIGINT NOT NULL,
+    used_after_minor BIGINT NOT NULL,
+    currency_code VARCHAR(3) NOT NULL,
+    request_no VARCHAR(128) NOT NULL,
+    idempotency_key VARCHAR(200) NOT NULL,
+    occurred_at TEXT NOT NULL,
+    CONSTRAINT uk_pble_idem UNIQUE (tenant_id, idempotency_key),
+    CONSTRAINT chk_pble_direction CHECK (direction IN ('reserve','settle','release'))
+);
+CREATE INDEX IF NOT EXISTS idx_pble_account ON promotion_budget_ledger_entry (tenant_id, budget_account_id, occurred_at DESC);
+
+ALTER TABLE promotion_discount_application ADD COLUMN IF NOT EXISTS budget_account_id TEXT;
+ALTER TABLE promotion_discount_application ADD COLUMN IF NOT EXISTS reservation_expires_at TEXT;
+CREATE INDEX IF NOT EXISTS idx_promotion_discount_application_status_expires
+  ON promotion_discount_application (tenant_id, status, reservation_expires_at)
+  WHERE status = 'applied';
+
+ALTER TABLE promotion_coupon_stock ADD COLUMN IF NOT EXISTS budget_amount_minor BIGINT;
+
+ALTER TABLE promotion_audit_event DROP CONSTRAINT IF EXISTS chk_pae_action;
+ALTER TABLE promotion_audit_event ADD CONSTRAINT chk_pae_action
+  CHECK (action IN ('codes.reveal','codes.export','codes.disable','codes.batch_disable',
+                    'user_coupons.void','user_coupons.extend','lifecycle.expire',
+                    'discount_applications.settle','discount_applications.release',
+                    'budget.release_expired'));
+
+-- folded migration: migrations/postgres/0007_code_hash.up.sql
+-- sdkwork:migration
+-- id: 0007_code_hash
+-- engine: postgres
+-- module: promotion
+-- purpose: indexed case-insensitive code identity (`code_hash`, `code_last4`)
+--   for the redemption lookup and the unique code constraint; supersedes and
+--   drops the 0003 normalized expression index
+-- reversible: false
+-- transactional: true
+
+ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS code_hash VARCHAR(64);
+ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS code_last4 VARCHAR(4);
+
+DO $$
+DECLARE
+  hash_expr text;
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE p.proname = 'sha256' AND n.nspname = 'pg_catalog'
+  ) THEN
+    hash_expr := 'encode(sha256(convert_to(upper(btrim(promotion_code)), ''UTF8'')), ''hex'')';
+  ELSIF EXISTS (
+    SELECT 1 FROM pg_proc p WHERE p.proname = 'digest'
+  ) THEN
+    hash_expr := 'encode(digest(convert_to(upper(btrim(promotion_code)), ''UTF8''), ''sha256''), ''hex'')';
+  ELSE
+    RAISE EXCEPTION 'migration 0007_code_hash requires PostgreSQL 18+ (builtin sha256) or the pgcrypto extension for digest()';
+  END IF;
+
+  EXECUTE format(
+    'UPDATE promotion_code SET code_hash = %s, code_last4 = right(btrim(promotion_code), 4) WHERE code_hash IS NULL',
+    hash_expr
+  );
+END $$;
+
+ALTER TABLE promotion_code ALTER COLUMN code_hash SET NOT NULL;
+ALTER TABLE promotion_code ALTER COLUMN code_last4 SET NOT NULL;
+
+-- Case-insensitive uniqueness: the hash is a function of UPPER(TRIM(code)).
+-- Guarded so re-applying the migration on a fresh install cannot abort.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'uk_promotion_code_hash'
+      AND conrelid = 'promotion_code'::regclass
+  ) THEN
+    ALTER TABLE promotion_code ADD CONSTRAINT uk_promotion_code_hash UNIQUE (tenant_id, code_hash);
+  END IF;
+END $$;
+
+DROP INDEX IF EXISTS idx_promotion_code_value_normalized;
+
+-- folded migration: migrations/postgres/0008_code_reissue.up.sql
+-- sdkwork:migration
+-- id: 0008_code_reissue
+-- engine: postgres
+-- module: promotion
+-- purpose: code reissue lineage (`reissued_from_code_id`, `replaced_by_code_id`)
+--   and the `codes.reissue` audit action
+-- reversible: false
+-- transactional: true
+
+ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS reissued_from_code_id TEXT;
+ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS replaced_by_code_id TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_promotion_code_reissued_from
+  ON promotion_code (tenant_id, reissued_from_code_id);
+
+ALTER TABLE promotion_audit_event DROP CONSTRAINT IF EXISTS chk_pae_action;
+ALTER TABLE promotion_audit_event ADD CONSTRAINT chk_pae_action
+  CHECK (action IN ('codes.reveal','codes.export','codes.disable','codes.batch_disable',
+                    'user_coupons.void','user_coupons.extend','lifecycle.expire',
+                    'discount_applications.settle','discount_applications.release',
+                    'budget.release_expired','codes.reissue'));
