@@ -16,7 +16,7 @@
     "verify": "pnpm exec sdkwork-app verify",
     "clean": "pnpm exec sdkwork-app clean",
     "start": "cargo run -p sdkwork-api-promotion-standalone-gateway --bin promotion-server",
-    "test:node": "node --test --test-reporter=spec tests/static/placeholder.test.mjs",
+    "test:node": "node --test --test-reporter=spec tests/static/placeholder.test.mjs tests/static/admin-code-list-wire-contract.test.mjs",
     "test:vitest": "vitest run --config vitest.config.ts --configLoader native --pool forks --maxWorkers 2",
     "typecheck": "tsc --noEmit",
     "format:rust:check": "cargo fmt --all -- --check",

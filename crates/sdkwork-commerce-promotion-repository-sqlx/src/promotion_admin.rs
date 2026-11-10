@@ -574,7 +574,10 @@ async fn list_codes(
                 stock_id: row.string("stock_id")?,
                 offer_id: row.string("offer_id")?,
                 code_no: row.string("code_no")?,
-                promotion_code: mask_code(&row.string("promotion_code")?),
+                // The admin console masks the value for display but copies and
+                // exports it, so the wire value must be the full code. Masking
+                // here makes "copy full code" copy the masked text.
+                promotion_code: row.string("promotion_code")?,
                 code_type: row.string("code_type")?,
                 max_claims: row.i32("max_claims")?,
                 claimed_quantity: row.i32("claimed_quantity")?,
@@ -687,20 +690,4 @@ fn storage_error(context: &str, error: sqlx::Error) -> CommerceServiceError {
 
 fn decode_error(column: &str, error: sqlx::Error) -> CommerceServiceError {
     CommerceServiceError::storage(format!("decode promotion admin column {column}: {error}"))
-}
-
-fn mask_code(value: &str) -> String {
-    if value.chars().count() <= 8 {
-        return "****".to_owned();
-    }
-    let prefix = value.chars().take(4).collect::<String>();
-    let suffix = value
-        .chars()
-        .rev()
-        .take(4)
-        .collect::<String>()
-        .chars()
-        .rev()
-        .collect::<String>();
-    format!("{prefix}****{suffix}")
 }
