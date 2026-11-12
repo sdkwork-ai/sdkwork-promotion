@@ -42,6 +42,10 @@ pub(crate) const FAILURE_CODE_IDEMPOTENCY_CONFLICT: &str = "idempotency_conflict
 pub(crate) const FAILURE_CODE_REDEMPTION_IN_PROGRESS: &str = "redemption_in_progress";
 pub(crate) const FAILURE_CODE_BENEFIT_INVALID: &str = "benefit_invalid";
 pub(crate) const FAILURE_CODE_INTERNAL_ERROR: &str = "internal_error";
+pub(crate) const FAILURE_CODE_RATE_LIMITED: &str = "rate_limited";
+pub(crate) const FAILURE_CODE_COUPON_NOT_REDEEMABLE: &str = "coupon_not_redeemable";
+pub(crate) const FAILURE_CODE_COUPON_EXPIRED: &str = "coupon_expired";
+pub(crate) const FAILURE_CODE_AUDIENCE_NOT_ELIGIBLE: &str = "audience_not_eligible";
 
 /// `promotion_code_redemption_attempt.failure_code` is a closed taxonomy. It is
 /// classified in exactly one place — [`classify_redemption_failure`] — so that
@@ -78,6 +82,25 @@ const REDEMPTION_REJECTION_MESSAGES: &[(&str, &str)] = &[
     (
         "another promotion code redemption request is in progress for this idempotency key",
         FAILURE_CODE_REDEMPTION_IN_PROGRESS,
+    ),
+    // The subject exceeded the failed-attempt rate limit.
+    (
+        "too many coupon redemption attempts; try again later",
+        FAILURE_CODE_RATE_LIMITED,
+    ),
+    // The submitted code belongs to a claimed coupon that is no longer usable.
+    (
+        "claimed user coupon is no longer redeemable",
+        FAILURE_CODE_COUPON_NOT_REDEEMABLE,
+    ),
+    (
+        "claimed user coupon has expired",
+        FAILURE_CODE_COUPON_EXPIRED,
+    ),
+    // `audience_scope` rejected the subject.
+    (
+        "promotion coupon audience is not eligible",
+        FAILURE_CODE_AUDIENCE_NOT_ELIGIBLE,
     ),
 ];
 
@@ -257,6 +280,7 @@ pub(crate) async fn record_redemption_failure_attempt(
     pool: &PgPool,
     command: &PromotionCodeRedemptionCommand,
     resolved: Option<&ResolvedRedemptionTarget>,
+    order_id: Option<&str>,
     channel: &str,
     subject_type: &str,
     occurred_at: &str,
@@ -271,7 +295,7 @@ pub(crate) async fn record_redemption_failure_attempt(
         offer_id: resolved.map(|target| target.offer_id.as_str()),
         // The wallet coupon row is rolled back with the redemption.
         user_coupon_id: None,
-        order_id: None,
+        order_id,
         submitted_code_hash: &submitted_code_hash(&command.code),
         submitted_code_suffix: &submitted_code_suffix(&command.code),
         subject_type,
@@ -337,6 +361,22 @@ mod tests {
             (
                 "another promotion code redemption request is in progress for this idempotency key",
                 FAILURE_CODE_REDEMPTION_IN_PROGRESS,
+            ),
+            (
+                "too many coupon redemption attempts; try again later",
+                FAILURE_CODE_RATE_LIMITED,
+            ),
+            (
+                "claimed user coupon is no longer redeemable",
+                FAILURE_CODE_COUPON_NOT_REDEEMABLE,
+            ),
+            (
+                "claimed user coupon has expired",
+                FAILURE_CODE_COUPON_EXPIRED,
+            ),
+            (
+                "promotion coupon audience is not eligible",
+                FAILURE_CODE_AUDIENCE_NOT_ELIGIBLE,
             ),
         ];
         // The table above is the whole taxonomy: no entry may be dropped or
@@ -500,7 +540,9 @@ mod tests {
         assert!(body.contains("outcome: OUTCOME_SUCCEEDED"));
         assert!(body.contains("failure_code: None"));
         // The resolved ids the attempt names come from the locked promotion row.
-        assert!(body.contains("code_id: Some(&promotion.code_id)"));
+        // A realtime claimed coupon has no `promotion_code` row, so the attempt
+        // must omit the code id instead of writing an empty string.
+        assert!(body.contains("code_id: if promotion.code_id.is_empty()"));
         assert!(body.contains("stock_id: Some(&promotion.stock_id)"));
         assert!(body.contains("offer_id: Some(&promotion.offer_id)"));
         assert!(body.contains("user_coupon_id: Some(&coupon_id)"));
@@ -511,31 +553,20 @@ mod tests {
     }
 
     #[test]
-    fn failure_attempt_is_written_after_the_redemption_transaction_is_dropped() {
+    fn order_failure_attempt_is_written_after_rollback_and_direct_is_retired() {
         let source = include_str!("postgres_promotion.rs");
-        let wrapper = method_body(source, "pub async fn redeem_promotion_code(");
+        let direct = method_body(source, "pub async fn redeem_promotion_code(");
+        assert!(direct.contains("promotion direct code redemption is retired"));
+        assert!(!direct.contains("self.pool.begin()"));
+        assert!(!direct.contains("tx.commit()"));
 
-        let inner = wrapper
-            .find("redeem_promotion_code_in_tx(")
-            .expect("inner redemption call");
-        let recorder = wrapper
-            .find("record_redemption_failure_attempt(")
-            .expect("failure attempt recorder");
-        assert!(
-            inner < recorder,
-            "the failure recorder must run after the inner function returned and released (rolled back) the transaction:\n{wrapper}"
-        );
-        // The wrapper owns no transaction: the inner function owns and releases
-        // it, so the recorder's insert cannot land inside the rolled-back unit.
-        assert!(!wrapper.contains("self.pool.begin()"));
-        assert!(!wrapper.contains("tx.commit()"));
-        assert!(!wrapper.contains("&mut tx"));
-        // The evidence row is attributed to the code that was resolved before the
-        // rejection, and the original error is returned unchanged.
-        assert!(wrapper.contains("resolved.as_ref()"));
-        assert!(wrapper.contains("CHANNEL_CODE"));
-        assert!(wrapper.contains("Err(error)"));
-        assert!(!wrapper.contains("map_err"));
+        // The order path still owns the live redemption flow and records its
+        // failures after the inner transaction is released.
+        let order = method_body(source, "pub async fn redeem_promotion_code_for_order(");
+        assert!(order.contains("record_redemption_failure_attempt"));
+        assert!(order.contains("redeem_promotion_code_for_order_in_tx"));
+        assert!(order.contains("Some(&command.request_no)"));
+        assert!(!order.contains("self.pool.begin()"));
 
         // The recorder itself executes on the pool (auto-commit), never on a
         // transaction handle.

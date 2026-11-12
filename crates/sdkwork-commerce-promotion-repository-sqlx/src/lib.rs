@@ -4,7 +4,7 @@ pub mod discount_amount;
 pub mod postgres_exchange;
 pub mod postgres_promotion;
 pub mod promotion_admin;
-mod promotion_admin_management;
+pub(crate) mod promotion_admin_management;
 mod redemption_attempt;
 mod reports;
 mod timestamps;

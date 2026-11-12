@@ -2175,7 +2175,12 @@ fn application_amount_minor(
     let amount = row
         .try_get::<String, _>("discount_amount")
         .map_err(|error| decode("discount_amount", error))?;
-    crate::postgres_promotion::money_cents(&amount)
+    // `promotion_discount_application.discount_amount` is persisted in integer
+    // minor units by the apply path; a legacy decimal-major row is still
+    // normalised by `contract_money_minor_units`.
+    crate::postgres_promotion::contract_money_minor_units(&amount)?
+        .parse::<i64>()
+        .map_err(|_| CommerceServiceError::storage("discount amount is not integer minor units"))
 }
 
 /// Moves a reservation between buckets in one guarded `UPDATE`.

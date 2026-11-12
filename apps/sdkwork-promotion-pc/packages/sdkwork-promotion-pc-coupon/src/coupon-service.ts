@@ -1,4 +1,4 @@
-﻿import {
+import {
   getSdkworkPromotionService,
   hasSdkworkPromotionSession,
   requireSdkworkPromotionSession,
@@ -84,6 +84,11 @@ export interface SdkworkCouponService {
 
 interface RemotePageEnvelope<T> {
   content?: T[];
+  items?: T[];
+}
+
+function remotePageItems<T>(page: RemotePageEnvelope<T> | null | undefined): T[] {
+  return page?.content ?? page?.items ?? [];
 }
 
 interface RemoteCouponStatistics {
@@ -227,13 +232,13 @@ export function createSdkworkCouponService(
       );
 
       const catalogCoupons = sortSdkworkCouponCatalog(
-        (catalogPage.content ?? []).map((coupon, index) => normalizeSdkworkRemoteCoupon(coupon, index)),
+        remotePageItems(catalogPage).map((coupon, index) => normalizeSdkworkRemoteCoupon(coupon, index)),
       );
       const myCoupons = sortSdkworkUserCoupons(
-        (myPage.content ?? []).map((coupon, index) => normalizeSdkworkRemoteUserCoupon(coupon, index)),
+        remotePageItems(myPage).map((coupon, index) => normalizeSdkworkRemoteUserCoupon(coupon, index)),
       );
       const availableCouponsFromRemote = sortSdkworkUserCoupons(
-        (availablePage.content ?? []).map((coupon, index) => normalizeSdkworkRemoteUserCoupon(coupon, index)),
+        remotePageItems(availablePage).map((coupon, index) => normalizeSdkworkRemoteUserCoupon(coupon, index)),
       );
       const myCouponsByKey = new Map(
         myCoupons.flatMap((coupon) => [

@@ -2,7 +2,21 @@ use sdkwork_commerce_promotion_service::{
     PromotionCouponBenefit, PromotionOrderCouponBenefit, PromotionSubscriptionPeriod,
 };
 use sdkwork_contract_service::CommerceServiceError;
+use sdkwork_utils_rust::token_bank::MICRO_POINTS_PER_POINT;
 use serde_json::Value;
+
+/// The coupon rule stores Token Bank grant/bonus in **whole points** (what an
+/// operator types and what the admin/redeem preview shows). The order and
+/// account ledger carry the same balance in **micro-points** (1 point =
+/// 1_000_000 micro), so the conversion happens exactly once here, when the
+/// promotion benefit crosses into the order/account domain.
+fn token_bank_grant_micros(points: i64) -> Result<i64, CommerceServiceError> {
+    points.checked_mul(MICRO_POINTS_PER_POINT).ok_or_else(|| {
+        CommerceServiceError::validation(
+            "Token Bank coupon grant amount exceeds the supported range",
+        )
+    })
+}
 
 pub(crate) fn parse_order_coupon_benefit(
     rule_json: Option<&str>,
@@ -33,12 +47,15 @@ pub(crate) fn parse_order_coupon_benefit(
                 ));
             }
             // 赠送额度在订单侧合并为总发放额度（legacy 数据无 bonusAmount 时按 0 处理）
-            let bonus_units = non_negative_integer(benefit, "bonusAmount")?;
-            let grant_units = grant_units.checked_add(bonus_units).ok_or_else(|| {
+            let bonus_points = non_negative_integer(benefit, "bonusAmount")?;
+            let grant_points = grant_units.checked_add(bonus_points).ok_or_else(|| {
                 CommerceServiceError::validation(
                     "Token Bank coupon grant amount exceeds the supported range",
                 )
             })?;
+            // Rule amounts are whole points; the order/account benefit is the
+            // ledger's micro-point unit.
+            let grant_units = token_bank_grant_micros(grant_points)?;
             PromotionOrderCouponBenefit::new(grant_units, legacy_currency_code, replayed)
         }
         "points_credit" => {
@@ -208,8 +225,12 @@ fn legacy_token_bank_benefit(
     currency_code: &str,
     replayed: bool,
 ) -> Result<PromotionOrderCouponBenefit, CommerceServiceError> {
+    // Legacy rules encode the amount in currency; `legacy_coupon_credit_units`
+    // converts it to whole points, then the account boundary applies the
+    // point → micro-point scale.
+    let grant_points = legacy_coupon_credit_units(discount_value)?;
     PromotionOrderCouponBenefit::new(
-        legacy_coupon_credit_units(discount_value)?,
+        token_bank_grant_micros(grant_points)?,
         currency_code,
         replayed,
     )
@@ -349,7 +370,7 @@ mod tests {
         assert!(matches!(
             benefit.kind,
             PromotionOrderCouponBenefitKind::TokenBankCredit {
-                grant_units: 5000,
+                grant_units: 5_000_000_000,
                 ..
             }
         ));
@@ -471,24 +492,53 @@ mod tests {
         assert!(matches!(
             benefit.kind,
             PromotionOrderCouponBenefitKind::TokenBankCredit {
-                grant_units: 550,
+                grant_units: 550_000_000,
                 ..
             }
         ));
     }
 
     #[test]
-    fn token_bank_without_bonus_stays_unchanged_for_order_parsing() {
-        let rule = r#"{"couponBenefit":{"kind":"token_bank_credit","targetAsset":"token_bank","grantAmount":"500"}}"#;
+    fn token_bank_grant_is_converted_from_points_to_account_micro_units() {
+        // The reported incident: an operator authored a 110-point coupon and
+        // the wallet credited 0.00011 points because 110 was written straight
+        // into the micro-point ledger. The order benefit must carry
+        // 110 * 1_000_000 micro so the account credits 110 points.
+        let rule = r#"{"couponBenefit":{"kind":"token_bank_credit","targetAsset":"token_bank","grantAmount":"110"}}"#;
         let benefit = parse_order_coupon_benefit(Some(rule), "0", "CNY", false)
             .expect("token bank benefit without bonus");
         assert!(matches!(
             benefit.kind,
             PromotionOrderCouponBenefitKind::TokenBankCredit {
-                grant_units: 500,
+                grant_units: 110_000_000,
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn token_bank_grant_with_bonus_scales_the_merged_total() {
+        let rule = r#"{"couponBenefit":{"kind":"token_bank_credit","targetAsset":"token_bank","grantAmount":"110","bonusAmount":"20"}}"#;
+        let benefit = parse_order_coupon_benefit(Some(rule), "0", "CNY", false)
+            .expect("token bank benefit with bonus");
+        assert!(matches!(
+            benefit.kind,
+            PromotionOrderCouponBenefitKind::TokenBankCredit {
+                grant_units: 130_000_000,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn token_bank_grant_rejects_a_points_overflow_before_consuming_the_coupon() {
+        let rule = format!(
+            r#"{{"couponBenefit":{{"kind":"token_bank_credit","targetAsset":"token_bank","grantAmount":"{}"}}}}"#,
+            i64::MAX
+        );
+        let error = parse_order_coupon_benefit(Some(&rule), "0", "CNY", false)
+            .expect_err("a point value that overflows micro-points must be rejected");
+        assert_eq!("validation", error.code());
     }
 
     #[test]
@@ -505,13 +555,13 @@ mod tests {
     #[test]
     fn order_cash_credit_parses_grant_amount_with_offer_currency() {
         let rule = r#"{"couponBenefit":{"kind":"cash_credit","grantAmount":"100"}}"#;
-        let benefit = parse_order_coupon_benefit(Some(rule), "0", "CNY", false)
+        let benefit = parse_order_coupon_benefit(Some(rule), "0", "USD", false)
             .expect("cash benefit");
         assert_eq!(
             benefit.kind,
             PromotionOrderCouponBenefitKind::CashCredit {
                 grant_units: 100,
-                currency_code: "CNY".to_owned(),
+                currency_code: "USD".to_owned(),
             }
         );
     }

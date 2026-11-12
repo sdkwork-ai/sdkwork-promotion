@@ -54,6 +54,99 @@ pub struct PromotionUserCouponItem {
     pub amount: CommerceMoney,
     pub date: String,
     pub status: String,
+    /// Frozen asset benefit kind (`token_bank_credit`, `points_credit`,
+    /// `cash_credit`, `subscription`) derived from the offer version.
+    pub benefit_kind: Option<String>,
+    /// Benefit quantity in its own unit: whole Compute Credits, whole
+    /// membership points, cash minor units, or subscription quota.
+    pub benefit_amount: Option<String>,
+    /// ISO-4217 currency for a cash benefit; `None` for non-cash units.
+    pub benefit_currency_code: Option<String>,
+}
+
+/// One claimable catalogue offer for the app surface. It intentionally exposes
+/// only what the coupon centre needs: display copy, claim window, remaining
+/// stock, per-user limit, and the frozen benefit terms.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PromotionOfferCatalogItem {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub offer_type: String,
+    pub combinability: String,
+    pub starts_at: String,
+    pub ends_at: Option<String>,
+    pub discount_value: Option<String>,
+    pub minimum_amount: Option<String>,
+    pub currency_code: Option<String>,
+    pub coupon_benefit: Option<PromotionCouponBenefit>,
+    pub total_quantity: Option<i64>,
+    pub available_quantity: i64,
+    pub per_user_limit: i64,
+    pub claim_starts_at: Option<String>,
+    pub claim_ends_at: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PromotionAssetGrantSummary {
+    /// `token_bank_credit`, `points_credit`, `cash_credit`, or `subscription`.
+    pub benefit_kind: String,
+    /// ISO-4217 code for a cash grant; `None` for non-currency units.
+    pub currency_code: Option<String>,
+    pub grant_count: i64,
+    /// Sum in the benefit's own unit: micro-points, whole points, cash minor
+    /// units, or subscription quota.
+    pub total_amount: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PromotionAssetGrantReportQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub from: String,
+    pub to: String,
+}
+
+impl PromotionAssetGrantReportQuery {
+    pub fn new(
+        tenant_id: &str,
+        organization_id: Option<&str>,
+        from: &str,
+        to: &str,
+    ) -> Result<Self, CommerceServiceError> {
+        require_non_empty_service("tenant_id", tenant_id)?;
+        Ok(Self {
+            tenant_id: tenant_id.trim().to_string(),
+            organization_id: organization_id
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(str::to_string),
+            from: from.trim().to_string(),
+            to: to.trim().to_string(),
+        })
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PromotionOfferCatalogQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+}
+
+impl PromotionOfferCatalogQuery {
+    pub fn new(
+        tenant_id: &str,
+        organization_id: Option<&str>,
+    ) -> Result<Self, CommerceServiceError> {
+        require_non_empty_service("tenant_id", tenant_id)?;
+        Ok(Self {
+            tenant_id: tenant_id.trim().to_string(),
+            organization_id: organization_id
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(str::to_string),
+        })
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -198,6 +291,9 @@ pub enum PromotionCouponBenefit {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PromotionOrderCouponBenefitKind {
     TokenBankCredit {
+        /// Token Bank account **minor units** (micro-points, 1 point =
+        /// 1_000_000 micro). The coupon rule stores whole points; the
+        /// repository scales grant + bonus once when building this value.
         grant_units: i64,
         currency_code: String,
     },
@@ -681,7 +777,23 @@ impl PromotionUserCouponItem {
             amount: CommerceMoney::new(amount).map_err(CommerceServiceError::validation)?,
             date: date.to_string(),
             status: status.to_string(),
+            benefit_kind: None,
+            benefit_amount: None,
+            benefit_currency_code: None,
         })
+    }
+
+    #[must_use]
+    pub fn with_benefit(
+        mut self,
+        kind: Option<&str>,
+        amount: Option<&str>,
+        currency_code: Option<&str>,
+    ) -> Self {
+        self.benefit_kind = kind.map(str::to_string);
+        self.benefit_amount = amount.map(str::to_string);
+        self.benefit_currency_code = currency_code.map(str::to_string);
+        self
     }
 }
 

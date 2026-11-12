@@ -1,4 +1,4 @@
-﻿import {
+import {
   toNullableSdkworkPromotionNumber,
   toSdkworkPromotionNumber,
   toSdkworkPromotionOptionalString,
@@ -72,6 +72,9 @@ export interface CreateCouponRouteIntentOptions {
 
 export interface SdkworkCouponCatalog {
   amountCny: number | null;
+  benefitAmount?: string;
+  benefitCurrencyCode?: string;
+  benefitKind?: string;
   canReceive: boolean;
   couponId?: string;
   description?: string;
@@ -102,6 +105,9 @@ export interface SdkworkUserCoupon {
   acquireType?: SdkworkCouponAcquireType;
   amountCny: number | null;
   available: boolean;
+  benefitAmount?: string;
+  benefitCurrencyCode?: string;
+  benefitKind?: string;
   code?: string;
   couponId?: string;
   expireAt?: string;
@@ -162,6 +168,9 @@ export interface SdkworkCouponDiscountInput {
 
 export interface SdkworkRemoteCouponLike {
   amount?: unknown;
+  benefitAmount?: unknown;
+  benefitCurrencyCode?: unknown;
+  benefitKind?: unknown;
   canReceive?: unknown;
   couponId?: unknown;
   description?: unknown;
@@ -191,12 +200,18 @@ export interface SdkworkRemoteUserCouponLike {
   acquireType?: unknown;
   amount?: unknown;
   available?: unknown;
+  benefitAmount?: unknown;
+  benefitCurrencyCode?: unknown;
+  benefitKind?: unknown;
+  code?: unknown;
   couponCode?: unknown;
   couponId?: unknown;
   couponName?: unknown;
   discount?: unknown;
   expireAt?: unknown;
+  id?: unknown;
   minConsume?: unknown;
+  name?: unknown;
   orderId?: unknown;
   pointCost?: unknown;
   pointsRefundAt?: unknown;
@@ -293,11 +308,16 @@ export function normalizeSdkworkCouponStatus(value: unknown, available?: unknown
     || normalized === "UNUSED"
     || normalized === "AVAILABLE"
     || normalized === "ACTIVE"
+    // A claimed wallet coupon is still usable; the promotion API returns the
+    // persisted `claimed`/`pending`/`issued` status, not an `available` flag.
+    || normalized === "CLAIMED"
+    || normalized === "PENDING"
+    || normalized === "ISSUED"
   ) {
     return "available";
   }
 
-  if (normalized === "USED") {
+  if (normalized === "USED" || normalized === "REDEEMED") {
     return "used";
   }
 
@@ -316,6 +336,9 @@ export function normalizeSdkworkRemoteCoupon(
 
   return {
     amountCny: toNullableSdkworkPromotionNumber(coupon.amount),
+    benefitAmount: toSdkworkPromotionOptionalString(coupon.benefitAmount),
+    benefitCurrencyCode: toSdkworkPromotionOptionalString(coupon.benefitCurrencyCode),
+    benefitKind: toSdkworkPromotionOptionalString(coupon.benefitKind),
     canReceive: coupon.canReceive !== false && normalizeSdkworkCouponStatus(coupon.status, coupon.canReceive) === "available",
     couponId,
     description: toSdkworkPromotionOptionalString(coupon.description),
@@ -346,21 +369,31 @@ export function normalizeSdkworkRemoteUserCoupon(
   coupon: SdkworkRemoteUserCouponLike,
   index = 0,
 ): SdkworkUserCoupon {
-  const couponId = toSdkworkPromotionOptionalString(coupon.couponId);
-  const userCouponId = toSdkworkPromotionOptionalString(coupon.userCouponId);
+  const rawId = toSdkworkPromotionOptionalString(coupon.id);
+  const couponId = toSdkworkPromotionOptionalString(coupon.couponId) ?? rawId;
+  const userCouponId = toSdkworkPromotionOptionalString(coupon.userCouponId) ?? rawId;
 
   return {
     acquireAt: toSdkworkPromotionOptionalString(coupon.acquireAt),
     acquireType: normalizeSdkworkCouponAcquireType(coupon.acquireType),
     amountCny: toNullableSdkworkPromotionNumber(coupon.amount),
     available: coupon.available === true || normalizeSdkworkCouponStatus(coupon.status, coupon.available) === "available",
-    code: toSdkworkPromotionOptionalString(coupon.couponCode),
+    benefitAmount: toSdkworkPromotionOptionalString(coupon.benefitAmount),
+    benefitCurrencyCode: toSdkworkPromotionOptionalString(coupon.benefitCurrencyCode),
+    benefitKind: toSdkworkPromotionOptionalString(coupon.benefitKind),
+    // The promotion app API returns `code`; the admin/composed shape returns
+    // `couponCode`. Accept both so a claimed wallet coupon shows its redeemable
+    // code instead of a blank value.
+    code: toSdkworkPromotionOptionalString(coupon.couponCode)
+      ?? toSdkworkPromotionOptionalString(coupon.code),
     couponId,
     discountRate: toNullableSdkworkPromotionNumber(coupon.discount),
     expireAt: toSdkworkPromotionOptionalString(coupon.expireAt),
     id: `user-coupon-${userCouponId || couponId || index + 1}`,
     minimumSpendCny: toNullableSdkworkPromotionNumber(coupon.minConsume),
-    name: toSdkworkPromotionOptionalString(coupon.couponName) || "Coupon",
+    name: toSdkworkPromotionOptionalString(coupon.couponName)
+      ?? toSdkworkPromotionOptionalString(coupon.name)
+      ?? "Coupon",
     orderId: toSdkworkPromotionOptionalString(coupon.orderId),
     pointCost: toNullableSdkworkPromotionNumber(coupon.pointCost),
     pointsRefundAt: toSdkworkPromotionOptionalString(coupon.pointsRefundAt),
@@ -375,6 +408,54 @@ export function normalizeSdkworkRemoteUserCoupon(
     useAt: toSdkworkPromotionOptionalString(coupon.useAt),
     userCouponId,
   };
+}
+
+export interface SdkworkCouponBenefitLabels {
+  cash: string;
+  points: string;
+  subscription: string;
+  tokenBank: string;
+}
+
+export interface SdkworkCouponBenefitShape {
+  benefitAmount?: string;
+  benefitCurrencyCode?: string;
+  benefitKind?: string;
+}
+
+/// Formats the frozen asset benefit shared by catalogue and wallet coupons.
+/// Returns `null` for a discount coupon so the caller keeps the money value.
+export function formatSdkworkCouponBenefit(
+  coupon: SdkworkCouponBenefitShape,
+  labels: SdkworkCouponBenefitLabels,
+): string | null {
+  if (!coupon.benefitKind || !coupon.benefitAmount) {
+    return null;
+  }
+  switch (coupon.benefitKind) {
+    case "token_bank_credit":
+      return `${coupon.benefitAmount} ${labels.tokenBank}`;
+    case "points_credit":
+      return `${coupon.benefitAmount} ${labels.points}`;
+    case "cash_credit": {
+      const minor = Number(coupon.benefitAmount);
+      if (!Number.isFinite(minor)) {
+        return null;
+      }
+      return `${coupon.benefitCurrencyCode ?? labels.cash} ${(minor / 100).toFixed(2)}`.trim();
+    }
+    case "subscription":
+      return `${coupon.benefitAmount} ${labels.subscription}`;
+    default:
+      return null;
+  }
+}
+
+export function formatSdkworkUserCouponBenefit(
+  coupon: SdkworkUserCoupon,
+  labels: SdkworkCouponBenefitLabels,
+): string | null {
+  return formatSdkworkCouponBenefit(coupon, labels);
 }
 
 export function sortSdkworkCouponCatalog(coupons: readonly SdkworkCouponCatalog[]): SdkworkCouponCatalog[] {

@@ -15,6 +15,7 @@ import {
   useSdkworkCouponIntl,
 } from "../coupon-intl";
 import { resolveSdkworkCouponStatusTone } from "../coupon-appearance";
+import { formatSdkworkCouponBenefit, formatSdkworkUserCouponBenefit } from "../coupon";
 import { SdkworkCouponDetailDrawer } from "../components/coupon-detail-drawer";
 import { SdkworkCouponRedeemDialog } from "../components/coupon-redeem-dialog";
 
@@ -167,7 +168,10 @@ function SdkworkCouponPageContent({
                               {coupon.description || copy.inventory.catalogFallbackDescription}
                             </p>
                             <p className="mt-2 text-lg font-semibold tabular-nums text-[var(--sdk-color-text-primary)]">
-                              {formatCurrencyCny(coupon.amountCny)}
+                              {formatSdkworkCouponBenefit(coupon, copy.benefit)
+                                ?? (coupon.amountCny != null && coupon.amountCny > 0
+                                  ? formatCurrencyCny(coupon.amountCny)
+                                  : copy.common.emptyValue)}
                             </p>
                             <p className="mt-1 text-xs text-[var(--sdk-color-text-muted)]">
                               {copy.inventory.pointCostLabel}: {formatPointCost(coupon.pointCost)}
@@ -218,7 +222,10 @@ function SdkworkCouponPageContent({
                               {copy.inventory.codeLabel}: {coupon.code || copy.common.emptyValue}
                             </p>
                             <p className="mt-2 text-lg font-semibold tabular-nums text-[var(--sdk-color-text-primary)]">
-                              {formatCurrencyCny(coupon.amountCny)}
+                              {formatSdkworkUserCouponBenefit(coupon, copy.benefit)
+                                ?? (coupon.amountCny != null && coupon.amountCny > 0
+                                  ? formatCurrencyCny(coupon.amountCny)
+                                  : copy.common.emptyValue)}
                             </p>
                             <p className="mt-1 text-xs text-[var(--sdk-color-text-muted)]">
                               {copy.inventory.remainingDaysLabel}: {formatRemainingDays(coupon.remainingDays)}

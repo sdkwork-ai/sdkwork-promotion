@@ -8,13 +8,13 @@ use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest};
 //     (my coupons, wallet points, redemptions, discount applications,
 //     member cards)
 const HTTP_ROUTES: &[HttpRoute] = &[
-    // --- Anonymous display surfaces -------------------------------------
-    public(
+    // --- Offer catalogue (tenant-scoped, authenticated) -------------------
+    dual_token(
         HttpMethod::Get,
         "/app/v3/api/promotions/offers",
         "promotions.offers.list",
     ),
-    public(
+    dual_token(
         HttpMethod::Get,
         "/app/v3/api/promotions/offers/{offerId}",
         "promotions.offers.retrieve",

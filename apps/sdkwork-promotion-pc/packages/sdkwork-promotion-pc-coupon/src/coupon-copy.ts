@@ -16,6 +16,12 @@ export interface SdkworkCouponMessages {
     rollbackPoints: string;
     viewDetails: string;
   };
+  benefit: {
+    cash: string;
+    points: string;
+    subscription: string;
+    tokenBank: string;
+  };
   common: {
     available: string;
     coupon: string;
@@ -185,6 +191,12 @@ const EN_US_MESSAGES: SdkworkCouponMessages = {
     rollbackPoints: "Restore points",
     viewDetails: "View details",
   },
+  benefit: {
+    cash: "Cash",
+    points: "Membership Points",
+    subscription: "Quota",
+    tokenBank: "Compute Credits",
+  },
   common: {
     available: "Available",
     coupon: "Coupon",
@@ -318,6 +330,12 @@ const ZH_CN_MESSAGES: SdkworkCouponMessages = {
     refreshInventory: "刷新库存",
     rollbackPoints: "退回积分",
     viewDetails: "查看详情",
+  },
+  benefit: {
+    cash: "现金",
+    points: "会员积分",
+    subscription: "配额",
+    tokenBank: "算力额度",
   },
   common: {
     available: "可用",

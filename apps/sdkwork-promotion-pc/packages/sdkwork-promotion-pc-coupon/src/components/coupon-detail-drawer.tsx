@@ -9,6 +9,7 @@ import type {
   SdkworkCouponCatalog,
   SdkworkUserCoupon,
 } from "../coupon";
+import { formatSdkworkCouponBenefit } from "../coupon";
 import type { SdkworkCouponController } from "../coupon-controller";
 import { useSdkworkCouponControllerState } from "../coupon-controller";
 import {
@@ -38,6 +39,9 @@ export function SdkworkCouponDetailDrawer({
   const detail = state.detail;
   const catalogDetail = state.detailKind === "catalog" && detail ? detail as SdkworkCouponCatalog : null;
   const ownedDetail = state.detailKind === "owned" && detail ? detail as SdkworkUserCoupon : null;
+  const benefitLabel = detail
+    ? formatSdkworkCouponBenefit(detail, copy.benefit)
+    : null;
   const emptyValue = copy.common.emptyValue;
   const expireAtLabel = ownedDetail
     ? formatTimestamp(ownedDetail.expireAt)
@@ -112,7 +116,9 @@ export function SdkworkCouponDetailDrawer({
             {formatStatus(detail.status)}
           </span>
           <span className="font-medium text-[var(--sdk-color-text-primary)]">
-            {formatCurrencyCny(detail.amountCny)}
+            {benefitLabel ?? (detail.amountCny != null && detail.amountCny > 0
+              ? formatCurrencyCny(detail.amountCny)
+              : copy.common.emptyValue)}
           </span>
           <span>{pointCostLabel}</span>
         </div>
@@ -130,7 +136,12 @@ export function SdkworkCouponDetailDrawer({
               tone={statusTone}
               value={formatStatus(detail.status)}
             />
-            <DetailDrawerMetric label={copy.detail.discountMetricLabel} value={formatCurrencyCny(detail.amountCny)} />
+            <DetailDrawerMetric
+              label={copy.detail.discountMetricLabel}
+              value={benefitLabel ?? (detail.amountCny != null && detail.amountCny > 0
+                ? formatCurrencyCny(detail.amountCny)
+                : copy.common.emptyValue)}
+            />
             <DetailDrawerMetric label={copy.detail.pointCostLabel} value={pointCostLabel} />
           </DetailDrawerMetrics>
 

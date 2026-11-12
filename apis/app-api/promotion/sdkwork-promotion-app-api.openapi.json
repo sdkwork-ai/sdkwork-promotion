@@ -638,7 +638,12 @@
             "description": "Error response."
           }
         },
-        "security": [],
+        "security": [
+          {
+            "AccessToken": [],
+            "AuthToken": []
+          }
+        ],
         "summary": "List",
         "tags": [
           "promotions"
@@ -648,7 +653,7 @@
         "x-read-sources": [
           "system"
         ],
-        "x-route-scope": "public",
+        "x-route-scope": "console",
         "x-sdk-domain": "promotion",
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-resource": "promotions.offers",
@@ -656,8 +661,7 @@
         "x-write-tables": [],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-auth-mode": "anonymous"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/offers/{offerId}": {
@@ -727,7 +731,12 @@
             "description": "Error response."
           }
         },
-        "security": [],
+        "security": [
+          {
+            "AccessToken": [],
+            "AuthToken": []
+          }
+        ],
         "summary": "Retrieve",
         "tags": [
           "promotions"
@@ -737,7 +746,7 @@
         "x-read-sources": [
           "system"
         ],
-        "x-route-scope": "public",
+        "x-route-scope": "console",
         "x-sdk-domain": "promotion",
         "x-sdkwork-domain": "promotion",
         "x-sdkwork-resource": "promotions.offers",
@@ -745,8 +754,7 @@
         "x-write-tables": [],
         "x-sdkwork-owner": "sdkwork-promotion",
         "x-sdkwork-api-authority": "sdkwork-promotion-app-api",
-        "x-sdkwork-api-surface": "app-api",
-        "x-sdkwork-auth-mode": "anonymous"
+        "x-sdkwork-api-surface": "app-api"
       }
     },
     "/app/v3/api/promotions/user_coupon_claims": {
