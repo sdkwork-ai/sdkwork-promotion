@@ -25,7 +25,9 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use crate::command_headers::validate_app_write_payload;
-use crate::subject::{app_runtime_subject_from_extension, AppRuntimeSubject};
+use crate::subject::{
+    app_runtime_subject_from_extension, catalog_runtime_subject, AppRuntimeSubject,
+};
 
 const MAX_PROMOTION_CODE_LEN: usize = 128;
 
@@ -749,16 +751,14 @@ async fn redeem_promotion_code(
     }
 }
 
+/// Optional-credential storefront read: an anonymous visitor is served from the
+/// platform public tenant, a signed-in caller keeps its resolved principal.
 async fn fetch_promotion_offers(
     State(state): State<AppPromotionState>,
-    runtime_context: Option<Extension<IamAppContext>>,
     request_context: Option<Extension<WebRequestContext>>,
 ) -> Response {
     let ctx = request_context.as_ref().map(|ext| &ext.0);
-    let subject = match app_runtime_subject_from_extension(runtime_context) {
-        Ok(subject) => subject,
-        Err(message) => return crate::api_response::unauthorized(ctx, message),
-    };
+    let subject = catalog_runtime_subject(ctx);
     let query = match PromotionOfferCatalogQuery::new(
         &subject.tenant_id,
         subject.organization_id.as_deref(),
@@ -780,17 +780,15 @@ async fn fetch_promotion_offers(
     }
 }
 
+/// Optional-credential storefront read: an anonymous visitor is served from the
+/// platform public tenant, a signed-in caller keeps its resolved principal.
 async fn retrieve_promotion_offer(
     State(state): State<AppPromotionState>,
-    runtime_context: Option<Extension<IamAppContext>>,
     request_context: Option<Extension<WebRequestContext>>,
     axum::extract::Path(offer_id): axum::extract::Path<String>,
 ) -> Response {
     let ctx = request_context.as_ref().map(|ext| &ext.0);
-    let subject = match app_runtime_subject_from_extension(runtime_context) {
-        Ok(subject) => subject,
-        Err(message) => return crate::api_response::unauthorized(ctx, message),
-    };
+    let subject = catalog_runtime_subject(ctx);
     let query = match PromotionOfferCatalogQuery::new(
         &subject.tenant_id,
         subject.organization_id.as_deref(),
