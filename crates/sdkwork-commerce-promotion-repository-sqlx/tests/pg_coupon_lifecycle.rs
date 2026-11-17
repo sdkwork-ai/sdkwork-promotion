@@ -1071,6 +1071,44 @@ async fn claim_then_redeem_consumes_one_coupon_and_one_stock_unit() {
     assert_eq!(by_kind["cash_credit"], ("10050", Some("USD"), 1));
     assert_eq!(by_kind["subscription"], ("1000", None, 1));
 
+    // Regression: the order domain also settles zero-amount orders (coupon
+    // redemptions) and records `paid_at` on them. Such an order collected no
+    // money, so a subject whose only settled order is a free coupon must still
+    // qualify for a NEW_USER coupon. Placed after the asset-grant report so the
+    // extra successful redemption does not change that report's totals.
+    sqlx::raw_sql(
+        r#"
+        INSERT INTO commerce_order
+            (id, tenant_id, organization_id, owner_user_id, order_no, status, subject,
+             currency_code, created_at, paid_at, updated_at)
+        VALUES
+            ('it-coupon-order', '990001', '0', '990021', 'IT-CP-1', 'paid', 'coupon_recharge',
+             'CNY', '2026-01-01 00:00:00', '2026-01-01 00:00:00', '2026-01-01 00:00:00');
+        INSERT INTO commerce_order_amount_breakdown
+            (id, tenant_id, organization_id, order_id, allocation_type, original_amount,
+             discount_amount, payable_amount, currency_code, created_at)
+        VALUES
+            ('it-coupon-order-amount', '990001', '0', 'it-coupon-order', 'order_total',
+             '0', '0', '0', 'CNY', '2026-01-01 00:00:00');
+        "#,
+    )
+    .execute(&pool)
+    .await
+    .expect("seed settled zero-amount coupon order");
+    let coupon_only_redeem = PromotionCodeRedemptionCommand::new(
+        TENANT,
+        Some(ORG),
+        "990021",
+        "IT-AUDIENCE-1",
+        "it-coupon-only-order",
+        "it-coupon-only-key",
+    )
+    .expect("coupon-only redeem command");
+    store
+        .redeem_promotion_code_for_order(coupon_only_redeem)
+        .await
+        .expect("a subject whose only settled order is a free coupon is still a new user");
+
     assert_failed_attempts_rate_limit(&pool, &store).await;
 }
 

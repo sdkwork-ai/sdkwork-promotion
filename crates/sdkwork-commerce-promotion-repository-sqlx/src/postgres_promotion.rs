@@ -3592,12 +3592,19 @@ fn audience_scope_allows(scope: &str, prior_paid_order_count: i64) -> bool {
     }
 }
 
-/// Enforces `promotion_offer.audience_scope` against the owner's paid order
+/// Enforces `promotion_offer.audience_scope` against the owner's real payment
 /// history. `exclude_order_id` keeps an unpaid order being discounted/redeemed
 /// from counting as its own prior purchase.
 ///
-/// The order table is the eligibility source. If it is unavailable, non-ALL
-/// scopes fail closed instead of silently granting a new-user coupon to anyone.
+/// The order tables are the eligibility source. `paid_at` alone is not a
+/// payment: the order domain also settles zero-amount orders (coupon
+/// redemptions and free listings) and records `paid_at` for them, so counting
+/// every settled order makes a subject who redeemed one coupon immediately
+/// ineligible for every later `NEW_USER` coupon. A real payment is a settled
+/// order whose `commerce_order_amount_breakdown.payable_amount` collected
+/// money; settled orders without a breakdown row keep the `paid_at` evidence.
+/// If the order domain is unavailable, non-ALL scopes fail closed instead of
+/// silently granting a new-user coupon to anyone.
 async fn ensure_audience_allowed(
     tx: &mut Transaction<'_, Postgres>,
     tenant_id: &str,
@@ -3628,16 +3635,27 @@ async fn ensure_audience_allowed(
     let prior_paid_order_count: i64 = sqlx::query_scalar(
         r#"
         SELECT COUNT(1)
-        FROM commerce_order
-        WHERE tenant_id = CAST($1 AS TEXT)
-          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id = '0' AND $3 IS NULL))
-          AND owner_user_id = CAST($4 AS TEXT)
-          -- Only a real payment makes a user "returning". A zero-amount coupon
-          -- order is inserted with status 'paid' but paid_at NULL, so counting
-          -- status would make a first-time coupon user immediately ineligible
-          -- for a new-user coupon.
-          AND paid_at IS NOT NULL
-          AND ($5 IS NULL OR id <> CAST($5 AS TEXT))
+        FROM commerce_order o
+        WHERE o.tenant_id = CAST($1 AS TEXT)
+          AND ((o.organization_id = CAST($2 AS TEXT)) OR (o.organization_id = '0' AND $3 IS NULL))
+          AND o.owner_user_id = CAST($4 AS TEXT)
+          -- Only a payment that actually collected money makes a user
+          -- "returning". The order domain also settles zero-amount orders
+          -- (coupon redemptions, free listings) and records `paid_at` on them,
+          -- so `paid_at` alone would make a first coupon redemption disqualify
+          -- the subject from every later NEW_USER coupon. `payable_amount` is
+          -- the money collected after discounts; a settled order without a
+          -- breakdown row keeps the `paid_at` evidence.
+          AND o.paid_at IS NOT NULL
+          AND NOT EXISTS (
+              SELECT 1
+              FROM commerce_order_amount_breakdown b
+              WHERE b.tenant_id = o.tenant_id
+                AND b.order_id = o.id
+                AND b.allocation_type = 'order_total'
+                AND CAST(b.payable_amount AS NUMERIC) <= 0
+          )
+          AND ($5 IS NULL OR o.id <> CAST($5 AS TEXT))
         "#,
     )
     .bind(tenant_id)
@@ -5809,10 +5827,13 @@ mod tests {
             "async fn ensure_audience_allowed(",
             "async fn ensure_promotion_can_be_redeemed(",
         );
-        // A zero-amount coupon order is status 'paid' with paid_at NULL; using
-        // status here would make a first coupon redemption disqualify the user
-        // from every later NEW_USER coupon.
+        // A zero-amount coupon/free order is settled with `paid_at`, so using
+        // `paid_at` alone would make one coupon redemption disqualify the user
+        // from every later NEW_USER coupon. Only a positive collected payable
+        // amount counts as a real payment.
         assert!(section.contains("paid_at IS NOT NULL"));
+        assert!(section.contains("commerce_order_amount_breakdown"));
+        assert!(section.contains("payable_amount"));
         assert!(!section.contains("LOWER(COALESCE(status"));
     }
 
