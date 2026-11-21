@@ -644,20 +644,13 @@ mod tests {
     }
 
     #[test]
-    fn attempt_table_matches_between_the_baseline_and_its_migration() {
+    fn attempt_table_matches_the_folded_baseline() {
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
-        let migration = include_str!(
-            "../../../database/migrations/postgres/0003_coupon_redemption_evidence.up.sql"
-        );
+        // The 0003 coupon-redemption-evidence migration was folded into the
+        // baseline by reset-database-initialization-state.mjs.
 
         let baseline_columns = create_table_columns(baseline, "promotion_code_redemption_attempt");
-        let migration_columns =
-            create_table_columns(migration, "promotion_code_redemption_attempt");
-        assert_eq!(
-            baseline_columns, migration_columns,
-            "the folded baseline and the 0003 migration must declare the same columns"
-        );
         let expected = [
             "id",
             "uuid",
@@ -703,31 +696,20 @@ mod tests {
             "idx_promotion_coupon_ledger_entry_org_created",
         ] {
             assert!(baseline.contains(index), "baseline is missing {index}");
-            assert!(
-                migration.contains(index),
-                "migration 0003 is missing {index}"
-            );
         }
-        // The normalized expression index this migration once added is
-        // superseded by the 0007 unique hash index: 0003 keeps the explanatory
-        // note only, and 0007 drops the index where an earlier run created it.
+        // The normalized expression index the folded migration once added is
+        // superseded by the 0007 unique hash index: the folded baseline keeps
+        // the explanatory note only, so a fresh install never pays for an
+        // index the unique hash replaces.
         let normalized_index = ["idx_promotion_code_", "value_normalized"].concat();
         let create_normalized = ["CREATE INDEX IF NOT EXISTS ", normalized_index.as_str()].concat();
-        assert!(
-            !migration.contains(create_normalized.as_str()),
-            "0003 must not create the superseded normalized index: {create_normalized}"
-        );
         assert!(
             !baseline.contains(create_normalized.as_str()),
             "the folded baseline must not create the superseded normalized index: {create_normalized}"
         );
-        assert!(migration.contains("Superseded by `0007_code_hash`"));
         // The ledger scope column is added with the NOT NULL sentinel so the
         // framework's organization-id contract still holds.
         assert!(baseline.contains(
-            "promotion_coupon_ledger_entry ADD COLUMN IF NOT EXISTS organization_id TEXT NOT NULL DEFAULT '0'"
-        ));
-        assert!(migration.contains(
             "promotion_coupon_ledger_entry ADD COLUMN IF NOT EXISTS organization_id TEXT NOT NULL DEFAULT '0'"
         ));
     }

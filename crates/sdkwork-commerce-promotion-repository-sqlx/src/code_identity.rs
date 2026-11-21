@@ -127,12 +127,13 @@ mod tests {
     #[test]
     fn sql_and_rust_agree_on_the_code_hash_and_last4_contract() {
         // The SQL expression documented next to the Rust helper must literally
-        // be the one the migration and the folded baseline execute. If either
-        // side changes the expression (or the normalization) this breaks.
-        let migration = include_str!("../../../database/migrations/postgres/0007_code_hash.up.sql");
+        // be the one the folded baseline executes. If either side changes the
+        // expression (or the normalization) this breaks. The 0007 migration
+        // that introduced the expression was folded into the baseline by
+        // reset-database-initialization-state.mjs.
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
-        for sql in [migration, baseline] {
+        for sql in [baseline] {
             // The backfill lives inside a `DO $$ … EXECUTE format(…)` block so
             // the same migration runs on PostgreSQL 18 (builtin sha256) and on
             // older servers that only ship pgcrypto's digest(). String literals
@@ -181,15 +182,14 @@ mod tests {
     }
 
     #[test]
-    fn code_hash_migration_and_baseline_agree_on_columns_and_constraint() {
-        let migration = include_str!("../../../database/migrations/postgres/0007_code_hash.up.sql");
+    fn code_hash_baseline_declares_columns_and_constraint() {
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
-        let superseded = include_str!(
-            "../../../database/migrations/postgres/0003_coupon_redemption_evidence.up.sql"
-        );
+        // The 0007 migration that introduced the columns was folded into the
+        // baseline; the 0003 superseded-index migration lives on only through
+        // the negative assertions below.
 
-        for sql in [migration, baseline] {
+        for sql in [baseline] {
             assert!(sql.contains("ADD COLUMN IF NOT EXISTS code_hash VARCHAR(64)"));
             assert!(sql.contains("ADD COLUMN IF NOT EXISTS code_last4 VARCHAR(4)"));
             assert!(sql.contains("ALTER COLUMN code_hash SET NOT NULL"));
@@ -203,21 +203,18 @@ mod tests {
             assert!(sql.contains("WHERE code_hash IS NULL"));
         }
 
-        // The superseded non-unique expression index is no longer created: 0003
-        // keeps only the explanatory comment and the baseline mirrors that, so
-        // a fresh install never pays for an index the unique hash replaces.
+        // The superseded non-unique expression index is no longer created: the
+        // folded baseline mirrors the 0003 explanatory comment, so a fresh
+        // install never pays for an index the unique hash replaces.
         let create_normalized = [
             "CREATE INDEX IF NOT EXISTS idx_promotion_code_",
             "value_normalized",
         ]
         .concat();
-        for sql in [superseded, baseline] {
-            assert!(
-                !sql.contains(create_normalized.as_str()),
-                "the superseded normalized expression index is still created"
-            );
-        }
-        assert!(superseded.contains("Superseded by `0007_code_hash`"));
+        assert!(
+            !baseline.contains(create_normalized.as_str()),
+            "the superseded normalized expression index is still created"
+        );
         // Raw-value uniqueness stays: the hash adds case-insensitive uniqueness,
         // it does not replace the plaintext uniqueness constraint.
         assert!(baseline

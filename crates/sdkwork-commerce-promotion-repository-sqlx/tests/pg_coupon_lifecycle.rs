@@ -21,34 +21,18 @@ fn baseline_sql() -> &'static str {
     include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql")
 }
 
-fn migration_sql() -> [&'static str; 8] {
-    [
-        include_str!("../../../database/migrations/postgres/0001_organization_id_not_null.up.sql"),
-        include_str!("../../../database/migrations/postgres/0002_coupon_redemption_alignment.up.sql"),
-        include_str!("../../../database/migrations/postgres/0003_coupon_redemption_evidence.up.sql"),
-        include_str!("../../../database/migrations/postgres/0004_audit_event.up.sql"),
-        include_str!("../../../database/migrations/postgres/0005_coupon_stop_loss.up.sql"),
-        include_str!("../../../database/migrations/postgres/0006_budget_and_settlement.up.sql"),
-        include_str!("../../../database/migrations/postgres/0007_code_hash.up.sql"),
-        include_str!("../../../database/migrations/postgres/0008_code_reissue.up.sql"),
-    ]
-}
-
 async fn rebuild_schema(pool: &PgPool) {
     sqlx::raw_sql("DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;")
         .execute(pool)
         .await
         .expect("reset schema");
+    // The accumulated post-GA migrations were folded into the consolidated
+    // baseline by reset-database-initialization-state.mjs, so the baseline
+    // alone rebuilds the full schema.
     sqlx::raw_sql(baseline_sql())
         .execute(pool)
         .await
         .expect("baseline ddl");
-    for migration in migration_sql() {
-        sqlx::raw_sql(migration)
-            .execute(pool)
-            .await
-            .expect("migration");
-    }
     // The promotion repository shares the platform idempotency ledger with the
     // order module; the promotion baseline does not own its DDL.
     sqlx::raw_sql(

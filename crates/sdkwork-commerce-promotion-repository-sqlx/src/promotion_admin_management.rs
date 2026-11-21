@@ -2938,21 +2938,17 @@ mod tests {
     }
 
     #[test]
-    fn audit_event_migration_and_baseline_declare_the_same_columns() {
-        let migration =
-            include_str!("../../../database/migrations/postgres/0004_audit_event.up.sql");
+    fn audit_event_baseline_declares_the_audited_columns() {
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
+        // The 0004 audit-event migration was folded into the baseline by
+        // reset-database-initialization-state.mjs; the baseline is now the
+        // only schema source this test can pin against.
 
-        let from_migration = create_table_columns(migration, "promotion_audit_event");
         let from_baseline = create_table_columns(baseline, "promotion_audit_event");
 
         assert_eq!(
-            from_migration, from_baseline,
-            "the folded baseline and the 0004 migration must declare the same columns"
-        );
-        assert_eq!(
-            from_migration,
+            from_baseline,
             vec![
                 "action",
                 "actor_id",
@@ -2971,17 +2967,10 @@ mod tests {
             "promotion_audit_event must keep the audited evidence column set"
         );
 
-        // Both files must also carry the audit indexes and the action check.
-        for sql in [migration, baseline] {
-            assert!(sql.contains("idx_pae_tenant_time"));
-            assert!(sql.contains("idx_pae_aggregate"));
-            assert!(sql.contains("chk_pae_action"));
-        }
-        assert_eq!(
-            check_actions(migration),
-            vec!["codes.export".to_owned(), "codes.reveal".to_owned()],
-            "0004 is history-immutable and keeps its original two-action check"
-        );
+        // The baseline must also carry the audit indexes and the action check.
+        assert!(baseline.contains("idx_pae_tenant_time"));
+        assert!(baseline.contains("idx_pae_aggregate"));
+        assert!(baseline.contains("chk_pae_action"));
         assert_eq!(
             check_actions(baseline),
             reissue_audit_actions(),
@@ -3205,30 +3194,25 @@ mod tests {
     }
 
     #[test]
-    fn stop_loss_migration_and_baseline_add_the_same_columns_and_indexes() {
-        let migration = include_str!(
-            "../../../database/migrations/postgres/0005_coupon_stop_loss.up.sql"
-        );
+    fn stop_loss_baseline_adds_the_same_columns_and_indexes() {
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
+        // The 0005 coupon-stop-loss migration was folded into the baseline by
+        // reset-database-initialization-state.mjs; the folded section carries
+        // the migration text verbatim.
 
-        // The migration is idempotent: the action check is dropped before it is
-        // re-added, so re-running the vocabulary widening cannot fail.
-        assert!(migration.contains(
+        // The migration was idempotent: the action check is dropped before it
+        // is re-added, so re-running the vocabulary widening cannot fail.
+        assert!(baseline.contains(
             "ALTER TABLE promotion_audit_event DROP CONSTRAINT IF EXISTS chk_pae_action;"
         ));
-        assert_eq!(
-            check_actions(migration),
-            widened_audit_actions(),
-            "0005 must declare the full seven-action vocabulary"
-        );
         assert_eq!(
             check_actions(baseline),
             reissue_audit_actions(),
             "the folded baseline must declare the latest vocabulary"
         );
 
-        // Same void evidence columns, in the same order, on both sides.
+        // Same void evidence columns, in the same order, in the folded slice.
         let expected = ["voided_at", "void_reason", "voided_at", "void_reason"];
         let folded_0005_start = baseline
             .find("-- folded migration: migrations/postgres/0005_coupon_stop_loss.up.sql")
@@ -3240,24 +3224,20 @@ mod tests {
             .expect("baseline must fold 0006");
         assert!(folded_0005_start < folded_0006_start);
         let folded_0005 = &baseline[folded_0005_start..folded_0006_start];
-        assert_eq!(added_columns(migration), expected);
         assert_eq!(added_columns(folded_0005), expected);
-        for sql in [migration, baseline] {
-            assert!(sql.contains("promotion_user_coupon ADD COLUMN IF NOT EXISTS voided_at TEXT"));
-            assert!(
-                sql.contains("promotion_user_coupon ADD COLUMN IF NOT EXISTS void_reason VARCHAR(256)")
-            );
-            assert!(sql.contains("promotion_code ADD COLUMN IF NOT EXISTS voided_at TEXT"));
-            assert!(sql.contains("promotion_code ADD COLUMN IF NOT EXISTS void_reason VARCHAR(256)"));
-            // The sweep indexes the expiry scan needs. The existing indexes all
-            // lead with `tenant_id`/`owner_user_id`, so none serves `status`+window.
-            assert!(sql.contains(
-                "CREATE INDEX IF NOT EXISTS idx_promotion_user_coupon_status_expires"
-            ));
-            assert!(sql.contains("ON promotion_user_coupon (tenant_id, status, expires_at)"));
-            assert!(sql.contains("CREATE INDEX IF NOT EXISTS idx_promotion_code_status_expires"));
-            assert!(sql.contains("ON promotion_code (tenant_id, status, expires_at)"));
-        }
+        assert!(baseline.contains("promotion_user_coupon ADD COLUMN IF NOT EXISTS voided_at TEXT"));
+        assert!(
+            baseline.contains("promotion_user_coupon ADD COLUMN IF NOT EXISTS void_reason VARCHAR(256)")
+        );
+        assert!(baseline.contains("promotion_code ADD COLUMN IF NOT EXISTS voided_at TEXT"));
+        assert!(baseline.contains("promotion_code ADD COLUMN IF NOT EXISTS void_reason VARCHAR(256)"));
+        // The sweep indexes the expiry scan needs. The existing indexes all
+        // lead with `tenant_id`/`owner_user_id`, so none serves `status`+window.
+        assert!(baseline
+            .contains("CREATE INDEX IF NOT EXISTS idx_promotion_user_coupon_status_expires"));
+        assert!(baseline.contains("ON promotion_user_coupon (tenant_id, status, expires_at)"));
+        assert!(baseline.contains("CREATE INDEX IF NOT EXISTS idx_promotion_code_status_expires"));
+        assert!(baseline.contains("ON promotion_code (tenant_id, status, expires_at)"));
     }
 
     /// `voided_at`/`void_reason` columns added by `ADD COLUMN IF NOT EXISTS`.
@@ -3464,29 +3444,23 @@ mod tests {
     }
 
     #[test]
-    fn budget_migration_and_baseline_declare_the_same_tables_columns_and_checks() {
-        let migration = include_str!(
-            "../../../database/migrations/postgres/0006_budget_and_settlement.up.sql"
-        );
+    fn budget_baseline_declares_the_same_tables_columns_and_checks() {
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
+        // The 0006 budget-and-settlement migration was folded into the baseline
+        // by reset-database-initialization-state.mjs.
 
-        // Both tables are declared in the migration AND folded into the baseline,
-        // with the same column set.
+        // Both tables are declared in the folded baseline with the expected
+        // column sets.
         for table in ["promotion_budget_account", "promotion_budget_ledger_entry"] {
-            let from_migration = budget_table_columns(migration, table);
             let from_baseline = budget_table_columns(baseline, table);
             assert!(
-                !from_migration.is_empty(),
-                "{table} must be declared by 0006"
-            );
-            assert_eq!(
-                from_migration, from_baseline,
-                "{table}: the folded baseline must declare the same columns as 0006"
+                !from_baseline.is_empty(),
+                "{table} must be declared by the folded baseline"
             );
         }
         assert_eq!(
-            budget_table_columns(migration, "promotion_budget_account"),
+            budget_table_columns(baseline, "promotion_budget_account"),
             vec![
                 "available_amount_minor",
                 "budget_no",
@@ -3509,7 +3483,7 @@ mod tests {
             "promotion_budget_account must keep its hard-cap column set"
         );
         assert_eq!(
-            budget_table_columns(migration, "promotion_budget_ledger_entry"),
+            budget_table_columns(baseline, "promotion_budget_ledger_entry"),
             vec![
                 "amount_minor",
                 "application_id",
@@ -3536,7 +3510,7 @@ mod tests {
             "reservation_expires_at",
             "budget_amount_minor",
         ];
-        assert_eq!(added_columns(migration), expected_columns);
+        // the folded slice carries the same additive columns (asserted above via baseline)
         let folded_start = baseline
             .find("-- folded migration: migrations/postgres/0006_budget_and_settlement.up.sql")
             .expect("baseline must fold 0006");
@@ -3546,7 +3520,7 @@ mod tests {
             .unwrap_or(folded_rest.len());
         assert_eq!(added_columns(&folded_rest[..folded_end]), expected_columns);
 
-        for sql in [migration, baseline] {
+        for sql in [baseline] {
             // The money-unit rule is documented next to the new columns.
             assert!(sql.contains("*_minor BIGINT"));
             // Additive columns.
@@ -3581,17 +3555,12 @@ mod tests {
             ));
         }
 
-        // The widened audit vocabulary: 0006 drops and re-adds the check; the
-        // history-immutable migration keeps its own era's ten actions while the
-        // folded baseline has since folded 0008's `codes.reissue` on top.
-        assert!(migration.contains(
+        // The widened audit vocabulary: the folded 0006 slice drops and re-adds
+        // the check with the settlement lifecycle's ten actions, and the folded
+        // baseline has since folded 0008's `codes.reissue` on top.
+        assert!(baseline.contains(
             "ALTER TABLE promotion_audit_event DROP CONSTRAINT IF EXISTS chk_pae_action;"
         ));
-        assert_eq!(
-            check_actions(migration),
-            settlement_audit_actions(),
-            "0006 must declare the settlement lifecycle vocabulary"
-        );
         assert_eq!(
             check_actions(baseline),
             reissue_audit_actions(),
@@ -3946,30 +3915,24 @@ mod tests {
     }
 
     #[test]
-    fn code_reissue_migration_and_baseline_add_the_same_columns_index_and_check() {
-        let migration =
-            include_str!("../../../database/migrations/postgres/0008_code_reissue.up.sql");
+    fn code_reissue_baseline_adds_the_columns_index_and_check() {
         let baseline =
             include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
+        // The 0008 code-reissue migration was folded into the baseline by
+        // reset-database-initialization-state.mjs; the baseline is the only
+        // schema source left to pin.
 
-        for sql in [migration, baseline] {
-            assert!(sql.contains(
-                "ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS reissued_from_code_id TEXT"
-            ));
-            assert!(sql.contains(
-                "ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS replaced_by_code_id TEXT"
-            ));
-            assert!(sql.contains("CREATE INDEX IF NOT EXISTS idx_promotion_code_reissued_from"));
-            assert!(sql.contains("ON promotion_code (tenant_id, reissued_from_code_id)"));
-            assert!(
-                check_actions(sql).contains(&"codes.reissue".to_owned()),
-                "the audit vocabulary must admit codes.reissue"
-            );
-        }
-        assert_eq!(
-            check_actions(migration),
-            reissue_audit_actions(),
-            "0008 must declare the latest audit vocabulary"
+        assert!(baseline.contains(
+            "ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS reissued_from_code_id TEXT"
+        ));
+        assert!(baseline.contains(
+            "ALTER TABLE promotion_code ADD COLUMN IF NOT EXISTS replaced_by_code_id TEXT"
+        ));
+        assert!(baseline.contains("CREATE INDEX IF NOT EXISTS idx_promotion_code_reissued_from"));
+        assert!(baseline.contains("ON promotion_code (tenant_id, reissued_from_code_id)"));
+        assert!(
+            check_actions(baseline).contains(&"codes.reissue".to_owned()),
+            "the audit vocabulary must admit codes.reissue"
         );
         assert_eq!(
             check_actions(baseline),
@@ -3977,13 +3940,11 @@ mod tests {
             "the folded baseline must fold 0008"
         );
 
-        // Re-runnable and transactional; no table is added, so the contract
-        // registries (schema.yaml / table-registry.json) need no change.
-        assert!(migration
+        // No table is added by the reissue slice, so the contract registries
+        // (schema.yaml / table-registry.json) need no change.
+        assert!(baseline
             .contains("ALTER TABLE promotion_audit_event DROP CONSTRAINT IF EXISTS chk_pae_action;"));
-        assert!(migration.contains("BEGIN;"));
-        assert!(migration.contains("COMMIT;"));
-        assert!(!migration.contains("CREATE TABLE"));
+        assert!(!baseline.contains("CREATE TABLE IF NOT EXISTS promotion_code_reissue"));
     }
 
     /// Authored Rust/SQL sources under `directory`, recursively.

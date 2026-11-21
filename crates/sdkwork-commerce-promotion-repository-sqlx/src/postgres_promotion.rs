@@ -6176,15 +6176,16 @@ mod tests {
         assert!(sweep.contains("WHERE a.status = 'applied'"));
         assert!(sweep.contains("release_reason = 'reservation_expired'"));
         assert!(sweep.contains("status = 'released'"));
-        // The same instant predicate is the partial index's population.
-        let migration = include_str!(
-            "../../../database/migrations/postgres/0006_budget_and_settlement.up.sql"
-        );
-        assert!(migration.contains(
+        // The same instant predicate is the partial index's population. The
+        // 0006 budget-and-settlement migration was folded into the baseline by
+        // reset-database-initialization-state.mjs.
+        let baseline =
+            include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
+        assert!(baseline.contains(
             "CREATE INDEX IF NOT EXISTS idx_promotion_discount_application_status_expires"
         ));
-        assert!(migration.contains("ON promotion_discount_application (tenant_id, status, reservation_expires_at)"));
-        assert!(migration.contains("WHERE status = 'applied';"));
+        assert!(baseline.contains("ON promotion_discount_application (tenant_id, status, reservation_expires_at)"));
+        assert!(baseline.contains("WHERE status = 'applied';"));
 
         // One aggregated audit row carries the pass size.
         let audit = section_until(source, &audit_start, "/// advisory lock 键：会员卡生命周期扫描");
@@ -6285,14 +6286,14 @@ mod tests {
         assert!(std::panic::catch_unwind(|| reserved.release(501)).is_err());
 
         // The CHECK constraint text and the transfer predicates the arithmetic
-        // mirrors.
-        let migration = include_str!(
-            "../../../database/migrations/postgres/0006_budget_and_settlement.up.sql"
-        );
-        assert!(migration.contains(
+        // mirrors (folded into the baseline with the rest of the budget and
+        // settlement slice).
+        let baseline =
+            include_str!("../../../database/ddl/baseline/postgres/0001_promotion_baseline.sql");
+        assert!(baseline.contains(
             "available_amount_minor + reserved_amount_minor + used_amount_minor <= total_amount_minor"
         ));
-        assert!(migration.contains("CONSTRAINT chk_pba_amounts CHECK ("));
+        assert!(baseline.contains("CONSTRAINT chk_pba_amounts CHECK ("));
         let management = include_str!("promotion_admin_management.rs");
         let transfer = section_until(
             management,
