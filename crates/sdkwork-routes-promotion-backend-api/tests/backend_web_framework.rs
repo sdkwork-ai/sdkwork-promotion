@@ -755,6 +755,7 @@ fn attempt(outcome: &str, failure_code: Option<&str>) -> PromotionRedemptionAtte
         id: "8844220011".to_owned(),
         code_id: Some("7011".to_owned()),
         submitted_code_suffix: "2026".to_owned(),
+        submitted_code_masked: "WELC****2026".to_owned(),
         subject_type: "user".to_owned(),
         subject_id: "900001".to_owned(),
         outcome: outcome.to_owned(),
@@ -827,6 +828,7 @@ async fn redemption_attempt_list_returns_the_contract_shape() {
         "id",
         "codeId",
         "submittedCodeSuffix",
+        "submittedCodeMasked",
         "subjectType",
         "subjectId",
         "outcome",
@@ -847,6 +849,7 @@ async fn redemption_attempt_list_returns_the_contract_shape() {
     }
     assert_eq!(succeeded["id"], "8844220011");
     assert_eq!(succeeded["submittedCodeSuffix"], "2026");
+    assert_eq!(succeeded["submittedCodeMasked"], "WELC****2026");
     assert_eq!(succeeded["outcome"], "succeeded");
     assert_eq!(succeeded["grantedAmount"], "500");
     assert!(succeeded["failureCode"].is_null());

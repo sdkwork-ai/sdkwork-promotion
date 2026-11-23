@@ -1,4 +1,4 @@
-/** One code-redemption attempt (success or failure). Append-only evidence: rows are never updated or deleted. The submitted code itself is never stored or returned, only its suffix. */
+/** One code-redemption attempt (success or failure). Append-only evidence: rows are never updated or deleted. The submitted code itself is never stored or returned, only its display mask and last four characters. */
 export interface PromotionRedemptionAttempt {
   /** Attempt id (TEXT). */
   id: string;
@@ -6,6 +6,8 @@ export interface PromotionRedemptionAttempt {
   codeId?: string | null;
   /** Last four characters of the trimmed submitted code. Never the redeemable value. */
   submittedCodeSuffix: string;
+  /** Display mask of the trimmed submitted code: first four and last four characters for codes of nine or more (`3C76A1B2C3D44E21` -> `3C76****4E21`), `****` for shorter ones. Display only; never the redeemable value. */
+  submittedCodeMasked: string;
   /** Subject that submitted the code, for example `user`. */
   subjectType: string;
   /** Subject id that submitted the code. */

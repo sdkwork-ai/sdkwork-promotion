@@ -15,9 +15,10 @@
 //!   a row written inside the failing transaction would be rolled back too and
 //!   the failure would never be observable.
 //!
-//! The table must never store a redeemable secret: only the SHA-256 hash and the
-//! last four characters of the submitted code are persisted (see
-//! [`submitted_code_hash`] and [`submitted_code_suffix`]).
+//! The table must never store a redeemable secret: only the SHA-256 hash, the
+//! last four characters, and the display mask of the submitted code are
+//! persisted (see [`submitted_code_hash`], [`submitted_code_suffix`], and
+//! [`submitted_code_masked`]).
 
 use sdkwork_commerce_promotion_service::PromotionCodeRedemptionCommand;
 use sdkwork_contract_service::{CommerceServiceError, CommerceServiceErrorKind};
@@ -151,6 +152,18 @@ pub(crate) fn submitted_code_suffix(submitted_code: &str) -> String {
     crate::code_identity::code_last4(submitted_code)
 }
 
+/// Display mask of the trimmed submitted code.
+///
+/// The suffix alone is not enough for an operator to recognise which card the
+/// customer typed, so the ledger also persists the same first/last-four mask the
+/// code list renders (`3C76A1B2C3D44E21` -> `3C76****4E21`). This is a display
+/// value only: every call goes through [`crate::code_identity::code_masked`], so
+/// a stored code is never echoed back and the redeemable value is still never
+/// stored.
+pub(crate) fn submitted_code_masked(submitted_code: &str) -> String {
+    crate::code_identity::code_masked(submitted_code)
+}
+
 /// Truncates a rejection message to `failure_detail VARCHAR(512)`.
 ///
 /// Truncation counts characters, not bytes, so a multi-byte message cannot be
@@ -175,7 +188,8 @@ pub(crate) struct ResolvedRedemptionTarget {
 /// One row of `promotion_code_redemption_attempt`.
 ///
 /// Note the absence of any field carrying the submitted code: the record only
-/// ever holds the hash and the suffix, so no insert path can leak the secret.
+/// ever holds the hash, the suffix, and the display mask, so no insert path can
+/// leak the secret.
 pub(crate) struct RedemptionAttemptRecord<'a> {
     pub tenant_id: &'a str,
     /// Always sentinel-bound: `organization_id` is `TEXT NOT NULL DEFAULT '0'`
@@ -189,6 +203,7 @@ pub(crate) struct RedemptionAttemptRecord<'a> {
     pub order_id: Option<&'a str>,
     pub submitted_code_hash: &'a str,
     pub submitted_code_suffix: &'a str,
+    pub submitted_code_masked: &'a str,
     pub subject_type: &'a str,
     pub subject_id: &'a str,
     pub channel: &'a str,
@@ -208,12 +223,12 @@ const INSERT_ATTEMPT_SQL: &str = r#"
 INSERT INTO promotion_code_redemption_attempt
     (id, uuid, tenant_id, organization_id, code_id, stock_id, offer_id,
      user_coupon_id, order_id, submitted_code_hash, submitted_code_suffix,
-     subject_type, subject_id, channel, outcome, failure_code, failure_detail,
-     benefit_kind, granted_amount, currency_code, request_no, idempotency_key,
-     trace_id, occurred_at, created_at)
+     submitted_code_masked, subject_type, subject_id, channel, outcome,
+     failure_code, failure_detail, benefit_kind, granted_amount, currency_code,
+     request_no, idempotency_key, trace_id, occurred_at, created_at)
 VALUES
     ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-     $18, $19, $20, $21, $22, $23, $24, $24)
+     $18, $19, $20, $21, $22, $23, $24, $25, $25)
 "#;
 
 fn bind_attempt<'q>(
@@ -232,6 +247,7 @@ fn bind_attempt<'q>(
         .bind(record.order_id)
         .bind(record.submitted_code_hash)
         .bind(record.submitted_code_suffix)
+        .bind(record.submitted_code_masked)
         .bind(record.subject_type)
         .bind(record.subject_id)
         .bind(record.channel)
@@ -298,6 +314,7 @@ pub(crate) async fn record_redemption_failure_attempt(
         order_id,
         submitted_code_hash: &submitted_code_hash(&command.code),
         submitted_code_suffix: &submitted_code_suffix(&command.code),
+        submitted_code_masked: &submitted_code_masked(&command.code),
         subject_type,
         subject_id: &command.owner_user_id,
         channel,
@@ -447,10 +464,29 @@ mod tests {
         let code = "ABCDEFGH1234";
         assert_ne!(submitted_code_suffix(code), code);
         assert_eq!(submitted_code_suffix(code).chars().count(), 4);
+
+        // The display mask keeps the first and last four characters of a long
+        // code and hides everything in between, so an operator can recognise the
+        // card without the ledger holding a redeemable value.
+        assert_eq!(submitted_code_masked("WELCOME2026"), "WELC****2026");
+        assert_eq!(submitted_code_masked("  welcome2026\t"), "welc****2026");
+        assert_ne!(submitted_code_masked(code), code);
+        assert!(submitted_code_masked(code).contains("****"));
+        // Short codes reveal nothing beyond the fixed mask.
+        assert_eq!(submitted_code_masked("SHORT"), "****");
+        assert_eq!(submitted_code_masked(""), "****");
+        // Submitted text that literally spells its own mask is still never
+        // echoed back, so the mask field can never carry the submitted value.
+        assert_eq!(submitted_code_masked("3C76****4E21"), "****");
+        // `trim` runs before masking, so a padded paste cannot change the mask.
+        assert_eq!(
+            submitted_code_masked("  3C76A1B2C3D44E21  "),
+            "3C76****4E21"
+        );
     }
 
     #[test]
-    fn attempt_insert_writes_only_hash_and_suffix_for_the_submitted_code() {
+    fn attempt_insert_writes_only_hash_suffix_and_mask_for_the_submitted_code() {
         let source = include_str!("redemption_attempt.rs");
         // Exactly one insert path into the evidence table. The needle is
         // assembled at runtime so this assertion cannot match its own source.
@@ -463,6 +499,7 @@ mod tests {
         let statement = &rest[..rest.find("\"#;").expect("end of insert statement")];
         assert!(statement.contains("submitted_code_hash"));
         assert!(statement.contains("submitted_code_suffix"));
+        assert!(statement.contains("submitted_code_masked"));
         // The raw submitted value has no column at all.
         assert!(!statement.contains("submitted_code,"));
         assert!(!statement.contains("submitted_code)"));
@@ -474,6 +511,7 @@ mod tests {
         let binds = &bind_body[..bind_end];
         assert!(binds.contains("record.submitted_code_hash"));
         assert!(binds.contains("record.submitted_code_suffix"));
+        assert!(binds.contains("record.submitted_code_masked"));
         assert!(!binds.contains("command.code"));
 
         // The record itself has no raw-code field.
@@ -663,6 +701,7 @@ mod tests {
             "order_id",
             "submitted_code_hash",
             "submitted_code_suffix",
+            "submitted_code_masked",
             "subject_type",
             "subject_id",
             "channel",

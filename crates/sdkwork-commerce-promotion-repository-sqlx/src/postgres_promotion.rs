@@ -24,8 +24,8 @@ use crate::coupon_benefit::{parse_admin_coupon_benefit, parse_order_coupon_benef
 use crate::discount_amount::compute_discount_amount;
 use crate::redemption_attempt::{
     insert_redemption_attempt_in_tx, record_redemption_failure_attempt, submitted_code_hash,
-    submitted_code_suffix, RedemptionAttemptRecord, ResolvedRedemptionTarget, CHANNEL_CODE,
-    CHANNEL_PREVIEW, OUTCOME_SUCCEEDED,
+    submitted_code_masked, submitted_code_suffix, RedemptionAttemptRecord,
+    ResolvedRedemptionTarget, CHANNEL_CODE, CHANNEL_PREVIEW, OUTCOME_SUCCEEDED,
 };
 use crate::timestamps::{self, window_not_ended, window_started};
 
@@ -441,6 +441,7 @@ impl PostgresCommercePromotionStore {
                 order_id: Some(&command.request_no),
                 submitted_code_hash: &submitted_code_hash(&command.code),
                 submitted_code_suffix: &submitted_code_suffix(&command.code),
+                submitted_code_masked: &submitted_code_masked(&command.code),
                 subject_type: USER_SUBJECT_TYPE,
                 subject_id: &command.owner_user_id,
                 channel: CHANNEL_CODE,
@@ -1026,6 +1027,7 @@ fn user_coupon_benefit_display(
                 order_id: None,
                 submitted_code_hash: &submitted_code_hash(&command.code),
                 submitted_code_suffix: &submitted_code_suffix(&command.code),
+                submitted_code_masked: &submitted_code_masked(&command.code),
                 subject_type: USER_SUBJECT_TYPE,
                 subject_id: &command.owner_user_id,
                 channel: CHANNEL_CODE,

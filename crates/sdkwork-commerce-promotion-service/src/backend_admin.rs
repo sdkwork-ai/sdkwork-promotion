@@ -299,13 +299,14 @@ impl PromotionRedemptionAttemptListQuery {
 
 /// One row of the redemption attempt ledger as the backend API exposes it.
 ///
-/// The submitted code never appears here: only its suffix is persisted and
-/// returned, so the ledger cannot leak a redeemable value.
+/// The submitted code never appears here: only its suffix and display mask are
+/// persisted and returned, so the ledger cannot leak a redeemable value.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PromotionRedemptionAttemptItem {
     pub id: String,
     pub code_id: Option<String>,
     pub submitted_code_suffix: String,
+    pub submitted_code_masked: String,
     pub subject_type: String,
     pub subject_id: String,
     pub outcome: String,

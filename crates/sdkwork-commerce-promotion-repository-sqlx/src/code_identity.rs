@@ -85,6 +85,31 @@ pub(crate) fn code_last4(code: &str) -> String {
     trimmed.chars().skip(count.saturating_sub(4)).collect()
 }
 
+/// Display mask of the trimmed code, shared by the code list and the redemption
+/// attempt ledger.
+///
+/// Codes of nine characters or more keep their first and last four characters
+/// (`3C76A1B2C3D44E21` -> `3C76****4E21`), so an operator can recognise the code
+/// without the mask ever being redeemable. Shorter codes expose nothing but the
+/// fixed mask: keeping eight of eight characters visible would defeat the mask.
+pub(crate) fn code_masked(code: &str) -> String {
+    let trimmed = code.trim();
+    let characters = trimmed.chars().collect::<Vec<_>>();
+    if characters.len() <= 8 {
+        return "****".to_owned();
+    }
+    let prefix: String = characters.iter().take(4).collect();
+    let suffix: String = characters[characters.len() - 4..].iter().collect();
+    let masked = format!("{prefix}****{suffix}");
+    if masked == trimmed {
+        // Real promotion codes are alphanumerics plus `-`/`_`, so a stored code
+        // can never spell its own mask. A redemption attempt records arbitrary
+        // submitted text, though, and the mask must not echo it back verbatim.
+        return "****".to_owned();
+    }
+    masked
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -122,6 +147,25 @@ mod tests {
 
         // The last four characters are the *trimmed* tail, never the raw tail.
         assert_eq!(code_identity("WELCOME2026  ").last4, "2026");
+    }
+
+    #[test]
+    fn code_masked_keeps_only_first_and_last_four_for_long_codes() {
+        assert_eq!(code_masked("3C76A1B2C3D44E21"), "3C76****4E21");
+        assert_eq!(code_masked(" 3C76A1B2C3D44E21 "), "3C76****4E21");
+        // Nine characters is the first length that keeps both ends.
+        assert_eq!(code_masked("ABCDEFGHI"), "ABCD****FGHI");
+        // Eight characters or fewer expose nothing but the fixed mask.
+        assert_eq!(code_masked("AB12CD34"), "****");
+        assert_eq!(code_masked("WXYZ"), "****");
+        assert_eq!(code_masked(""), "****");
+        // The mask must never equal the value it hides. The only input that can
+        // collide is the literal mask text itself, which carries no information;
+        // a real code can never be `****`.
+        for value in ["3C76****4E21", "A", "ABCDEFGHI"] {
+            assert_ne!(code_masked(value), value);
+        }
+        assert_eq!(code_masked("****"), "****");
     }
 
     #[test]

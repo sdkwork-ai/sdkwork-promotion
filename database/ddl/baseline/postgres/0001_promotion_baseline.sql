@@ -549,6 +549,7 @@ CREATE TABLE IF NOT EXISTS promotion_code_redemption_attempt (
     order_id TEXT,
     submitted_code_hash VARCHAR(128) NOT NULL,
     submitted_code_suffix VARCHAR(8) NOT NULL,
+    submitted_code_masked VARCHAR(80) NOT NULL DEFAULT '',
     subject_type VARCHAR(32) NOT NULL,
     subject_id TEXT NOT NULL,
     channel VARCHAR(32) NOT NULL DEFAULT 'code',
@@ -782,6 +783,24 @@ ALTER TABLE promotion_audit_event ADD CONSTRAINT chk_pae_action
                     'discount_applications.settle','discount_applications.release',
                     'budget.release_expired','codes.reissue'));
 
+-- folded migration: migrations/postgres/0009_attempt_code_masked.up.sql
+-- sdkwork:migration
+-- id: 0009_attempt_code_masked
+-- engine: postgres
+-- module: sdkwork-promotion
+-- purpose: persist the display mask of the code a customer submitted, so the
+--   admin redemption-attempt ledger can show first/last four characters instead
+--   of only the suffix without ever storing the redeemable value
+-- reversible: false
+-- transactional: true
+
+ALTER TABLE promotion_code_redemption_attempt
+  ADD COLUMN IF NOT EXISTS submitted_code_masked VARCHAR(80) NOT NULL DEFAULT '';
+
+UPDATE promotion_code_redemption_attempt
+  SET submitted_code_masked = '****' || submitted_code_suffix
+  WHERE submitted_code_masked = '';
+
 -- folded migration: migrations/postgres/0001_organization_id_not_null.up.sql
 -- sdkwork:migration
 -- id: 0001_organization_id_not_null
@@ -960,6 +979,7 @@ CREATE TABLE IF NOT EXISTS promotion_code_redemption_attempt (
     order_id TEXT,
     submitted_code_hash VARCHAR(128) NOT NULL,
     submitted_code_suffix VARCHAR(8) NOT NULL,
+    submitted_code_masked VARCHAR(80) NOT NULL DEFAULT '',
     subject_type VARCHAR(32) NOT NULL,
     subject_id TEXT NOT NULL,
     channel VARCHAR(32) NOT NULL DEFAULT 'code',

@@ -1354,7 +1354,7 @@ pub(crate) async fn list_redemption_attempts(
     query: &PromotionRedemptionAttemptListQuery,
 ) -> Result<PromotionAdminPage<PromotionRedemptionAttemptItem>, CommerceServiceError> {
     let search = query.search_pattern();
-    let columns = "id,code_id,submitted_code_suffix,subject_type,subject_id,outcome,failure_code,failure_detail,benefit_kind,CAST(granted_amount AS TEXT) AS granted_amount,currency_code,request_no,order_id,trace_id,CAST(occurred_at AS TEXT) AS occurred_at";
+    let columns = "id,code_id,submitted_code_suffix,submitted_code_masked,subject_type,subject_id,outcome,failure_code,failure_detail,benefit_kind,CAST(granted_amount AS TEXT) AS granted_amount,currency_code,request_no,order_id,trace_id,CAST(occurred_at AS TEXT) AS occurred_at";
     let filter = "tenant_id=$1 AND organization_id=$2 AND ($3='%%' OR LOWER(submitted_code_suffix) LIKE $3 OR CAST(subject_id AS TEXT) LIKE $3 OR LOWER(request_no) LIKE $3) AND ($4 IS NULL OR outcome=$4) AND ($5 IS NULL OR code_id=CAST($5 AS TEXT))";
     let (total_items, rows) = match pool {
         AdminPool::Postgres(pool) => {
@@ -2680,6 +2680,7 @@ fn map_redemption_attempt(
         id: row.string("id")?,
         code_id: row.optional_string("code_id")?,
         submitted_code_suffix: row.string("submitted_code_suffix")?,
+        submitted_code_masked: row.string("submitted_code_masked")?,
         subject_type: row.string("subject_type")?,
         subject_id: row.string("subject_id")?,
         outcome: row.string("outcome")?,
@@ -2740,19 +2741,9 @@ fn generated_code(prefix: &str, length: i32) -> Result<String, CommerceServiceEr
     Ok(format!("{prefix}{random}"))
 }
 fn mask_code(value: &str) -> String {
-    if value.chars().count() <= 8 {
-        return "****".to_owned();
-    }
-    let prefix = value.chars().take(4).collect::<String>();
-    let suffix = value
-        .chars()
-        .rev()
-        .take(4)
-        .collect::<String>()
-        .chars()
-        .rev()
-        .collect::<String>();
-    format!("{prefix}****{suffix}")
+    // One masking rule for the admin console: the code list, the reissue
+    // response, and the redemption-attempt ledger all render this value.
+    crate::code_identity::code_masked(value)
 }
 fn trimmed(value: &Option<String>) -> Option<String> {
     value

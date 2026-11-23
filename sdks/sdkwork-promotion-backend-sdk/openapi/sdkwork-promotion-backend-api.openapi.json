@@ -1011,7 +1011,7 @@
       "get": {
         "operationId": "redemptionAttempts.list",
         "summary": "redemptionAttempts.list",
-        "description": "Paginated code-redemption attempt ledger (successes and failures), newest first by `occurredAt` with `id` as the tiebreaker. Backs the admin support view; `q` searches the submitted-code suffix, the subject id, and the request number. The submitted code itself is never returned.",
+        "description": "Paginated code-redemption attempt ledger (successes and failures), newest first by `occurredAt` with `id` as the tiebreaker. Backs the admin support view; `q` searches the submitted-code suffix, the subject id, and the request number. Each item carries the display mask (`submittedCodeMasked`) and the last four characters (`submittedCodeSuffix`); the submitted code itself is never returned.",
         "tags": [
           "promotions"
         ],
@@ -4131,10 +4131,11 @@
       },
       "PromotionRedemptionAttempt": {
         "type": "object",
-        "description": "One code-redemption attempt (success or failure). Append-only evidence: rows are never updated or deleted. The submitted code itself is never stored or returned, only its suffix.",
+        "description": "One code-redemption attempt (success or failure). Append-only evidence: rows are never updated or deleted. The submitted code itself is never stored or returned, only its display mask and last four characters.",
         "required": [
           "id",
           "submittedCodeSuffix",
+          "submittedCodeMasked",
           "subjectType",
           "subjectId",
           "outcome",
@@ -4158,6 +4159,11 @@
             "type": "string",
             "maxLength": 8,
             "description": "Last four characters of the trimmed submitted code. Never the redeemable value."
+          },
+          "submittedCodeMasked": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Display mask of the trimmed submitted code: first four and last four characters for codes of nine or more (`3C76A1B2C3D44E21` -> `3C76****4E21`), `****` for shorter ones. Display only; never the redeemable value."
           },
           "subjectType": {
             "type": "string",
