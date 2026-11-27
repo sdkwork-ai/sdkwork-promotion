@@ -238,9 +238,46 @@ impl PostgresCommercePromotionStore {
         Ok(preview)
     }
 
+    /// Order-path preview: applies every redemption guard and reports the
+    /// benefit that would be granted without mutating anything.
+    ///
+    /// A rejection records a failure attempt through the same evidence ledger
+    /// the redemption uses (see [`crate::redemption_attempt`]), exactly like
+    /// [`Self::preview_promotion_code`]. The order checkout previews before it
+    /// creates an order, so without this the app's most common rejection —
+    /// "the customer typed a code and got a 409" — would leave no trace in the
+    /// ledger at all, and support could not answer why the redemption failed.
+    /// The evidence row is written on its own pooled connection after the
+    /// preview transaction is gone, so it survives the rollback that discards
+    /// the read locks.
     pub async fn preview_promotion_code_for_order(
         &self,
         command: PromotionCodeRedemptionCommand,
+    ) -> Result<PromotionOrderCouponBenefit, CommerceServiceError> {
+        let mut resolved: Option<ResolvedRedemptionTarget> = None;
+        let result = self
+            .preview_promotion_code_for_order_in_tx(&command, &mut resolved)
+            .await;
+        if let Err(error) = &result {
+            record_redemption_failure_attempt(
+                &self.pool,
+                &command,
+                resolved.as_ref(),
+                Some(&command.request_no),
+                CHANNEL_PREVIEW,
+                USER_SUBJECT_TYPE,
+                &current_timestamp_string(),
+                error,
+            )
+            .await;
+        }
+        result
+    }
+
+    async fn preview_promotion_code_for_order_in_tx(
+        &self,
+        command: &PromotionCodeRedemptionCommand,
+        resolved: &mut Option<ResolvedRedemptionTarget>,
     ) -> Result<PromotionOrderCouponBenefit, CommerceServiceError> {
         let mut tx = self.pool.begin().await.map_err(|error| {
             store_error("failed to begin promotion order coupon preview", error)
@@ -253,8 +290,13 @@ impl PostgresCommercePromotionStore {
             &command.owner_user_id,
         )
         .await?;
-        let promotion = load_promotion_for_redeem(&mut tx, &command, &now).await?;
-        ensure_promotion_can_be_redeemed(&mut tx, &command, &promotion).await?;
+        let promotion = load_promotion_for_redeem(&mut tx, command, &now).await?;
+        *resolved = Some(ResolvedRedemptionTarget {
+            code_id: promotion.code_id.clone(),
+            stock_id: promotion.stock_id.clone(),
+            offer_id: promotion.offer_id.clone(),
+        });
+        ensure_promotion_can_be_redeemed(&mut tx, command, &promotion).await?;
         parse_order_coupon_benefit(
             promotion.rule_json.as_deref(),
             &promotion.discount_value,
@@ -3700,8 +3742,20 @@ async fn ensure_promotion_can_be_redeemed(
         if promotion.code_max_claims > 0
             && promotion.code_claimed_quantity >= promotion.code_max_claims
         {
+            // The stock pool still has capacity; this one code is spent. Report
+            // the code's own state instead of the campaign-wide "issue limit",
+            // and tell the owner apart from a stranger who redeemed it first:
+            // for the owner the fact is "you already used this code", not "the
+            // campaign ran out".
+            if !promotion.code_id.is_empty()
+                && subject_already_redeemed_code(tx, command, &promotion.code_id).await?
+            {
+                return Err(CommerceServiceError::conflict(
+                    "promotion code was already redeemed by this account",
+                ));
+            }
             return Err(CommerceServiceError::conflict(
-                "promotion code has reached its issue limit",
+                "promotion code has already been redeemed",
             ));
         }
     }
@@ -3775,6 +3829,43 @@ async fn ensure_promotion_can_be_redeemed(
         .await?;
     }
     Ok(())
+}
+
+/// True when this subject already holds a redeemed coupon issued for `code_id`.
+///
+/// A spent single-use code has two very different meanings for the caller: the
+/// owner retrying their own redemption ("you already used this code") and a
+/// stranger arriving after someone else consumed it ("this code was already
+/// redeemed"). The wallet row is the evidence: a successful redemption leaves a
+/// `promotion_user_coupon` row for the subject, its `code_id`, and the
+/// `redeemed` status. The query is scoped exactly like the redemption guards,
+/// so it can never see another tenant's or organization's coupon.
+async fn subject_already_redeemed_code(
+    tx: &mut Transaction<'_, Postgres>,
+    command: &PromotionCodeRedemptionCommand,
+    code_id: &str,
+) -> Result<bool, CommerceServiceError> {
+    let count: i64 = sqlx::query_scalar(
+        r#"
+        SELECT COUNT(1)
+        FROM promotion_user_coupon
+        WHERE tenant_id = CAST($1 AS TEXT)
+          AND ((organization_id = CAST($2 AS TEXT)) OR (organization_id = '0' AND $2 IS NULL))
+          AND subject_type = $3
+          AND subject_id = CAST($4 AS TEXT)
+          AND code_id = $5
+          AND LOWER(COALESCE(status, '')) = 'redeemed'
+        "#,
+    )
+    .bind(&command.tenant_id)
+    .bind(command.organization_id.as_deref())
+    .bind(USER_SUBJECT_TYPE)
+    .bind(&command.owner_user_id)
+    .bind(code_id)
+    .fetch_one(&mut **tx)
+    .await
+    .map_err(|error| store_error("failed to check the owner's redeemed coupons", error))?;
+    Ok(count > 0)
 }
 
 async fn ensure_points_account(
@@ -5806,6 +5897,73 @@ mod tests {
             "pub async fn list_promotion_user_coupons(",
         );
         assert!(inner.contains("*resolved = Some(ResolvedRedemptionTarget"));
+    }
+
+    #[test]
+    fn spent_code_is_reported_as_already_redeemed_not_as_an_issue_limit() {
+        let source = include_str!("postgres_promotion.rs");
+        let guard = section_until(
+            source,
+            "async fn ensure_promotion_can_be_redeemed(",
+            "/// True when this subject already holds a redeemed coupon",
+        );
+
+        // The campaign-stock branch keeps the issue-limit wording: that message
+        // is true when the pool is exhausted.
+        assert!(guard.contains("promotion code has reached its issue limit"));
+        // The single-code branch reports the code's own state and looks up the
+        // owner's wallet row to tell "you already used it" apart from "someone
+        // else used it".
+        assert!(guard.contains("subject_already_redeemed_code(tx, command, &promotion.code_id)"));
+        assert!(guard.contains("promotion code was already redeemed by this account"));
+        assert!(guard.contains("promotion code has already been redeemed"));
+        // Only the two stock branches may still speak about the issue limit; the
+        // single-code branch must not.
+        assert_eq!(
+            guard
+                .matches("promotion code has reached its issue limit")
+                .count(),
+            2
+        );
+
+        // The owner probe reads the coupon ledger, scoped like every other guard.
+        let helper = section_until(
+            source,
+            "async fn subject_already_redeemed_code(",
+            "async fn ensure_points_account(",
+        );
+        assert!(helper.contains("FROM promotion_user_coupon"));
+        assert!(helper.contains("AND code_id = $5"));
+        assert!(helper.contains("LOWER(COALESCE(status, '')) = 'redeemed'"));
+        assert!(helper.contains("subject_id = CAST($4 AS TEXT)"));
+    }
+
+    #[test]
+    fn order_preview_records_rejection_evidence() {
+        let source = include_str!("postgres_promotion.rs");
+        let preview = section_until(
+            source,
+            "pub async fn preview_promotion_code_for_order(",
+            "async fn preview_promotion_code_for_order_in_tx(",
+        );
+        // The checkout preview is the first call of the app flow, so its
+        // rejections must reach the same evidence ledger the redemption uses.
+        assert!(preview.contains("record_redemption_failure_attempt"));
+        assert!(preview.contains("Some(&command.request_no)"));
+        assert!(preview.contains("CHANNEL_PREVIEW"));
+        assert!(preview.contains("preview_promotion_code_for_order_in_tx"));
+
+        let inner = section_until(
+            source,
+            "async fn preview_promotion_code_for_order_in_tx(",
+            "pub async fn redeem_promotion_code_for_order(",
+        );
+        assert!(inner.contains("*resolved = Some(ResolvedRedemptionTarget"));
+        assert!(inner.contains("ensure_promotion_can_be_redeemed"));
+        // The preview stays read-only: no counter or wallet write may happen.
+        assert!(!inner.contains("update_promotion_counters"));
+        assert!(!inner.contains("insert_user_coupon"));
+        assert!(!inner.contains("tx.commit()"));
     }
 
     #[test]

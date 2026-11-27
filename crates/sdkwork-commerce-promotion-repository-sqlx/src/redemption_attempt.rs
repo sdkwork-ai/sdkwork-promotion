@@ -38,6 +38,11 @@ pub(crate) const CHANNEL_PREVIEW: &str = "preview";
 
 pub(crate) const FAILURE_CODE_UNAVAILABLE: &str = "code_unavailable";
 pub(crate) const FAILURE_CODE_ISSUE_LIMIT: &str = "issue_limit_reached";
+/// The submitted single-use code was already consumed by another subject.
+pub(crate) const FAILURE_CODE_ALREADY_REDEEMED: &str = "code_already_redeemed";
+/// The submitted single-use code was already consumed by this same subject.
+pub(crate) const FAILURE_CODE_ALREADY_REDEEMED_BY_SUBJECT: &str =
+    "code_already_redeemed_by_subject";
 pub(crate) const FAILURE_CODE_PER_USER_LIMIT: &str = "per_user_limit_reached";
 pub(crate) const FAILURE_CODE_IDEMPOTENCY_CONFLICT: &str = "idempotency_conflict";
 pub(crate) const FAILURE_CODE_REDEMPTION_IN_PROGRESS: &str = "redemption_in_progress";
@@ -63,6 +68,16 @@ const REDEMPTION_REJECTION_MESSAGES: &[(&str, &str)] = &[
     (
         "promotion code has reached its issue limit",
         FAILURE_CODE_ISSUE_LIMIT,
+    ),
+    // `ensure_promotion_can_be_redeemed`: this single-use code is spent. The
+    // campaign stock may still have capacity, so it is not an issue limit.
+    (
+        "promotion code has already been redeemed",
+        FAILURE_CODE_ALREADY_REDEEMED,
+    ),
+    (
+        "promotion code was already redeemed by this account",
+        FAILURE_CODE_ALREADY_REDEEMED_BY_SUBJECT,
     ),
     // `ensure_promotion_can_be_redeemed`: the subject already received its cap.
     (
@@ -362,6 +377,14 @@ mod tests {
             (
                 "promotion code has reached its issue limit",
                 FAILURE_CODE_ISSUE_LIMIT,
+            ),
+            (
+                "promotion code has already been redeemed",
+                FAILURE_CODE_ALREADY_REDEEMED,
+            ),
+            (
+                "promotion code was already redeemed by this account",
+                FAILURE_CODE_ALREADY_REDEEMED_BY_SUBJECT,
             ),
             (
                 "promotion code subject receive limit has been reached",
